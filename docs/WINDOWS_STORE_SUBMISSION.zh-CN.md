@@ -1,6 +1,6 @@
 # Windows 版 Microsoft Store 打包
 
-此命令为 Partner Center 中的 **HostTap** 产品打包。Windows 应用显示名为 **HostTap Remote**，包含 x64 和 arm64。它只在本机生成文件，不会上传。
+此命令为 Partner Center 中已保留名称 **HostTap** 的产品打包。包清单显示名使用 **HostTap**，生成 x64 和 arm64 的 Windows 桌面包。它只在本机生成文件，不会上传。
 
 ## 在 Windows PowerShell 执行
 
@@ -29,8 +29,8 @@ $identityJson = @'
   "identityName": "GUIHUIHU.HostTap",
   "publisher": "CN=A4BEB966-7421-4DE4-83EB-CB29EEC65FCE",
   "publisherDisplayName": "GUIHUI HU",
-  "displayName": "HostTap Remote",
-  "version": "1.0.0.0"
+  "displayName": "HostTap",
+  "version": "1.0.0.1"
 }
 '@
 $identityJson | Set-Content .\packaging\windows-store\store-identity.json -Encoding UTF8
@@ -46,10 +46,18 @@ $makeappx = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\
 if (-not $makeappx) { throw '找不到 makeappx.exe；请安装 Windows SDK 后重试。' }
 $env:SOFATAP_WINDOWS_SDK_BIN = $makeappx.DirectoryName
 
-# 构建 x64 + arm64 MSIX，并检查生成结果
+# 构建 Windows.Desktop 的 x64 + arm64 MSIX，并检查生成结果
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-msix.ps1
 Get-Item .\artifacts\msix\packages\HostTap-Remote.msixupload
 Get-Content .\artifacts\msix\packages\HostTap-Remote.msixupload.sha256
 ```
 
-生成的 `artifacts\msix\packages\HostTap-Remote.msixupload` 才是之后在 Partner Center「包 / Packages」中使用的文件。不要上传单独的 `.msix` 或 `.msixbundle`。商店包无需本地签名；每次更新前提高 `version` 的四段版本号。
+## 上传到现有草稿
+
+在 Partner Center 打开 **HostTap → 提交 1 → 程序包 / Packages**：
+
+1. 选择 `artifacts\msix\packages\HostTap-Remote.msixupload`。文件名里的 `HostTap-Remote` 只是生成文件名；包清单中的商店显示名是已保留的 **HostTap**。
+2. 设备系列只勾选 **Windows 10/11 Desktop**；取消 **Windows 10/11 Xbox**、Mobile、Team 和 Mixed Reality。此应用的清单目标是 `Windows.Desktop`，不支持 Xbox；包里含 x64 架构也不会把桌面应用变成 Xbox 应用。“Let Microsoft decide whether to make this app available to any future device families”是单独设置，保留当前值即可。
+3. 如果草稿里还有旧的验证失败包，先删除旧包，再上传新生成的 `.msixupload`，等待 Partner Center 重新验证。不要提交认证，直到验证错误清零。
+
+不要上传单独的 `.msix` 或 `.msixbundle`。Microsoft Store 包无需本地签名。这个重打包版本从先前已上传的 `1.0.0.0` 提升为 `1.0.0.1`；之后每次更新都提高四段版本号。
