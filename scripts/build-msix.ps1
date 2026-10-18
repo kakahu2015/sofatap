@@ -85,11 +85,17 @@ $msixVersion = Resolve-StoreSetting 'SOFATAP_STORE_VERSION' 'version' $(
     while ($parts.Count -lt 3) { $parts += '0' }
     "$($parts[0]).$($parts[1]).$($parts[2]).0"
 )
-foreach ($part in $msixVersion.Split('.')) {
+$versionParts = $msixVersion.Split('.')
+foreach ($part in $versionParts) {
     $value = 0
     if (-not [int]::TryParse($part, [ref]$value) -or $value -lt 0 -or $value -gt 65535) {
         throw "SOFATAP_STORE_VERSION must be a four-part version with parts 0-65535: $msixVersion"
     }
+}
+# The Store reserves the fourth field for its own use: a submitted package must keep it at
+# 0, and Partner Center rejects anything else with "revision number other than zero".
+if ($versionParts.Count -ne 4 -or $versionParts[3] -ne '0') {
+    throw "SOFATAP_STORE_VERSION must end in .0 for Store submission, for example 1.0.1.0 (got $msixVersion)."
 }
 
 $artifacts = Join-Path $repo 'artifacts/msix'
