@@ -1,0 +1,8 @@
+{
+  "_comment": "Copy to store-identity.json and replace the three Partner Center values. This file is git-ignored. Environment variables still win over these fields.",
+  "identityName": "org.kakahu.hosttap",
+  "publisher": "CN=00000000-0000-0000-0000-000000000000",
+  "publisherDisplayName": "Kakahu",
+  "displayName": "HostTap Remote",
+  "version": "1.0.0.0"
+}

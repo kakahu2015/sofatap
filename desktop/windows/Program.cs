@@ -40,7 +40,7 @@ internal static class Program
             if (!options.Startup) showWindow.Set();
             return 0;
         }
-        if (options.ManagesStartup && healthTicket is null)
+        if (!StoreBuild.Packaged && options.ManagesStartup && healthTicket is null)
         {
             try
             {

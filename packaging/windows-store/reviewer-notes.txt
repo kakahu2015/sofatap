@@ -1,0 +1,58 @@
+Notes for certification — HostTap Remote (Windows)
+
+WHAT THIS APP IS
+HostTap Remote is the Windows receiver for the HostTap iPhone app. The phone acts as
+a wireless mouse, keyboard and text-entry device for the PC. The PC keeps displaying
+its own screen; the receiver never captures or streams the desktop.
+
+NO ACCOUNT, NO TEST CREDENTIALS
+There is no sign-in, subscription or license key. Every feature available to a paying
+customer is available to the reviewer without any account.
+
+HOW TO LAUNCH AND WHAT CAN BE CHECKED WITHOUT AN IPHONE
+1. Install the package and start "HostTap Remote" from the Start menu.
+2. The main window opens with the current receiver status, a QR code area and the
+   local address/port the receiver is listening on.
+3. Without the phone you can verify: the window renders correctly, the status field
+   reports that it is waiting for pairing, the local URL is displayed and can be
+   copied, the window can be minimized/restored, and Quit stops the receiver process.
+4. The companion iPhone app is required only to exercise pointer, click, drag, scroll,
+   key and text sending. It is published on the Apple App Store as the HostTap client
+   and is not bundled with this package.
+
+CAPTURED CONTENT
+The receiver displays only its own QR pairing payload and connection status. It does
+not request, record or display any other application's screen content, and it takes no
+screenshots.
+
+FULL-TRUST CAPABILITY JUSTIFICATION
+runFullTrust is required because this is a packaged Win32 desktop application:
+- it renders a WinForms window on the interactive desktop;
+- it starts its own child process (SofaTapHost.exe) that hosts the local pairing and
+  input service;
+- it needs to post synthesized mouse and keyboard input to the signed-in session after
+  the user has paired a phone.
+
+NETWORK USE
+The receiver listens on the local network only, on a local port, so the paired phone can
+connect. internetClient and privateNetworkClientServer cover this. No remote server is
+contacted; there is no telemetry endpoint and no cloud account service.
+
+WHAT THE PACKAGE DOES NOT DO
+- No screen streaming, screen recording or screen capture.
+- No unattended or scripted control; every action originates from a live phone session.
+- No lock-screen bypass, no Windows Hello bypass, no elevation or UAC automation.
+- No background service, no driver, no kernel component.
+- No bundled third-party installer and no silent download of additional binaries.
+
+PRIVACY
+The only stored data is the local pairing credential for the phone, written to the
+package's own local application data folder. It is not transmitted off the device. The
+privacy policy URL is provided in the listing.
+
+UPDATE BEHAVIOUR
+The package contains no in-app updater; updates are delivered by the Microsoft Store.
+
+CONTACT
+If certification needs a reproducible path to any specific check, reply with the check
+name and it will be documented in this file before resubmission.

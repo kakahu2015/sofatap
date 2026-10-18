@@ -16,6 +16,7 @@
     <Compile Include="../PairingWindow.cs" Link="PairingWindow.cs" />
     <Compile Include="../MintCalmControls.cs" Link="MintCalmControls.cs" />
     <Compile Include="../StartupRegistration.cs" Link="StartupRegistration.cs" />
+    <Compile Include="../StoreBuild.cs" Link="StoreBuild.cs" />
     <Compile Include="../NativeProtocol.cs" Link="NativeProtocol.cs" />
     <Compile Include="../BackendProcess.cs" Link="BackendProcess.cs" />
     <Compile Include="../UpdatePackage.cs" Link="UpdatePackage.cs" />

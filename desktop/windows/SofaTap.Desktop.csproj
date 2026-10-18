@@ -14,6 +14,8 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefaultItemExcludes>$(DefaultItemExcludes);tests/**;preview/**</DefaultItemExcludes>
+    <SofatapMsix Condition="'$(SofatapMsix)' == ''">false</SofatapMsix>
+    <DefineConstants Condition="'$(SofatapMsix)' == 'true'">$(DefineConstants);SOFATAP_MSIX</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets/SofaTap.ico" LogicalName="Sofatap.AppIcon" />

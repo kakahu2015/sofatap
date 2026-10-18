@@ -1,0 +1,35 @@
+Restricted capability: runFullTrust
+
+HostTap Remote is a packaged Win32 desktop application built with .NET WinForms. It is the
+Windows receiver for the HostTap iPhone app and does not run as a service, a driver or an
+elevated process.
+
+runFullTrust is required for three concrete reasons:
+
+1. Desktop window. The app renders its own window on the interactive desktop, which a
+   packaged classic application can only do in full-trust mode.
+
+2. Child process. The app starts SofaTapHost.exe, which ships inside the same package and
+   hosts the local pairing and input service. Process creation outside the package
+   container requires full trust.
+
+3. Input injection. After the user pairs a phone by scanning the QR code shown on the PC,
+   the app posts synthesized pointer and keyboard input to the current user session, so the
+   phone can act as a mouse and keyboard. This uses documented Win32 input APIs and requires
+   full trust.
+
+Scope boundaries:
+- No screen capture, screen streaming or remote desktop.
+- No unattended automation; every action originates from a live, paired phone session.
+- No lock-screen, Windows Hello or UAC bypass.
+- No background service, startup task, driver or kernel component.
+- No elevation request; the receiver runs as the signed-in standard user.
+- Network use is limited to a local listener on the local network so the paired phone can
+  connect. No telemetry or cloud account service is contacted.
+
+Data handling: the only persisted data is the pairing credential for the paired phone,
+stored in the package's own local application data folder. It is never transmitted off the
+device.
+
+Security model: pairing requires physical possession of the PC, because the QR payload is
+only displayed on the PC screen and encodes a single-use pairing secret.

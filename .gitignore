@@ -31,3 +31,5 @@ android/local.properties
 *.jks
 *.keystore
 packaging/macos-store/*.xcodeproj/
+packaging/windows-store/store-identity.json
+.workbuddy/

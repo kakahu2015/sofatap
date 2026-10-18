@@ -127,7 +127,9 @@ internal sealed class PairingWindow : Form
         _refresh.Click += async (_, _) => await RefreshAsync();
         _quit.Click += (_, _) => QuitReceiver();
         _startAtLogin.Checked = preview; // Synthetic first-launch appearance; no startup store is touched.
-        _startAtLogin.Enabled = !preview && options.ManagesStartup;
+        // Store/MSIX builds cannot launch through a shell:startup shortcut.
+        _startAtLogin.Visible = !StoreBuild.Packaged;
+        _startAtLogin.Enabled = !preview && options.ManagesStartup && !StoreBuild.Packaged;
         _startupHint.SetToolTip(_startAtLogin, Strings.Get("Run automatically when you log in. HostTap Remote keeps receiving phone input when the window is closed. Choose Quit to stop it."));
         _startAtLogin.CheckedChanged += (_, _) => ChangeStartup();
         if (!preview)
@@ -136,11 +138,15 @@ internal sealed class PairingWindow : Form
             {
                 _trayMenu = new ContextMenuStrip();
                 _trayMenu.Items.Add(Strings.Get("Open HostTap Remote"), null, (_, _) => ShowReceiver());
-                _checkUpdates = new ToolStripMenuItem(Strings.Get("Check for Updates…"), null, async (_, _) => await CheckUpdatesAsync(manual: true));
-                _automaticUpdates = new ToolStripMenuItem(Strings.Get("Automatically Check for and Download Updates")) { CheckOnClick = true, Checked = true };
-                _automaticUpdates.Click += (_, _) => ChangeAutomaticUpdates();
-                _installUpdate = new ToolStripMenuItem(Strings.Get("Install Update and Restart…"), null, (_, _) => InstallUpdate()) { Enabled = false };
-                _trayMenu.Items.AddRange([_checkUpdates, _automaticUpdates, _installUpdate, new ToolStripSeparator()]);
+                if (!StoreBuild.Packaged)
+                {
+                    _checkUpdates = new ToolStripMenuItem(Strings.Get("Check for Updates…"), null, async (_, _) => await CheckUpdatesAsync(manual: true));
+                    _automaticUpdates = new ToolStripMenuItem(Strings.Get("Automatically Check for and Download Updates")) { CheckOnClick = true, Checked = true };
+                    _automaticUpdates.Click += (_, _) => ChangeAutomaticUpdates();
+                    _installUpdate = new ToolStripMenuItem(Strings.Get("Install Update and Restart…"), null, (_, _) => InstallUpdate()) { Enabled = false };
+                    _trayMenu.Items.AddRange([_checkUpdates, _automaticUpdates, _installUpdate]);
+                }
+                _trayMenu.Items.Add(new ToolStripSeparator());
                 _trayMenu.Items.Add(Strings.Get("Quit HostTap Remote"), null, (_, _) => QuitReceiver());
                 _tray = new NotifyIcon { Icon = _brandIcon, Text = Strings.Get("HostTap Remote · Double-click to open"), ContextMenuStrip = _trayMenu, Visible = true };
                 _tray.DoubleClick += (_, _) => ShowReceiver();
@@ -233,8 +239,12 @@ internal sealed class PairingWindow : Form
             _refresh.SetBounds((width - buttonWidth * 2 - buttonGap) / 2, y, buttonWidth, S(36));
             _quit.SetBounds(_refresh.Right + buttonGap, y, buttonWidth, S(36));
             y += S(36) + S(12);
-            _startAtLogin.SetBounds(Math.Max(0, (width - S(160)) / 2), y, Math.Min(width, S(160)), S(30));
-            y += S(30) + S(24);
+            if (_startAtLogin.Visible)
+            {
+                _startAtLogin.SetBounds(Math.Max(0, (width - S(160)) / 2), y, Math.Min(width, S(160)), S(30));
+                y += S(30);
+            }
+            y += S(24);
             // A top-docked scroll child follows the viewport width. Keeping the
             // centered column inside it prevents WinForms from using an old
             // child X offset as horizontal overflow during a resize.
@@ -483,7 +493,7 @@ internal sealed class PairingWindow : Form
 
     private void InitializeUpdates()
     {
-        if (_preview || !_options.ManagesStartup) return;
+        if (_preview || !_options.ManagesStartup || StoreBuild.Packaged) return;
         try
         {
             _updates = new WindowsUpdates();
@@ -554,7 +564,7 @@ internal sealed class PairingWindow : Form
 
     private void InitializeStartup()
     {
-        if (!_options.ManagesStartup || _preview) return;
+        if (!_options.ManagesStartup || _preview || StoreBuild.Packaged) return;
         try
         {
             _startup ??= new StartupRegistration(new WindowsStartupStore());
