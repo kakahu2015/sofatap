@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="通过 Microsoft Store 分发的 HostTap Windows 接收器隐私政策。">
+  <meta name="theme-color" content="#e7f2ed">
+  <title>HostTap 隐私政策</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/zh-cn/" aria-label="HostTap 隐私政策首页"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="语言"><a href="/" lang="en" hreflang="en">English</a><span aria-current="page" lang="zh-CN">简体中文</span></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">你的设备，由你掌控。</p>
+        <h1>隐私政策</h1>
+        <p class="lead">当你通过已配对的手机控制 Windows 电脑时，HostTap 如何处理相关信息。</p>
+        <p class="date">生效日期：2026 年 10 月 19 日</p>
+      </div>
+
+      <aside class="summary" aria-label="政策摘要">
+        <p><strong>HostTap 在你已配对的设备之间直接传输遥控输入。</strong>Microsoft Store 版 Windows 接收器不提供 HostTap 账户、广告、跟踪、分析或崩溃报告上传服务。我们不出售你的数据，也不使用你的输入训练 AI。</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>本政策的适用范围</h2>
+          <p>本政策适用于由 <strong>GUIHUI HU</strong> 通过 Microsoft Store 发布的 HostTap Windows 接收器，以及本隐私政策网站。接收器基于开源 Sofatap 项目，其运行界面可能显示为“HostTap Remote”。</p>
+          <p>本政策不涵盖其他分发版本、未来服务，以及你使用的手机、输入法、语音识别服务或被控应用各自的隐私处理方式。</p>
+        </section>
+
+        <section aria-labelledby="control">
+          <h2 id="control"><span class="section-number">02</span>遥控输入与实时编辑</h2>
+          <p>鼠标移动、按键操作和文字通过采用证书固定的 TLS 连接，在已配对的设备之间直接传输。HostTap 没有内置云中继，也不会将这些输入发送到发布者运营的服务器。设备通常连接在同一网络，但实际网络路径取决于你的配置，不能保证只经过局域网。</p>
+          <p>当你主动使用<strong>实时编辑（live editing）</strong>时，接收器可以读取受支持的原生文字字段中的完整文字及选区，将其发送到手机，并同步你的编辑。密码、只读或不受支持的字段不能启动实时编辑。后台焦点提示只包含字段元数据，不包含字段文字。接收器在内存中临时保留字段快照和确认消息，连接结束后释放，不将字段文字写入日志或磁盘。</p>
+          <p>Windows 接收器不提供截图或画面流功能，也不采集麦克风音频。使用听写时，它接收手机识别后的文字；手机、输入法及语音识别服务适用各自的隐私政策。被控应用可能按照其自身设置和政策，保存或上传你输入的文字。</p>
+        </section>
+
+        <section aria-labelledby="storage">
+          <h2 id="storage"><span class="section-number">03</span>配对与电脑本地信息</h2>
+          <p>配对凭据、接收器 TLS 身份及设置保存在 Windows 当前用户的本地应用数据中。凭据使用 Windows DPAPI 按当前用户加以保护。电脑名称和网络地址用于在配对时识别并连接接收器。</p>
+          <p>只有当你选择 <strong>Copy Pairing Link（复制配对链接）</strong>时，接收器才会将配对链接写入剪贴板。Windows 剪贴板历史记录或同步可能根据你的系统设置保留或分享该链接。请妥善保护配对链接、二维码及凭据。</p>
+        </section>
+
+        <section aria-labelledby="choices">
+          <h2 id="choices"><span class="section-number">04</span>你的控制与数据保留</h2>
+          <p>在接收器的系统托盘菜单中选择 <strong>Quit（退出）</strong>可停止接收器。关闭窗口会将其隐藏，接收器仍会继续运行。你可以在手机上删除已保存的配对。</p>
+          <p>如需更换接收器保存的配对凭据，可完全退出接收器后删除其本地配对配置；下次启动时会生成新凭据。本地设置会保留至被删除。卸载应用或删除本地文件，不能保证 Windows、剪贴板或备份中的所有副本均已删除。</p>
+        </section>
+
+        <section aria-labelledby="services">
+          <h2 id="services"><span class="section-number">05</span>Microsoft Store、网站托管与支持</h2>
+          <p><strong>Microsoft Store。</strong>此版本由 Microsoft 分发和更新。Microsoft 可能依据 <a href="https://privacy.microsoft.com/zh-cn/privacystatement" rel="noreferrer">Microsoft 隐私声明</a>处理商店、安装及诊断信息。</p>
+          <p><strong>本网站。</strong>Cloudflare Pages 提供 HTTPS 托管。Cloudflare 依据其<a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">隐私政策</a>处理 IP 地址等网络及请求信息，以交付和保护网站。我们没有在本站添加广告、跟踪脚本、分析、表单或浏览器存储。托管服务商可能依据其自身政策处理信息或使用 Cookie。</p>
+          <p><strong>问题支持。</strong>如果你主动发送邮件到 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>，GUIHUI HU 会收到你的邮件地址和你主动提供的内容，用于回复和处理请求。请勿通过邮件发送密码、配对链接、二维码、配对码、私人字段文字或其他敏感信息。我们在处理请求所需的时间内保留支持邮件；你可以通过邮件申请删除。邮件服务商依据其自身政策和设置处理并保留其副本。</p>
+        </section>
+
+        <section aria-labelledby="sharing">
+          <h2 id="sharing"><span class="section-number">06</span>信息的使用与分享</h2>
+          <p>遥控数据在你已配对的设备之间处理。我们不出售这些数据，不将其提供给广告服务，也不使用这些数据训练 AI。上述第三方处理仅涉及 Microsoft Store、网站交付，以及你主动提交的支持信息。如果适用法律要求，我们可能披露你主动提供给我们的信息。</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">07</span>儿童</h2>
+          <p>我们不会通过接收器有意收集儿童的个人信息。使用者自行控制配对哪些设备，以及通过这些设备输入或分享什么内容。</p>
+        </section>
+
+        <section aria-labelledby="changes">
+          <h2 id="changes"><span class="section-number">08</span>政策更新与联系</h2>
+          <p>当 HostTap 的行为或本政策所述服务发生变化时，我们可能更新本政策。页面顶部的生效日期标识当前版本。</p>
+          <p>如有隐私问题，或希望删除支持邮件，可通过 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a> 联系 GUIHUI HU。</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap · 发布者 GUIHUI HU</p><a href="/" lang="en" hreflang="en">English privacy policy <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

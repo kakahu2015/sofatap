@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for the HostTap Windows receiver distributed through Microsoft Store.">
+  <meta name="theme-color" content="#e7f2ed">
+  <title>HostTap Privacy Policy</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="HostTap privacy home"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="Language"><span aria-current="page" lang="en">English</span><a href="/zh-cn/" lang="zh-CN" hreflang="zh-CN">简体中文</a></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">Your devices. Your control.</p>
+        <h1>Privacy policy</h1>
+        <p class="lead">How HostTap handles information when you control your Windows computer from a paired phone.</p>
+        <p class="date">Effective October 19, 2026</p>
+      </div>
+
+      <aside class="summary" aria-label="Policy at a glance">
+        <p><strong>HostTap sends remote-control input directly between your paired devices.</strong> The Microsoft Store Windows receiver has no HostTap account, advertising, tracking, analytics, or crash-upload service. We do not sell your data or use your input to train AI.</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>What this policy covers</h2>
+          <p>This policy covers the HostTap Windows receiver published by <strong>GUIHUI HU</strong> through Microsoft Store and this privacy website. The receiver is based on the open-source Sofatap project; its running interface may display “HostTap Remote.”</p>
+          <p>It does not describe other distributions, future services, or the privacy practices of your phone, keyboard, speech-recognition provider, or applications you control.</p>
+        </section>
+
+        <section aria-labelledby="control">
+          <h2 id="control"><span class="section-number">02</span>Remote input and live editing</h2>
+          <p>Mouse movements, button presses, keyboard actions, and text are sent directly between paired devices over TLS with certificate pinning. HostTap has no built-in cloud relay and does not send this input to a publisher-operated server. Devices usually connect on the same network, but the network route depends on your setup and is not guaranteed to stay only within a local network.</p>
+          <p>When you explicitly use <strong>live editing</strong>, the receiver can read the full text and selection of a supported native text field, send them to the phone, and synchronize your edits. Password, read-only, and unsupported fields cannot start live editing. Background focus hints contain field metadata, rather than field text. The receiver keeps field snapshots and acknowledgements temporarily in memory, releases them when the connection ends, and does not write field text to its logs or disk.</p>
+          <p>The Windows receiver does not provide screenshots or screen streaming, and it does not capture microphone audio. For dictation it receives text recognized on the phone; the phone, keyboard, and speech-recognition service have their own privacy practices. Applications you control may save or upload the text you enter according to their own settings and policies.</p>
+        </section>
+
+        <section aria-labelledby="storage">
+          <h2 id="storage"><span class="section-number">03</span>Pairing and information on your computer</h2>
+          <p>Pairing credentials, the receiver’s TLS identity, and settings are stored in the Windows user’s local application data. Credentials are protected using Windows DPAPI for the current user. Your computer name and network addresses are used to identify and connect to the receiver during pairing.</p>
+          <p>The receiver writes a pairing link to the clipboard only when you choose <strong>Copy Pairing Link</strong>. Windows clipboard history or synchronization may retain or share that link according to your Windows settings. Treat pairing links, QR codes, and credentials as private.</p>
+        </section>
+
+        <section aria-labelledby="choices">
+          <h2 id="choices"><span class="section-number">04</span>Your controls and retention</h2>
+          <p>Choose <strong>Quit</strong> from the receiver’s system-tray menu to stop it. Closing its window hides it while the receiver continues running. You can remove a saved pairing from the phone.</p>
+          <p>To replace the receiver’s saved pairing credentials, fully quit it and remove its local pairing configuration; it generates new credentials on the next launch. Local settings remain until removed. Uninstalling the app or removing local files does not guarantee that every Windows, clipboard, or backup copy is deleted.</p>
+        </section>
+
+        <section aria-labelledby="services">
+          <h2 id="services"><span class="section-number">05</span>Microsoft Store, website hosting, and support</h2>
+          <p><strong>Microsoft Store.</strong> Microsoft distributes and updates this version of HostTap. Microsoft may process Store, installation, and diagnostic information under the <a href="https://privacy.microsoft.com/privacystatement" rel="noreferrer">Microsoft Privacy Statement</a>.</p>
+          <p><strong>This website.</strong> Cloudflare Pages provides HTTPS hosting. Cloudflare processes network and request information, such as IP addresses, to deliver and protect the website under the <a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">Cloudflare Privacy Policy</a>. We add no advertising, tracking scripts, analytics, forms, or browser storage to this site. The hosting provider may process information or use cookies under its own policies.</p>
+          <p><strong>Support.</strong> If you email <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>, GUIHUI HU receives your email address and the content you choose to provide, and uses them to reply and handle your request. Do not email passwords, pairing links, QR codes, pairing codes, private field text, or other sensitive information. We retain support correspondence for as long as needed to handle your request; you can email us to request its deletion. Email providers process and retain their own copies according to their policies and settings.</p>
+        </section>
+
+        <section aria-labelledby="sharing">
+          <h2 id="sharing"><span class="section-number">06</span>Use and sharing of information</h2>
+          <p>Remote-control data is processed between your paired devices. We do not sell it, send it to an advertising service, or use it to train AI. The third-party processing described above concerns Microsoft Store, website delivery, and support information you choose to submit. Information voluntarily provided to us may be disclosed if required by applicable law.</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">07</span>Children</h2>
+          <p>We do not knowingly collect children’s personal information through the receiver. Users control which devices they pair and what they enter or share through those devices.</p>
+        </section>
+
+        <section aria-labelledby="changes">
+          <h2 id="changes"><span class="section-number">08</span>Changes and contact</h2>
+          <p>We may update this policy when HostTap’s behavior or the services described here change. The effective date above identifies the current version.</p>
+          <p>For privacy questions or requests to delete support correspondence, contact GUIHUI HU at <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap · Published by GUIHUI HU</p><a href="/zh-cn/" lang="zh-CN" hreflang="zh-CN">中文隐私政策 <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>
