@@ -22,37 +22,47 @@ internal sealed class PairingWindow : Form
     private readonly System.Windows.Forms.Timer _updateTimer = new() { Interval = 60 * 60 * 1000 };
     private readonly CheckBox _startAtLogin = new()
     {
-        Text = "登录后启动", AutoSize = false, TabIndex = 4,
+        Text = Strings.Get("Launch at login"), AutoSize = false, TabIndex = 4,
         ForeColor = MintCalm.Muted, BackColor = Color.Transparent,
-        AccessibleName = "登录后启动 Sofatap",
-        AccessibleDescription = "首次打开默认启用。Windows 启动应用设置仍可禁止自启。"
+        AccessibleName = Strings.Get("Launch at login"),
+        AccessibleDescription = Strings.Get("Enabled by default on first launch. Windows Settings → Apps → Startup can still disable HostTap Remote.")
     };
     private readonly bool _preview;
     private readonly Panel _scroll = new() { Dock = DockStyle.Fill, AutoScroll = true, BackColor = MintCalm.Canvas };
     private readonly Panel _content = new() { Dock = DockStyle.Top, BackColor = MintCalm.Canvas };
     private readonly Panel _column = new() { BackColor = MintCalm.Canvas };
-    private readonly StatusBadge _status = new() { Text = "正在准备配对" };
-    private readonly Label _headline = TextLabel("扫码，坐回沙发", MintCalm.Text);
-    private readonly Label _helper = TextLabel("在 iPhone 上打开 Sofatap，扫描二维码", MintCalm.Muted);
+    private readonly StatusBadge _status = new() { Text = Strings.Get("Preparing receiver") };
+    private readonly Label _helper = TextLabel(Strings.Get("Open the companion app on your iPhone and scan the QR code"), MintCalm.Muted);
     private readonly RoundedSurface _card = new();
-    private readonly Label _machine = TextLabel("正在启动电脑接收端…", MintCalm.Text);
+    private readonly Label _machine = TextLabel(Strings.Get("Starting computer receiver…"), MintCalm.Text);
     private readonly ComboBox _addresses = new()
     {
         DropDownStyle = ComboBoxStyle.DropDownList, FlatStyle = FlatStyle.Flat,
         BackColor = MintCalm.Surface, ForeColor = MintCalm.Text,
-        AccessibleName = "电脑局域网地址", AccessibleDescription = "选择 iPhone 可以访问的电脑网络地址。", TabIndex = 0,
+        AccessibleName = Strings.Get("Computer network address"),
+        AccessibleDescription = Strings.Get("Choose the computer network address your iPhone can reach."), TabIndex = 0,
         Enabled = false, IntegralHeight = true
     };
-    private readonly QrView _qr = new() { AccessibleName = "iPhone 私密配对二维码", Text = "正在生成二维码…" };
+    private readonly QrView _qr = new()
+    {
+        AccessibleName = Strings.Get("iPhone private pairing QR code"),
+        Text = Strings.Get("Creating QR code…")
+    };
     private readonly CalmButton _copy = new(true)
     {
-        Text = "复制配对链接", Enabled = false, TabIndex = 1,
-        AccessibleName = "复制配对链接", AccessibleDescription = "将当前配对链接复制到剪贴板。链接可授权控制这台电脑，请勿分享。"
+        Text = Strings.Get("Copy Pairing Link"), Enabled = false, TabIndex = 1,
+        AccessibleName = Strings.Get("Copy Pairing Link"),
+        AccessibleDescription = Strings.Get("Copy the current pairing link to the clipboard. The link can grant control of this computer, so do not share it.")
     };
-    private readonly Label _networkHint = TextLabel("iPhone 与电脑请连接同一家庭网络", MintCalm.Muted);
-    private readonly Label _privacyHint = TextLabel("配对码和链接可控制这台电脑，请勿分享", MintCalm.Muted);
-    private readonly CalmButton _refresh = new(false) { Text = "刷新", Enabled = false, TabIndex = 2, AccessibleName = "刷新配对二维码" };
-    private readonly CalmButton _quit = new(false) { Text = "退出", TabIndex = 3, AccessibleName = "退出接收器", AccessibleDescription = "停止此窗口启动的接收进程并退出。" };
+    private readonly Label _networkHint = TextLabel(Strings.Get("Connect iPhone and computer to the same network"), MintCalm.Muted);
+    private readonly Label _privacyHint = TextLabel(Strings.Get("Keep your pairing code private"), MintCalm.Muted);
+    private readonly CalmButton _refresh = new(false) { Text = Strings.Get("Refresh"), Enabled = false, TabIndex = 2, AccessibleName = Strings.Get("Refresh pairing QR code") };
+    private readonly CalmButton _quit = new(false)
+    {
+        Text = Strings.Get("Quit"), TabIndex = 3,
+        AccessibleName = Strings.Get("Quit receiver"),
+        AccessibleDescription = Strings.Get("Stop the receiver process this window started and quit.")
+    };
     private PairingImage[] _pairings = [];
     private byte[]? _renderedPng;
     private string? _copyUri;
@@ -67,7 +77,7 @@ internal sealed class PairingWindow : Form
     private static Icon LoadBrandIcon()
     {
         using var stream = typeof(PairingWindow).Assembly.GetManifestResourceStream("Sofatap.AppIcon")
-            ?? throw new InvalidOperationException("The Sofatap app icon is missing from this build.");
+            ?? throw new InvalidOperationException("The HostTap Remote app icon is missing from this build.");
         using var icon = new Icon(stream);
         return (Icon)icon.Clone();
     }
@@ -88,7 +98,7 @@ internal sealed class PairingWindow : Form
         // LayoutContents then places children in the current device coordinates.
         AutoScaleDimensions = new SizeF(96, 96);
         AutoScaleMode = AutoScaleMode.Dpi;
-        Text = "Sofatap";
+        Text = Strings.ProductName;
         Icon = _brandIcon;
         ShowIcon = true;
         StartPosition = FormStartPosition.CenterScreen;
@@ -98,42 +108,41 @@ internal sealed class PairingWindow : Form
         BackColor = MintCalm.Canvas;
         ForeColor = MintCalm.Text;
         DoubleBuffered = true;
-        _headline.Font = new Font(Font.FontFamily, 23, FontStyle.Bold);
         _helper.Font = Font;
         _machine.Font = new Font(Font.FontFamily, 10.5f, FontStyle.Bold);
         _machine.TextAlign = ContentAlignment.MiddleLeft;
-        _machine.AccessibleName = "电脑名称";
+        _machine.AccessibleName = Strings.Get("Computer name");
         _copy.Font = new Font(Font.FontFamily, 11, FontStyle.Bold);
         _status.Font = new Font(Font.FontFamily, 9.5f);
         _networkHint.Font = _privacyHint.Font = new Font(Font.FontFamily, 9.5f);
         _card.Controls.AddRange([_qr, _machine, _addresses, _copy]);
-        _column.Controls.AddRange([_status, _headline, _helper, _card, _networkHint, _privacyHint, _refresh, _quit, _startAtLogin]);
+        _column.Controls.AddRange([_status, _helper, _card, _networkHint, _privacyHint, _refresh, _quit, _startAtLogin]);
         _content.Controls.Add(_column);
         _scroll.Controls.Add(_content);
         Controls.Add(_scroll);
         _scroll.ClientSizeChanged += (_, _) => LayoutContents();
-        _copyFeedback.Tick += (_, _) => { _copyFeedback.Stop(); _copy.Text = "复制配对链接"; };
+        _copyFeedback.Tick += (_, _) => { _copyFeedback.Stop(); _copy.Text = Strings.Get("Copy Pairing Link"); };
         _addresses.SelectedIndexChanged += (_, _) => { if (!_updating) RenderQr(); };
         _copy.Click += (_, _) => CopyPairingLink();
         _refresh.Click += async (_, _) => await RefreshAsync();
         _quit.Click += (_, _) => QuitReceiver();
         _startAtLogin.Checked = preview; // Synthetic first-launch appearance; no startup store is touched.
         _startAtLogin.Enabled = !preview && options.ManagesStartup;
-        _startupHint.SetToolTip(_startAtLogin, "配置当前用户的登录启动项。Windows 设置 → 应用 → 启动仍可禁止 Sofatap 自启。");
+        _startupHint.SetToolTip(_startAtLogin, Strings.Get("Run automatically when you log in. HostTap Remote keeps receiving phone input when the window is closed. Choose Quit to stop it."));
         _startAtLogin.CheckedChanged += (_, _) => ChangeStartup();
         if (!preview)
         {
             if (options.ManagesStartup)
             {
                 _trayMenu = new ContextMenuStrip();
-                _trayMenu.Items.Add("打开 Sofatap", null, (_, _) => ShowReceiver());
-                _checkUpdates = new ToolStripMenuItem("检查更新…", null, async (_, _) => await CheckUpdatesAsync(manual: true));
-                _automaticUpdates = new ToolStripMenuItem("自动下载更新（下次打开时安装）") { CheckOnClick = true, Checked = true };
+                _trayMenu.Items.Add(Strings.Get("Open HostTap Remote"), null, (_, _) => ShowReceiver());
+                _checkUpdates = new ToolStripMenuItem(Strings.Get("Check for Updates…"), null, async (_, _) => await CheckUpdatesAsync(manual: true));
+                _automaticUpdates = new ToolStripMenuItem(Strings.Get("Automatically Check for and Download Updates")) { CheckOnClick = true, Checked = true };
                 _automaticUpdates.Click += (_, _) => ChangeAutomaticUpdates();
-                _installUpdate = new ToolStripMenuItem("安装更新并重启…", null, (_, _) => InstallUpdate()) { Enabled = false };
+                _installUpdate = new ToolStripMenuItem(Strings.Get("Install Update and Restart…"), null, (_, _) => InstallUpdate()) { Enabled = false };
                 _trayMenu.Items.AddRange([_checkUpdates, _automaticUpdates, _installUpdate, new ToolStripSeparator()]);
-                _trayMenu.Items.Add("退出", null, (_, _) => QuitReceiver());
-                _tray = new NotifyIcon { Icon = _brandIcon, Text = "Sofatap · 双击打开", ContextMenuStrip = _trayMenu, Visible = true };
+                _trayMenu.Items.Add(Strings.Get("Quit HostTap Remote"), null, (_, _) => QuitReceiver());
+                _tray = new NotifyIcon { Icon = _brandIcon, Text = Strings.Get("HostTap Remote · Double-click to open"), ContextMenuStrip = _trayMenu, Visible = true };
                 _tray.DoubleClick += (_, _) => ShowReceiver();
             }
             if (options.Startup) { WindowState = FormWindowState.Minimized; ShowInTaskbar = false; }
@@ -174,17 +183,16 @@ internal sealed class PairingWindow : Form
             // Never impose a content width larger than the viewport, including
             // when Windows clamps a high-DPI window to a small work area.
             var width = Math.Max(1, Math.Min(S(424), _scroll.ClientSize.Width - outer * 2));
-            var y = S(24);
+            var y = S(30);
             var statusWidth = Math.Min(width, _status.GetPreferredSize(new Size(width, 0)).Width);
             var statusHeight = _status.GetPreferredSize(new Size(statusWidth, 0)).Height;
             _status.SetBounds((width - statusWidth) / 2, y, statusWidth, statusHeight);
-            y += statusHeight + S(12);
-            var headlineHeight = LabelHeight(_headline, width, 40);
-            _headline.SetBounds(0, y, width, headlineHeight);
-            y += headlineHeight + S(2);
+            y += statusHeight + S(16);
+            // The helper line is now the sole instruction heading; it replaces
+            // the removed headline so the status badge leads the QR card.
             var helperHeight = LabelHeight(_helper, width, 24);
             _helper.SetBounds(0, y, width, helperHeight);
-            y += helperHeight + S(18);
+            y += helperHeight + S(24);
             var inset = Math.Min(S(20), width / 12);
             var innerWidth = width - inset * 2;
             var qrSize = Math.Max(1, Math.Min(Math.Min(S(224), innerWidth), _scroll.ClientSize.Height - y - S(40)));
@@ -308,18 +316,25 @@ internal sealed class PairingWindow : Form
         catch (InvalidOperationException) { }
     }
 
+    // English source wording mirrors the macOS receiver's status title.
+    private static string StatusText(ReceiverState state)
+    {
+        if (state.DryRun || state.InputStatus == "dry_run")
+            return Strings.Format("Dry run · {0}", state.Connected ? Strings.Get("Phone connected") : Strings.Get("Waiting for iPhone"));
+        if (state.InputStatus != "ready")
+            return state.Connected ? Strings.Get("Phone connected · Desktop unavailable") : Strings.Get("Computer desktop unavailable");
+        if (!state.Connected && state.Pairings.Length == 0) return Strings.Get("No pairing address available");
+        return state.Connected ? Strings.Get("Phone connected · Desktop ready") : Strings.Get("Ready · Waiting for iPhone");
+    }
+
     private void ApplyState(ReceiverState state)
     {
         if (_stopping) return;
         _machine.Text = state.Name;
         _machine.AccessibleDescription = state.Name;
-        _status.Text = state.Pairings.Length == 0 ? "暂无可用网络地址" : state.DryRun ? "演练模式 · 输入已停用" : state.InputStatus switch
-        {
-            "ready" => state.Connected ? "iPhone 已连接 · 可以控制电脑" : "已就绪 · 等待 iPhone",
-            "accessibility_required" => "需要允许接收器控制电脑",
-            _ => "请登录并解锁电脑桌面"
-        };
-        _status.IndicatorColor = state.Pairings.Length > 0 && !state.DryRun && state.InputStatus == "ready" ? MintCalm.Mint : MintCalm.Attention;
+        _status.Text = StatusText(state);
+        _status.IndicatorColor = !state.DryRun && state.InputStatus == "ready" && (state.Connected || state.Pairings.Length > 0)
+            ? MintCalm.Mint : MintCalm.Attention;
         var selected = _addresses.SelectedItem as string;
         _updating = true;
         _pairings = state.Pairings;
@@ -349,7 +364,7 @@ internal sealed class PairingWindow : Form
     private void RenderQr()
     {
         var index = _addresses.SelectedIndex;
-        if (index < 0 || index >= _pairings.Length) { ClearQr("暂无可用网络地址\n连接家庭网络后刷新"); return; }
+        if (index < 0 || index >= _pairings.Length) { ClearQr(Strings.Get("No pairing address available\nConnect to a home network, then refresh")); return; }
         var pairing = _pairings[index];
         if (_renderedPng is null || !pairing.Png.AsSpan().SequenceEqual(_renderedPng))
         {
@@ -361,10 +376,10 @@ internal sealed class PairingWindow : Form
                 _renderedPng = pairing.Png;
             }
             catch (Exception error) when (error is ArgumentException or OutOfMemoryException)
-            { ClearQr("二维码暂时不可用\n请刷新后重试"); return; }
+            { ClearQr(Strings.Get("QR code temporarily unavailable\nRefresh and try again")); return; }
         }
         var uri = NativeProtocol.ValidPairingUri(pairing.Uri, pairing.Host);
-        if (_copyUri != uri) { _copyFeedback.Stop(); _copy.Text = "复制配对链接"; }
+        if (_copyUri != uri) { _copyFeedback.Stop(); _copy.Text = Strings.Get("Copy Pairing Link"); }
         _copyUri = uri;
         _copy.Enabled = uri is not null && _qr.HasImage;
     }
@@ -376,10 +391,10 @@ internal sealed class PairingWindow : Form
         {
             // The only clipboard write in this frontend; never invoked by status refresh or input delivery.
             Clipboard.SetText(_copyUri);
-            _copy.Text = "已复制配对链接";
+            _copy.Text = Strings.Get("Pairing link copied");
         }
         catch (Exception error) when (error is ExternalException or System.Threading.ThreadStateException)
-        { _copy.Text = "暂时无法复制，请重试"; }
+        { _copy.Text = Strings.Get("Unable to copy right now. Try again."); }
         _copyFeedback.Stop();
         _copyFeedback.Start();
     }
@@ -392,7 +407,7 @@ internal sealed class PairingWindow : Form
         _copyUri = null;
         _copyFeedback.Stop();
         _copy.Enabled = false;
-        _copy.Text = "复制配对链接";
+        _copy.Text = Strings.Get("Copy Pairing Link");
     }
 
     private void ShowBackendFailure()
@@ -404,9 +419,9 @@ internal sealed class PairingWindow : Form
         _addresses.Items.Clear();
         _addresses.Enabled = false;
         _updating = false;
-        _status.Text = "接收端连接已中断";
+        _status.Text = Strings.Get("Receiver unavailable");
         _status.IndicatorColor = MintCalm.Attention;
-        ClearQr("请退出并重新打开接收器\n确认完整解压了 Sofatap 安装包");
+        ClearQr(Strings.Get("Quit and reopen the receiver.\nMake sure the HostTap Remote package was extracted completely."));
         LayoutContents();
     }
 
@@ -439,14 +454,14 @@ internal sealed class PairingWindow : Form
         _refresh.Enabled = false;
         _quit.Enabled = false;
         _addresses.Enabled = false;
-        _status.Text = "正在退出接收器";
-        ClearQr("正在停止接收器…");
+        _status.Text = Strings.Get("Quitting");
+        ClearQr(Strings.Get("Stopping receiver…"));
         LayoutContents();
         try { await _backend.StopAsync(); }
         catch (Exception error) when (error is IOException or InvalidOperationException or System.ComponentModel.Win32Exception)
         {
-            _status.Text = "接收进程尚未退出";
-            _qr.Text = "请重试退出，或在任务管理器\n关闭 SofaTapHost";
+            _status.Text = Strings.Get("Receiver process has not exited");
+            _qr.Text = Strings.Get("Try quitting again, or end SofaTapHost in Task Manager.");
             _status.IndicatorColor = MintCalm.Attention;
             _stopping = false;
             _quit.Enabled = true;
@@ -458,7 +473,8 @@ internal sealed class PairingWindow : Form
             try { _ = UpdateApplication.StartPrepared(background: false); }
             catch (Exception error) when (WindowsUpdates.IsRecoverable(error))
             {
-                MessageBox.Show(this, "暂时无法安装更新。现有版本保持不变，请重新打开后重试。", "Sofatap", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, Strings.Get("Unable to install the update right now. The current version is unchanged; reopen the app and try again."),
+                    Strings.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         _allowClose = true;
@@ -489,7 +505,9 @@ internal sealed class PairingWindow : Form
         if (_installUpdate is not null) _installUpdate.Enabled = _updates.HasPreparedUpdate && !_stopping;
         if (_checkUpdates is not null)
         {
-            _checkUpdates.Text = _updates.HasPreparedUpdate ? "更新已下载 · 下次打开时安装" : _updates.Settings.LastError is not null ? "上次更新未完成 · 检查更新…" : "检查更新…";
+            _checkUpdates.Text = _updates.HasPreparedUpdate ? Strings.Get("Update downloaded · Installs next launch")
+                : _updates.Settings.LastError is not null ? Strings.Get("Last update incomplete · Check for Updates…")
+                : Strings.Get("Check for Updates…");
             _checkUpdates.ToolTipText = _updates.Settings.LastError ?? "";
         }
     }
@@ -503,12 +521,13 @@ internal sealed class PairingWindow : Form
             var message = await _updates.CheckAsync(manual);
             UpdateMenus();
             if (manual && !_stopping && !IsDisposed)
-                MessageBox.Show(this, message, "Sofatap 更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, message, Strings.Get("HostTap Remote Update"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception error) when (WindowsUpdates.IsRecoverable(error))
         {
             if (manual && !_stopping && !IsDisposed)
-                MessageBox.Show(this, "无法完成更新检查。请检查网络和安装目录写入权限后重试。现有版本保持不变。", "Sofatap 更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, Strings.Get("Unable to complete the update check. Check the network and installation folder write permissions, then try again. The current version is unchanged."),
+                    Strings.Get("HostTap Remote Update"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 
@@ -519,14 +538,16 @@ internal sealed class PairingWindow : Form
         catch (Exception error) when (WindowsUpdates.IsRecoverable(error))
         {
             _automaticUpdates.Checked = !_automaticUpdates.Checked;
-            MessageBox.Show(this, "无法保存更新设置，请检查当前用户的文件权限。", "Sofatap", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Strings.Get("Unable to save update settings. Check the current user's file permissions."),
+                Strings.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 
     private void InstallUpdate()
     {
         if (_updates?.HasPreparedUpdate != true || _stopping) return;
-        if (MessageBox.Show(this, "现在安装已校验的更新并重启接收器？当前手机连接会暂时断开，然后可自动重连。", "Sofatap 更新", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+        if (MessageBox.Show(this, Strings.Get("Install the verified update now and restart the receiver? The current phone connection will disconnect briefly and then reconnect automatically."),
+            Strings.Get("HostTap Remote Update"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
         _installUpdateRequested = true;
         QuitReceiver();
     }
@@ -567,9 +588,10 @@ internal sealed class PairingWindow : Form
 
     private void ShowStartupFailure()
     {
-        _startAtLogin.AccessibleDescription = "无法更新自动启动，请检查当前用户的启动文件夹权限。";
+        _startAtLogin.AccessibleDescription = Strings.Get("Unable to update automatic startup. Check the current user's startup folder permissions.");
         if (Visible && !_options.Startup)
-            MessageBox.Show(this, "无法更新自动启动。请检查启动文件夹权限，或在 Windows 设置 → 应用 → 启动中查看 Sofatap。", "Sofatap", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Strings.Get("Unable to update automatic startup. Check the startup folder permissions, or look for HostTap Remote in Windows Settings → Apps → Startup."),
+                Strings.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     internal void RequestShow() => OnUi(ShowReceiver);

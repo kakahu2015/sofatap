@@ -61,17 +61,17 @@ internal sealed class WindowsUpdates : IDisposable
     }
     internal async Task<string> CheckAsync(bool manual)
     {
-        if (!await _gate.WaitAsync(0)) return "正在检查或下载更新，请稍候。";
+        if (!await _gate.WaitAsync(0)) return Strings.Get("Checking for or downloading updates. Please wait.");
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         deadline.CancelAfter(TimeSpan.FromMinutes(10));
         try
         {
-            if (HasPreparedUpdate) return "更新已准备好，将在下次打开时安装；也可以选择“安装更新并重启”。";
+            if (HasPreparedUpdate) return Strings.Get("Update ready. It will install the next time you open the app; you can also choose Install Update and Restart.");
             if (!manual && !ShouldCheck(Settings, DateTimeOffset.UtcNow)) return "";
             // A manual action can retry failures, but repeated clicks cannot burn
             // GitHub's anonymous API quota within the same minute.
             if (manual && Settings.LastAttempt is { } attempt && DateTimeOffset.UtcNow - attempt < TimeSpan.FromMinutes(1))
-                return "刚刚检查过，请一分钟后重试。";
+                return Strings.Get("Checked just now. Try again in one minute.");
             Settings = Settings with { LastAttempt = DateTimeOffset.UtcNow, LastError = null };
             SaveSettings(Settings);
             var releases = await ReadReleasesAsync(deadline.Token);
@@ -80,7 +80,7 @@ internal sealed class WindowsUpdates : IDisposable
             if (candidate is null)
             {
                 Settings = Settings with { Failures = 0 }; SaveSettings(Settings);
-                return "已是最新版本（" + CurrentVersion + "）。";
+                return Strings.Format("HostTap Remote is up to date ({0}).", CurrentVersion);
             }
             // A managed manifest is mandatory before any in-place upgrade. This
             // prevents an updater from replacing an arbitrary extracted folder.
@@ -100,15 +100,15 @@ internal sealed class WindowsUpdates : IDisposable
                 AtomicJson(Path.Combine(directory, "ticket.json"), ticket);
                 Settings = Settings with { PendingTicket = id, Failures = 0 }; SaveSettings(Settings);
                 Changed?.Invoke();
-                return "Sofatap " + candidate.Version + " 已下载并校验，将在下次打开时安装。当前连接继续正常使用。";
+                return Strings.Format("HostTap Remote {0} was downloaded and verified. It will install the next time you open the app. The current connection keeps working.", candidate.Version);
             }
             catch { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); throw; }
         }
         catch (Exception error) when (IsRecoverable(error))
         {
-            Settings = Settings with { Failures = Math.Min(Settings.Failures + 1, 10), LastError = "更新检查失败，请检查网络或安装目录权限。" };
+            Settings = Settings with { Failures = Math.Min(Settings.Failures + 1, 10), LastError = Strings.Get("Update check failed. Check the network or installation folder permissions.") };
             try { SaveSettings(Settings); } catch (Exception saveError) when (IsRecoverable(saveError)) { }
-            if (manual) throw new IOException("无法完成更新检查。请检查网络和安装目录写入权限后重试。更新包必须提供 GitHub SHA-256 校验；现有版本保持不变。", error);
+            if (manual) throw new IOException(Strings.Get("Unable to complete the update check. Check the network and installation folder write permissions and try again. Update packages must provide GitHub SHA-256 verification; the current version is unchanged."), error);
             return "";
         }
         finally { _gate.Release(); }

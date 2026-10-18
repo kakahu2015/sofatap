@@ -1,4 +1,5 @@
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Text.Json;
 using QRCoder;
 using SofaTap.Desktop;
@@ -12,9 +13,20 @@ internal static class Program
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("WinForms rendering requires Windows.");
         var stable96 = args.Contains("--stable-96");
-        var paths = args.Where(argument => argument != "--stable-96").ToArray();
+        // Localization QA: the default follows the Windows UI language. An explicit
+        // language renders the other catalog without changing the machine setting.
+        var languageOption = args.FirstOrDefault(argument => argument.StartsWith("--ui-language=", StringComparison.Ordinal));
+        if (languageOption is not null)
+        {
+            var language = languageOption["--ui-language=".Length..];
+            if (language is not ("en" or "zh")) throw new ArgumentException("--ui-language must be en or zh.");
+            var culture = CultureInfo.GetCultureInfo(language == "zh" ? "zh-CN" : "en-US");
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+        }
+        var paths = args.Where(argument => argument != "--stable-96" && !argument.StartsWith("--ui-language=", StringComparison.Ordinal)).ToArray();
         if (paths.Length > 1 || paths.Any(path => path.StartsWith("--", StringComparison.Ordinal)))
-            throw new ArgumentException("Pass the screenshot output directory and optional --stable-96.");
+            throw new ArgumentException("Pass the screenshot output directory and optional --stable-96 or --ui-language=en|zh.");
         // Match production by default: an unaware fixture conceals an unscaled startup form.
         var dpiMode = stable96 ? HighDpiMode.DpiUnaware : HighDpiMode.PerMonitorV2;
         Require(Application.SetHighDpiMode(dpiMode), "The fixture must establish its DPI mode before creating a native handle.");
@@ -29,7 +41,7 @@ internal static class Program
         var png = qr.GetGraphic(5);
         const string host = "192.0.2.17"; // RFC 5737 documentation range.
         var demoLink = $"sofatap://pair?host={host}&port=53319&token={new string('D', 43)}&fingerprint={new string('0', 64)}";
-        var state = new ReceiverState("客厅电脑", "windows", "ready", false, false, [new PairingImage(host, png, demoLink)]);
+        var state = new ReceiverState(Strings.UsesChinese ? "客厅电脑" : "Living Room Computer", "windows", "ready", false, false, [new PairingImage(host, png, demoLink)]);
 
         // Do not replace the constructor's size here: that would hide startup-size regressions.
         using (var window = OpenPendingFixture())
@@ -54,7 +66,7 @@ internal static class Program
             CheckLayout(window, "permission", requireQrVisible: true);
             Capture(window, Path.Combine(output, "windows-permission.png"));
         }
-        using (var window = OpenFixture(state with { Name = "客厅电脑 · Living Room Computer with a long device name" }))
+        using (var window = OpenFixture(state with { Name = Strings.UsesChinese ? "客厅电脑 · Living Room Computer with a long device name" : "Living Room Computer with a long device name" }))
         {
             ResizeLogical(window, new Size(334, 510));
             Require(window.PreviewCanScroll, "A short, narrow window must keep overflow reachable by scrolling.");
@@ -90,10 +102,11 @@ internal static class Program
         File.WriteAllText(Path.Combine(output, "windows-layout.json"), JsonSerializer.Serialize(new
         {
             dpiMode = dpiMode.ToString(),
+            uiLanguage = Strings.UsesChinese ? "zh" : "en",
             scope = "Native off-screen fixtures at the current display DPI; no monitor switch or physical input acceptance.",
             layouts = Layouts
         }, new JsonSerializerOptions { WriteIndented = true }));
-        Console.WriteLine($"Rendered synthetic WinForms fixtures in {dpiMode}; verified {Layouts.Count} layouts at DPI {string.Join(", ", Layouts.Select(layout => layout.Dpi).Distinct())}. No backend, listener, clipboard write or desktop input was started.");
+        Console.WriteLine($"Rendered synthetic WinForms fixtures in {dpiMode} with UI language {(Strings.UsesChinese ? "zh" : "en")}; verified {Layouts.Count} layouts at DPI {string.Join(", ", Layouts.Select(layout => layout.Dpi).Distinct())}. No backend, listener, clipboard write or desktop input was started.");
     }
 
     private static PairingWindow OpenPendingFixture() => OpenWindow(PairingWindow.CreatePendingPreview());

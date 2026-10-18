@@ -19,7 +19,7 @@ internal static class Program
         if (options is null)
         {
             ApplicationConfiguration.Initialize();
-            MessageBox.Show("此启动器仅支持 --dry-run 演练或 --startup 后台启动参数。", "Sofatap", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Strings.Get("This launcher only supports the --dry-run or --startup argument."), Strings.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return 1;
         }
         if (options.StartupPreference is bool enabled)
@@ -48,7 +48,7 @@ internal static class Program
             }
             catch (Exception error) when (WindowsUpdates.IsRecoverable(error))
             {
-                try { WindowsUpdates.SaveSettings(WindowsUpdates.ReadSettings() with { PendingTicket = null, LastError = "自动更新尚未完成，现有版本继续可用。请重新检查更新。" }); }
+                try { WindowsUpdates.SaveSettings(WindowsUpdates.ReadSettings() with { PendingTicket = null, LastError = Strings.Get("Automatic update did not finish. The current version remains usable; check for updates again.") }); }
                 catch (Exception saveError) when (WindowsUpdates.IsRecoverable(saveError)) { }
             }
         }

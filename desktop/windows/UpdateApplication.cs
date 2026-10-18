@@ -165,7 +165,9 @@ internal static class UpdateApplication
             catch (Exception restoreError) when (WindowsUpdates.IsRecoverable(restoreError)) { restored = false; }
             if (ticket is not null)
             {
-                var message = restored ? "自动更新未完成，已保留原版本。可重新检查更新。" : "更新未完成。原版本保留在安装目录旁的 .Sofatap-backup- 文件夹，请恢复该目录。";
+                var message = restored
+                    ? Strings.Get("Automatic update did not finish; the previous version was kept. Check for updates again.")
+                    : Strings.Get("The update did not finish. The previous version was kept in the .Sofatap-backup- folder next to the installation folder; restore that folder.");
                 try
                 {
                     var settings = WindowsUpdates.ReadSettings();

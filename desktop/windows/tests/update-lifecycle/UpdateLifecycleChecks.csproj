@@ -10,5 +10,7 @@
   <ItemGroup>
     <Compile Include="../../UpdatePackage.cs" Link="UpdatePackage.cs" />
     <Compile Include="../../WindowsUpdates.cs" Link="WindowsUpdates.cs" />
+    <Compile Include="../../Localization/Strings.cs" Link="Localization/Strings.cs" />
+    <EmbeddedResource Include="../../Localization/Strings.zh.json" Link="Localization/Strings.zh.json" LogicalName="Sofatap.Localization.Strings.zh.json" WithCulture="false" />
   </ItemGroup>
 </Project>

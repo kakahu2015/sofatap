@@ -170,5 +170,6 @@ if (!OperatingSystem.IsWindows())
     finally { Directory.Delete(directory, recursive: true); }
 }
 count += StartupChecks.Run();
+count += LocalizationChecks.Run();
 count += await UpdateChecks.RunAsync();
-Console.WriteLine($"Passed {count} native Windows UI protocol/lifecycle checks; no WinForms window or real input was launched.");
+Console.WriteLine($"Passed {count} native Windows UI protocol/lifecycle/localization checks; no WinForms window or real input was launched.");

@@ -22,4 +22,6 @@ For optional comparison with earlier fixed-96-DPI images:
 dotnet run --project desktop/windows/preview/MintCalmPreview.csproj -c Release -- artifacts/mint-calm-96 --stable-96
 ```
 
+The default fixture UI language follows the Windows UI language. To render the other localization without changing the machine setting, pass `--ui-language=en` or `--ui-language=zh`, for example `-- artifacts/mint-calm-en --ui-language=en`. The layout assertions run in the selected language, so both catalogs receive the same fit and scrolling checks; the English fixture also uses an English example device name. `windows-layout.json` records the selected `uiLanguage`. These images still contain no real credential.
+
 The images establish native fixture rendering only; they do not prove signed installation, live QR pairing, input injection, interactive keyboard navigation, foreground startup focus or multi-monitor DPI behavior. The windows stay off-screen without activation. Physical high-DPI acceptance remains separate from these offline fixtures.

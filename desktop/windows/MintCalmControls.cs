@@ -109,7 +109,9 @@ internal sealed class QrView : Control
         var previous = _image;
         _image = image;
         previous?.Dispose();
-        AccessibleDescription = image is null ? Text : "在 iPhone 的 Sofatap 中扫描。二维码可授权控制这台电脑，请勿分享。";
+        AccessibleDescription = image is null
+            ? Text
+            : Strings.Get("Scan this QR code with the iPhone companion app to pair this computer. The QR code grants control of this computer; keep it private.");
         Invalidate();
     }
 

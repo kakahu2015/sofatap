@@ -8,8 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>SofaTap</AssemblyName>
     <Version>0.8.0-beta.1</Version>
-    <Product>Sofatap</Product>
-    <AssemblyTitle>Sofatap Receiver</AssemblyTitle>
+    <Product>HostTap Remote</Product>
+    <AssemblyTitle>HostTap Remote</AssemblyTitle>
     <ApplicationIcon>Assets/SofaTap.ico</ApplicationIcon>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -17,5 +17,6 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets/SofaTap.ico" LogicalName="Sofatap.AppIcon" />
+    <EmbeddedResource Include="Localization/Strings.zh.json" LogicalName="Sofatap.Localization.Strings.zh.json" WithCulture="false" />
   </ItemGroup>
 </Project>

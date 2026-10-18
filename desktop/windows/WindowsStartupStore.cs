@@ -62,7 +62,7 @@ internal sealed class WindowsStartupStore : IStartupStore
             link.SetPath(_executable);
             link.SetArguments("--startup");
             link.SetWorkingDirectory(directory);
-            link.SetDescription("Sofatap iPhone remote receiver");
+            link.SetDescription(Strings.Get("HostTap Remote iPhone remote receiver"));
             link.SetIconLocation(_executable, 0);
             file.Save(_shortcut, true);
             // Preserve this stable shortcut name and Windows' Startup Apps approval.
