@@ -69,7 +69,11 @@ public static class Protocol
                 return new(id, type, Button: button, Down: down);
             case "key":
                 var key = String(fields, "key");
-                if (!Keys.Contains(key)) throw new ProtocolException("Unsupported key.");
+                // The Mac shortcut bar also sends single ASCII letters and digits.
+                // Keep other platforms on their existing, implemented key allowlist.
+                var macShortcutKey = OperatingSystem.IsMacOS() && key.Length == 1
+                    && (key[0] is >= 'a' and <= 'z' or >= '0' and <= '9');
+                if (!Keys.Contains(key) && !macShortcutKey) throw new ProtocolException("Unsupported key.");
                 if (fields["modifiers"].ValueKind != JsonValueKind.Array || fields["modifiers"].GetArrayLength() > 4)
                     throw new ProtocolException("Invalid modifiers.");
                 var modifiers = fields["modifiers"].EnumerateArray().Select(item => item.ValueKind == JsonValueKind.String ? item.GetString()! : "").ToArray();

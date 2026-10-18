@@ -60,7 +60,7 @@ final class ReceiverController: ObservableObject {
         #endif
         let helper = Bundle.main.bundleURL.appendingPathComponent(helperPath)
         guard FileManager.default.isExecutableFile(atPath: helper.path) else {
-            fail("找不到 Mac 接收组件。请重新安装 Sofatap。")
+            fail(NSLocalizedString("Mac receiver component not found. Reinstall HostTap Remote.", comment: ""))
             return
         }
 
@@ -74,7 +74,7 @@ final class ReceiverController: ObservableObject {
             child.arguments?.append(contentsOf: ["--data-dir", directories.data.path])
             child.environment = directories.helperEnvironment(inherited: ProcessInfo.processInfo.environment)
         } catch {
-            fail("无法打开 Sofatap 的应用存储空间。请确认正在使用完整的 Mac App Store 应用。")
+            fail(NSLocalizedString("Unable to open HostTap Remote app storage. Make sure you are using the complete Mac App Store app.", comment: ""))
             return
         }
         #endif
@@ -83,7 +83,7 @@ final class ReceiverController: ObservableObject {
         child.standardError = errors
         // Writing after a child exit must throw EPIPE instead of terminating the UI with SIGPIPE.
         guard fcntl(input.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1) != -1 else {
-            fail("无法建立接收组件连接。请退出后重新打开 Sofatap。")
+            fail(NSLocalizedString("Unable to connect to the receiver component. Quit and reopen HostTap Remote.", comment: ""))
             return
         }
         child.terminationHandler = { [weak self] _ in
@@ -95,7 +95,7 @@ final class ReceiverController: ObservableObject {
             try child.run()
         } catch {
             cleanUp()
-            fail("无法启动 Mac 接收组件。请确认安装完整，并检查是否已打开另一个 Sofatap。")
+            fail(NSLocalizedString("Unable to start the Mac receiver. Check the installation and whether another copy of HostTap Remote is running.", comment: ""))
             return
         }
         // Only the child owns these ends after launch; close our copies so EOF is observable.
@@ -155,7 +155,7 @@ final class ReceiverController: ObservableObject {
         _ = AXIsProcessTrustedWithOptions(options)
         #endif
         accessRequested = true
-        accessNotice = "请在系统提示中打开设置，并允许 Sofatap Receiver。若没有出现提示，可点“打开系统设置”；列表中没有应用时，点 + 选择已安装的 Sofatap Receiver.app。"
+        accessNotice = NSLocalizedString("Open Settings from the system prompt and allow HostTap Remote. If no prompt appears, click Open System Settings. If the app is missing from the list, click + and select the installed HostTap Remote.app.", comment: "")
         // Leave the asynchronous system prompt in front. Do not concurrently ask
         // the helper to open Settings. Its periodic permission preflight remains the
         // authority for whether real input is available.
@@ -166,7 +166,7 @@ final class ReceiverController: ObservableObject {
         guard state?.inputStatus == "accessibility_required", state?.dryRun == false, !isStopping else { return }
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
         if !NSWorkspace.shared.open(url) {
-            accessNotice = "请手动打开系统设置 → 隐私与安全 → 辅助功能，允许 Sofatap Receiver，然后回到这里重新检查。"
+            accessNotice = NSLocalizedString("Open System Settings → Privacy & Security → Accessibility and allow HostTap Remote, then return here and refresh.", comment: "")
         }
     }
 
@@ -201,7 +201,7 @@ final class ReceiverController: ObservableObject {
             guard !Task.isCancelled, self.isStopping else { return }
             if child.isRunning {
                 self.isStopping = false
-                self.fail("接收组件尚未退出。请稍后再点“退出 Sofatap”。")
+                self.fail(NSLocalizedString("The receiver component has not stopped yet. Try Quit HostTap Remote again shortly.", comment: ""))
                 let callback = self.stopCompletion
                 self.stopCompletion = nil
                 callback?(false)
@@ -212,7 +212,7 @@ final class ReceiverController: ObservableObject {
     private func send(_ command: ReceiverCommand) {
         guard let commandStream else { return }
         if case .dropped = commandStream.yield(command) {
-            fail("接收组件暂时没有响应。请稍后重新检查。")
+            fail(NSLocalizedString("The receiver component is not responding. Try refreshing shortly.", comment: ""))
         }
     }
 
@@ -230,13 +230,13 @@ final class ReceiverController: ObservableObject {
         watchdog = Task { [weak self] in
             try? await Task.sleep(for: .seconds(8))
             guard !Task.isCancelled, let self, self.generation == id, !self.isStopping else { return }
-            self.fail("接收组件没有及时响应。请重新检查，或退出后再打开 Sofatap。")
+            self.fail(NSLocalizedString("The receiver component did not respond in time. Refresh, or quit and reopen HostTap Remote.", comment: ""))
         }
     }
 
     private func pipeFailed(id: UUID) {
         guard id == generation, process != nil, !isStopping else { return }
-        fail("与 Mac 接收组件的连接已中断。请重新打开 Sofatap。")
+        fail(NSLocalizedString("Connection to the Mac receiver component was lost. Reopen HostTap Remote.", comment: ""))
         if process?.isRunning == true { process?.terminate() }
     }
 
@@ -248,7 +248,7 @@ final class ReceiverController: ObservableObject {
         cleanUp()
         isStopping = false
         if wasStopping { callback?(true) }
-        else { fail(failure ?? "Mac 接收组件已停止。请重新检查，或退出后再打开 Sofatap。") }
+        else { fail(failure ?? NSLocalizedString("The Mac receiver component has stopped. Refresh, or quit and reopen HostTap Remote.", comment: "")) }
     }
 
     private func fail(_ message: String) {

@@ -19,10 +19,6 @@ if [ "$#" -gt 1 ]; then
 fi
 runtime="osx-$architecture"
 signing_identity="${SOFATAP_SIGN_IDENTITY:--}"
-if [ "$signing_identity" != "-" ] && [ "$signing_identity" != "Developer ID Application: CHEKUSU INC. (FKSR2JD63B)" ]; then
-  echo "Use the CHEKUSU Developer ID Application identity for signed distribution." >&2
-  exit 1
-fi
 dotnet_cmd="${SOFATAP_DOTNET:-$repo_dir/.tools/dotnet/dotnet}"
 if [ ! -x "$dotnet_cmd" ]; then
   dotnet_cmd="$(command -v dotnet || true)"
@@ -41,13 +37,13 @@ done
 # Dependency is pinned by archive SHA-256 and reverified before cached tools run.
 sparkle_dir="$(python3 scripts/macos/sparkle.py fetch "$repo_dir/.tools/Sparkle-2.10.0")"
 build_dir="$repo_dir/artifacts/macos-build/$runtime"
-release_name="SofaTap-macOS-$architecture"
+release_name="HostTap-Remote-macOS-$architecture"
 # File Provider/iCloud folders can attach FinderInfo to a newly created .app,
 # invalidating codesign. Assemble and sign outside that folder; publish the ZIP.
 stage_dir="$(mktemp -d "${TMPDIR:-/tmp}/sofatap-macos.XXXXXX")"
 trap 'rm -rf "$stage_dir"' EXIT
 release_dir="$stage_dir/$release_name"
-app_dir="$release_dir/Sofatap Receiver.app"
+app_dir="$release_dir/HostTap Remote.app"
 publish_dir="$build_dir/self-contained"
 mkdir -p "$build_dir"
 # Recreate only this architecture's generated publish directory.
@@ -111,10 +107,12 @@ if not re.fullmatch(r"[1-9][0-9]*", build):
 updates = json.loads((root / "scripts/macos/update-config.json").read_text())
 info = {
     "CFBundleInfoDictionaryVersion": "6.0",
-    "CFBundleIdentifier": "com.chekusu.sofatap.receiver",
+    "CFBundleDevelopmentRegion": "en",
+    "CFBundleLocalizations": ["en", "zh"],
+    "CFBundleIdentifier": "org.kakahu.hosttap",
     "CFBundleExecutable": "SofaTap",
-    "CFBundleName": "Sofatap Receiver",
-    "CFBundleDisplayName": "Sofatap Receiver",
+    "CFBundleName": "HostTap Remote",
+    "CFBundleDisplayName": "HostTap Remote",
     "CFBundlePackageType": "APPL",
     "CFBundleShortVersionString": short_version,
     "SofatapReleaseVersion": version,
@@ -133,7 +131,7 @@ info = {
     "LSMinimumSystemVersion": "15.0",
     "LSUIElement": False,
     "NSHighResolutionCapable": True,
-    "NSLocalNetworkUsageDescription": "Sofatap 通过家庭局域网接收你已配对的 iPhone 发来的鼠标和文字操作。",
+    "NSLocalNetworkUsageDescription": "HostTap Remote receives mouse and text input from your paired iPhone over your local network.",
     "NSHumanReadableCopyright": "Copyright © CHEKUSU INC. Sofatap is available under the MIT license.",
 }
 with (app / "Contents/Info.plist").open("wb") as output:
@@ -141,10 +139,12 @@ with (app / "Contents/Info.plist").open("wb") as output:
 (app / "Contents/PkgInfo").write_bytes(b"APPL????")
 PY
 
-# Format conversion only: use the repository's existing iPhone app artwork.
+ditto "$repo_dir/desktop/macos/Resources" "$app_dir/Contents/Resources"
+
+# Convert the macOS artwork to all required icon sizes.
 iconset="$build_dir/SofaTap.iconset"
 mkdir -p "$iconset"
-icon_source="$repo_dir/ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+icon_source="$repo_dir/desktop/macos/Assets/AppIcon.png"
 for points in 16 32 128 256 512; do
   sips -z "$points" "$points" "$icon_source" --out "$iconset/icon_${points}x${points}.png" >/dev/null
   pixels=$((points * 2))
@@ -170,10 +170,10 @@ cp docs/MAC-START.md "$app_dir/Contents/Resources/开始使用.md"
 sign_flags=(--force --sign "$signing_identity" --options runtime)
 if [ "$signing_identity" != "-" ]; then sign_flags+=(--timestamp); fi
 python3 scripts/macos/sparkle.py sign "$app_dir" "$signing_identity"
-codesign "${sign_flags[@]}" --identifier com.chekusu.sofatap.receiver.host \
+codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap.host \
   --entitlements scripts/macos/Receiver.entitlements.plist "$app_dir/Contents/Helpers/SofaTapHost"
-codesign "${sign_flags[@]}" --identifier com.chekusu.sofatap.receiver "$app_dir/Contents/MacOS/SofaTap"
-codesign "${sign_flags[@]}" --identifier com.chekusu.sofatap.receiver "$app_dir"
+codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap "$app_dir/Contents/MacOS/SofaTap"
+codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap "$app_dir"
 codesign --verify --deep --strict --verbose=2 "$app_dir"
 
 python3 - "$repo_dir" "$release_dir" "$runtime" "$dotnet_cmd" "$signing_identity" <<'PY'
@@ -188,12 +188,12 @@ root, release = map(Path, sys.argv[1:3])
 sys.path.insert(0, str(root / "scripts/macos"))
 from sparkle import inventory, FRAMEWORK
 updates = json.loads((root / "scripts/macos/update-config.json").read_text())
-exe = release / "Sofatap Receiver.app/Contents/MacOS/SofaTap"
+exe = release / "HostTap Remote.app/Contents/MacOS/SofaTap"
 manifest = {
     "runtime": sys.argv[3],
-    "bundleIdentifier": "com.chekusu.sofatap.receiver",
+    "bundleIdentifier": "org.kakahu.hosttap",
     "architectureCount": 1,
-    "signature": "ad-hoc" if sys.argv[5] == "-" else "Developer ID Application: CHEKUSU INC. (FKSR2JD63B)",
+    "signature": "ad-hoc" if sys.argv[5] == "-" else sys.argv[5],
     "hardenedRuntime": True,
     "notarized": False,
     "minimumMacOS": "15.0",
@@ -202,13 +202,13 @@ manifest = {
     "sdkVersion": subprocess.check_output([sys.argv[4], "--version"], cwd=root, text=True).strip(),
     "builtAt": datetime.now(timezone.utc).isoformat(),
     "executableSHA256": hashlib.sha256(exe.read_bytes()).hexdigest(),
-    "backendSHA256": hashlib.sha256((release / "Sofatap Receiver.app/Contents/Helpers/SofaTapHost").read_bytes()).hexdigest(),
+    "backendSHA256": hashlib.sha256((release / "HostTap Remote.app/Contents/Helpers/SofaTapHost").read_bytes()).hexdigest(),
     "pairingUI": "native AppKit and SwiftUI",
-    "iconSource": "ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+    "iconSource": "desktop/macos/Assets/AppIcon.png",
     "physicalInputVerified": False,
     "updateFramework": {"name": "Sparkle", "version": updates["sparkleVersion"],
         "archiveSHA256": updates["sparkleArchiveSHA256"],
-        "files": inventory(release / "Sofatap Receiver.app" / FRAMEWORK)},
+        "files": inventory(release / "HostTap Remote.app" / FRAMEWORK)},
 }
 (release / "BUILD-MANIFEST.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 PY
@@ -222,9 +222,9 @@ if [ -n "${SOFATAP_MAC_STAGING:-}" ]; then
   ditto "$release_dir" "$SOFATAP_MAC_STAGING/$release_name"
 fi
 
-archive="$repo_dir/artifacts/SofaTap-macOS-$architecture.zip"
+archive="$repo_dir/artifacts/HostTap-Remote-macOS-$architecture.zip"
 rm -f "$archive"
 ditto -c -k --sequesterRsrc --keepParent "$release_dir" "$archive"
 cd "$repo_dir/artifacts"
-shasum -a 256 "SofaTap-macOS-$architecture.zip" > "SofaTap-macOS-$architecture.zip.sha256"
-echo "Built artifacts/SofaTap-macOS-$architecture.zip (signed: $signing_identity; notarization is a separate verified step)"
+shasum -a 256 "HostTap-Remote-macOS-$architecture.zip" > "HostTap-Remote-macOS-$architecture.zip.sha256"
+echo "Built artifacts/HostTap-Remote-macOS-$architecture.zip (signed: $signing_identity; notarization is a separate verified step)"

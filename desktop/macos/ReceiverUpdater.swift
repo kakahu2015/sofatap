@@ -27,13 +27,13 @@ final class ReceiverUpdater: NSObject, NSMenuItemValidation {
         #if SOFATAP_MAC_APP_STORE
         // The Mac listing is not published yet. Open Apple's Updates page instead
         // of inventing an app id or routing a sandboxed build to a website installer.
-        let item = menu.addItem(withTitle: "在 App Store 检查更新…", action: #selector(openStoreUpdates), keyEquivalent: "")
+        let item = menu.addItem(withTitle: NSLocalizedString("Check for Updates in the App Store…", comment: ""), action: #selector(openStoreUpdates), keyEquivalent: "")
         item.target = self
         #elseif SOFATAP_SPARKLE && !SOFATAP_UI_FIXTURE
-        let check = menu.addItem(withTitle: "检查更新…", action: #selector(checkForUpdates), keyEquivalent: "")
+        let check = menu.addItem(withTitle: NSLocalizedString("Check for Updates…", comment: ""), action: #selector(checkForUpdates), keyEquivalent: "")
         check.target = self
         checkItem = check
-        let automatic = menu.addItem(withTitle: "自动检查并下载更新", action: #selector(toggleAutomaticUpdates), keyEquivalent: "")
+        let automatic = menu.addItem(withTitle: NSLocalizedString("Automatically Check for and Download Updates", comment: ""), action: #selector(toggleAutomaticUpdates), keyEquivalent: "")
         automatic.target = self
         automaticItem = automatic
         #endif
@@ -121,9 +121,9 @@ extension ReceiverUpdater: SPUUpdaterDelegate {
             isStarting: receiver.isStarting, isStopping: receiver.isStopping) { return false }
         postponedInstall = installHandler
         let alert = NSAlert()
-        alert.messageText = "更新已准备好"
-        alert.informativeText = "请先在手机上断开与这台 Mac 的连接。断开后，Sofatap 会安装更新并重新启动。"
-        alert.addButton(withTitle: "好")
+        alert.messageText = NSLocalizedString("Update Ready", comment: "")
+        alert.informativeText = NSLocalizedString("Disconnect your phone from this Mac first. HostTap Remote will then install the update and restart.", comment: "")
+        alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
         if let window = NSApp.windows.first(where: \.isVisible) { alert.beginSheetModal(for: window) }
         else { alert.runModal() }
         return true

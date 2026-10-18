@@ -67,7 +67,7 @@ final class ReceiverLoginItem: ObservableObject {
     }
 
     static func canManage(arguments: [String], bundleIdentifier: String?, bundleURL: URL) -> Bool {
-        bundleIdentifier == "com.chekusu.sofatap.receiver" && bundleURL.pathExtension == "app"
+        (bundleIdentifier == "com.chekusu.sofatap.receiver" || bundleIdentifier == "org.kakahu.hosttap") && bundleURL.pathExtension == "app"
             && !arguments.contains("--dry-run")
             && !arguments.contains(where: { $0.hasPrefix("--test-display-id") })
     }
@@ -115,7 +115,7 @@ final class ReceiverLoginItem: ObservableObject {
                 try service.unregister()
             }
         } catch {
-            failure = requested ? "无法启用登录时启动，请检查系统设置。" : "无法关闭登录时启动，请检查系统设置。"
+            failure = requested ? NSLocalizedString("Unable to enable launch at login. Check System Settings.", comment: "") : NSLocalizedString("Unable to disable launch at login. Check System Settings.", comment: "")
         }
         refresh()
     }
