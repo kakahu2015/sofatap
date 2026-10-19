@@ -1,0 +1,64 @@
+name: Package Windows x64 Portable
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-windows-portable-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Unsigned Windows x64 portable ZIP
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Verify .NET 10 SDK
+        run: |
+          dotnet --list-sdks
+          dotnet --list-sdks | grep -q '^10\.'
+
+      - name: Build unsigned Windows x64 portable package
+        run: |
+          chmod +x ./scripts/build-windows.sh
+          SOFATAP_DOTNET="$(command -v dotnet)" ./scripts/build-windows.sh
+
+      - name: Verify portable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip='artifacts/SofaTap-Windows-x64.zip'
+          sha='artifacts/SofaTap-Windows-x64.zip.sha256'
+
+          test -f "$zip"
+          test -f "$sha"
+
+          expected="$(awk '{print tolower($1)}' "$sha")"
+          actual="$(sha256sum "$zip" | awk '{print tolower($1)}')"
+          test "$actual" = "$expected"
+
+          unzip -l "$zip" | grep -q 'SofaTap-Windows-x64/SofaTap.exe'
+          unzip -l "$zip" | grep -q 'SofaTap-Windows-x64/SofaTapHost.exe'
+
+          ls -lh "$zip" "$sha"
+
+      - name: Upload unsigned portable package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: HostTap-Windows-x64-unsigned
+          path: |
+            artifacts/SofaTap-Windows-x64.zip
+            artifacts/SofaTap-Windows-x64.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
