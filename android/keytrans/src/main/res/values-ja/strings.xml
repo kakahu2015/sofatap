@@ -59,7 +59,12 @@
     <string name="ime_subtype">KeyTrans 英語キーボード</string>
     <string name="language_pair">%1$s → %2$s</string>
     <string name="hosttap_scan_qr">QR コードをスキャン</string>
-    <string name="hosttap_touchpad_help">スライドで移動 · タップでクリック · 2 本指でスクロール</string>
+    <string name="hosttap_pairing_add_device">別のコンピューターを追加</string>
+    <string name="hosttap_pairing_empty">ペアリング済みのコンピューターはありません</string>
+    <string name="hosttap_pairing_remove_device">このコンピューターのペアリングを削除</string>
+    <string name="hosttap_pairing_expand">ペアリング一覧を表示</string>
+    <string name="hosttap_pairing_collapse">ペアリング一覧を閉じる</string>
+    <string name="hosttap_touchpad_help">1 本指で移動 · タップでクリック · 2 本指でPCをスクロール · 3 本指でこのページをスクロール</string>
     <string name="hosttap_touchpad_active_area">領域内のどこでもマウスを操作できます</string>
     <string name="qr_scan_title">HostTap コードをスキャン</string>
     <string name="qr_scan_instruction">コンピューターの HostTap ペアリング QR コードを枠内に合わせてください。</string>
