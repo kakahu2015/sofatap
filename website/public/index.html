@@ -3,82 +3,157 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Privacy policy for the HostTap Windows receiver distributed through Microsoft Store.">
-  <meta name="theme-color" content="#e7f2ed">
-  <title>HostTap Privacy Policy</title>
+  <meta name="description" content="HostTap turns your phone into a touchpad and keyboard for your Windows or Mac computer.">
+  <meta name="theme-color" content="#edf6f0">
+  <link rel="canonical" href="https://hosttap-privacy.pages.dev/">
+  <link rel="alternate" hreflang="zh-CN" href="https://hosttap-privacy.pages.dev/zh-cn/">
+  <title>HostTap — Control your computer from your phone</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body class="landing-page">
   <div class="page">
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="HostTap privacy home"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+    <header class="site-header landing-header">
+      <a class="brand" href="/" aria-label="HostTap home"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#downloads">Downloads</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
       <nav class="languages" aria-label="Language"><span aria-current="page" lang="en">English</span><a href="/zh-cn/" lang="zh-CN" hreflang="zh-CN">简体中文</a></nav>
     </header>
 
     <main id="main">
-      <div class="intro">
-        <p class="eyebrow">Your devices. Your control.</p>
-        <h1>Privacy policy</h1>
-        <p class="lead">How HostTap handles information when you control your Windows computer from a paired phone.</p>
-        <p class="date">Effective October 19, 2026</p>
-      </div>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">A better way to reach your computer</p>
+          <h1>Your phone becomes the remote.</h1>
+          <p class="lead">Move the pointer, click, scroll and type on your Windows or Mac computer from the phone already in your hand.</p>
+          <div class="hero-actions">
+            <a class="button" href="#downloads">Choose your download <span aria-hidden="true">↓</span></a>
+            <a class="text-link" href="https://apps.apple.com/app/id6739558003" target="_blank" rel="noreferrer">Get KeyTrans for iPhone <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="hero-note">Pair your devices directly. HostTap does not use a cloud relay.</p>
+        </div>
 
-      <aside class="summary" aria-label="Policy at a glance">
-        <p><strong>HostTap sends remote-control input directly between your paired devices.</strong> The Microsoft Store Windows receiver has no HostTap account, advertising, tracking, analytics, or crash-upload service. We do not sell your data or use your input to train AI.</p>
-      </aside>
+        <div class="device-scene" aria-hidden="true">
+          <div class="scene-glow"></div>
+          <div class="computer">
+            <div class="computer-screen">
+              <div class="screen-top"><span class="screen-dot"></span><span class="screen-dot"></span><span class="screen-dot"></span><span class="screen-title">HostTap Remote</span></div>
+              <div class="screen-content">
+                <span class="screen-kicker">CONNECTED DEVICE</span>
+                <strong>Your computer</strong>
+                <div class="screen-line"></div><div class="screen-line short"></div>
+                <span class="screen-status"><i></i> Ready for input</span>
+              </div>
+            </div>
+            <div class="computer-base"></div>
+          </div>
+          <div class="phone">
+            <div class="phone-camera"></div>
+            <div class="phone-ui">
+              <div class="phone-head"><span class="mini-mark">H</span><span>HostTap</span><span class="phone-menu">•••</span></div>
+              <div class="touch-surface"><span class="touch-cross"></span><span class="touch-pointer"></span></div>
+              <div class="phone-controls"><span>⌨</span><span>◉</span><span>↵</span></div>
+              <div class="phone-home"></div>
+            </div>
+          </div>
+          <div class="scene-caption"><span class="scene-caption-mark">H</span><span><strong>One phone, at your fingertips</strong><small>Touch control · Keyboard input</small></span></div>
+        </div>
+      </section>
 
-      <div class="policy">
-        <section aria-labelledby="scope">
-          <h2 id="scope"><span class="section-number">01</span>What this policy covers</h2>
-          <p>This policy covers the HostTap Windows receiver published by <strong>GUIHUI HU</strong> through Microsoft Store and this privacy website. The receiver is based on the open-source Sofatap project; its running interface may display “HostTap Remote.”</p>
-          <p>It does not describe other distributions, future services, or the privacy practices of your phone, keyboard, speech-recognition provider, or applications you control.</p>
-        </section>
+      <section class="how-section" id="how-it-works">
+        <div class="section-heading">
+          <p class="eyebrow">Made to feel simple</p>
+          <h2>Stay where you are.<br>Control what’s on screen.</h2>
+          <p>HostTap connects a phone to the receiver running on your computer, so everyday input feels close and direct.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">↗</span>
+            <h3>Move and click</h3>
+            <p>Use a smooth touch surface to move the pointer, click, and scroll through content.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">⌨</span>
+            <h3>Type from your phone</h3>
+            <p>Enter text on your phone and send it to the active field on your computer.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">⟷</span>
+            <h3>Connect your devices</h3>
+            <p>Pair with the receiver on your computer and send input directly between your devices.</p>
+          </article>
+        </div>
+      </section>
 
-        <section aria-labelledby="control">
-          <h2 id="control"><span class="section-number">02</span>Remote input and live editing</h2>
-          <p>Mouse movements, button presses, keyboard actions, and text are sent directly between paired devices over TLS with certificate pinning. HostTap has no built-in cloud relay and does not send this input to a publisher-operated server. Devices usually connect on the same network, but the network route depends on your setup and is not guaranteed to stay only within a local network.</p>
-          <p>When you explicitly use <strong>live editing</strong>, the receiver can read the full text and selection of a supported native text field, send them to the phone, and synchronize your edits. Password, read-only, and unsupported fields cannot start live editing. Background focus hints contain field metadata, rather than field text. The receiver keeps field snapshots and acknowledgements temporarily in memory, releases them when the connection ends, and does not write field text to its logs or disk.</p>
-          <p>The Windows receiver does not provide screenshots or screen streaming, and it does not capture microphone audio. For dictation it receives text recognized on the phone; the phone, keyboard, and speech-recognition service have their own privacy practices. Applications you control may save or upload the text you enter according to their own settings and policies.</p>
-        </section>
+      <section class="downloads-section" id="downloads">
+        <div class="section-heading downloads-heading">
+          <p class="eyebrow">Get HostTap</p>
+          <h2>Choose your device.</h2>
+          <p>Install the receiver on your computer and the companion app on your phone.</p>
+        </div>
 
-        <section aria-labelledby="storage">
-          <h2 id="storage"><span class="section-number">03</span>Pairing and information on your computer</h2>
-          <p>Pairing credentials, the receiver’s TLS identity, and settings are stored in the Windows user’s local application data. Credentials are protected using Windows DPAPI for the current user. Your computer name and network addresses are used to identify and connect to the receiver during pairing.</p>
-          <p>The receiver writes a pairing link to the clipboard only when you choose <strong>Copy Pairing Link</strong>. Windows clipboard history or synchronization may retain or share that link according to your Windows settings. Treat pairing links, QR codes, and credentials as private.</p>
-        </section>
+        <div class="download-group">
+          <div class="group-heading"><span class="group-icon" aria-hidden="true">▰</span><div><h3>Computer receiver</h3><p>Choose the package for your Mac. Windows Store link coming soon.</p></div></div>
+          <div class="download-grid">
+            <article class="download-card">
+              <div class="platform-label"><span class="platform-symbol">⌘</span><span>macOS</span></div>
+              <h4>Apple silicon</h4>
+              <p>For Macs with Apple silicon.</p>
+              <a class="button button-small" href="https://pub-ba356e17922440caaaf3d5205c58c92f.r2.dev/hosttap/HostTap-Remote-macOS-arm64.zip">Download ZIP <span aria-hidden="true">↓</span></a>
+            </article>
+            <article class="download-card">
+              <div class="platform-label"><span class="platform-symbol">⌘</span><span>macOS</span></div>
+              <h4>Intel</h4>
+              <p>For Intel-based Macs.</p>
+              <a class="button button-small" href="https://pub-ba356e17922440caaaf3d5205c58c92f.r2.dev/hosttap/HostTap-Remote-macOS-x64.zip">Download ZIP <span aria-hidden="true">↓</span></a>
+            </article>
+            <article class="download-card download-card-muted">
+              <div class="platform-label"><span class="platform-symbol">▦</span><span>Windows</span></div>
+              <h4>Microsoft Store</h4>
+              <p>Download HostTap for Windows from Microsoft Store.</p>
+              <a class="button button-small" href="https://apps.microsoft.com/detail/9N3FL65WSWFZ?hl=zh-cn&amp;gl=US&amp;ocid=pdpshare" target="_blank" rel="noreferrer">Get from Microsoft Store <span aria-hidden="true">↗</span></a>
+            </article>
+          </div>
+        </div>
 
-        <section aria-labelledby="choices">
-          <h2 id="choices"><span class="section-number">04</span>Your controls and retention</h2>
-          <p>Choose <strong>Quit</strong> from the receiver’s system-tray menu to stop it. Closing its window hides it while the receiver continues running. You can remove a saved pairing from the phone.</p>
-          <p>To replace the receiver’s saved pairing credentials, fully quit it and remove its local pairing configuration; it generates new credentials on the next launch. Local settings remain until removed. Uninstalling the app or removing local files does not guarantee that every Windows, clipboard, or backup copy is deleted.</p>
-        </section>
+        <div class="download-group phone-downloads">
+          <div class="group-heading"><span class="group-icon" aria-hidden="true">▯</span><div><h3>Phone companion</h3><p>Use HostTap on Android or KeyTrans on iPhone.</p></div></div>
+          <div class="download-grid phone-grid">
+            <article class="download-card">
+              <div class="platform-label"><span class="platform-symbol">●</span><span>Android</span></div>
+              <h4>HostTap for Android</h4>
+              <p>Download the Android installer directly.</p>
+              <a class="button button-small" href="https://pub-ba356e17922440caaaf3d5205c58c92f.r2.dev/hosttap/hosttap.apk">Download APK <span aria-hidden="true">↓</span></a>
+            </article>
+            <article class="download-card">
+              <div class="platform-label"><span class="platform-symbol">●</span><span>iPhone</span></div>
+              <h4>KeyTrans for iOS</h4>
+              <p>Get the iPhone app that includes HostTap controls.</p>
+              <a class="button button-small button-secondary" href="https://apps.apple.com/app/id6739558003" target="_blank" rel="noreferrer">View on App Store <span aria-hidden="true">↗</span></a>
+            </article>
+            <article class="download-card download-card-muted">
+              <div class="platform-label"><span class="platform-symbol">▷</span><span>Android</span></div>
+              <h4>Google Play</h4>
+              <p>The Google Play listing will be added soon.</p>
+              <button class="button button-small button-disabled" type="button" disabled>Coming soon</button>
+            </article>
+          </div>
+        </div>
+      </section>
 
-        <section aria-labelledby="services">
-          <h2 id="services"><span class="section-number">05</span>Microsoft Store, website hosting, and support</h2>
-          <p><strong>Microsoft Store.</strong> Microsoft distributes and updates this version of HostTap. Microsoft may process Store, installation, and diagnostic information under the <a href="https://privacy.microsoft.com/privacystatement" rel="noreferrer">Microsoft Privacy Statement</a>.</p>
-          <p><strong>This website.</strong> Cloudflare Pages provides HTTPS hosting. Cloudflare processes network and request information, such as IP addresses, to deliver and protect the website under the <a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">Cloudflare Privacy Policy</a>. We add no advertising, tracking scripts, analytics, forms, or browser storage to this site. The hosting provider may process information or use cookies under its own policies.</p>
-          <p><strong>Support.</strong> If you email <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>, GUIHUI HU receives your email address and the content you choose to provide, and uses them to reply and handle your request. Do not email passwords, pairing links, QR codes, pairing codes, private field text, or other sensitive information. We retain support correspondence for as long as needed to handle your request; you can email us to request its deletion. Email providers process and retain their own copies according to their policies and settings.</p>
-        </section>
-
-        <section aria-labelledby="sharing">
-          <h2 id="sharing"><span class="section-number">06</span>Use and sharing of information</h2>
-          <p>Remote-control data is processed between your paired devices. We do not sell it, send it to an advertising service, or use it to train AI. The third-party processing described above concerns Microsoft Store, website delivery, and support information you choose to submit. Information voluntarily provided to us may be disclosed if required by applicable law.</p>
-        </section>
-
-        <section aria-labelledby="children">
-          <h2 id="children"><span class="section-number">07</span>Children</h2>
-          <p>We do not knowingly collect children’s personal information through the receiver. Users control which devices they pair and what they enter or share through those devices.</p>
-        </section>
-
-        <section aria-labelledby="changes">
-          <h2 id="changes"><span class="section-number">08</span>Changes and contact</h2>
-          <p>We may update this policy when HostTap’s behavior or the services described here change. The effective date above identifies the current version.</p>
-          <p>For privacy questions or requests to delete support correspondence, contact GUIHUI HU at <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>.</p>
-        </section>
-      </div>
+      <section class="pairing-note">
+        <div class="pairing-badge" aria-hidden="true">H</div>
+        <div><p class="eyebrow">Ready when you are</p><h2>Install. Pair. Take control.</h2><p>Open the receiver on your computer, pair your phone, and use the touch surface or keyboard when you need them.</p></div>
+        <a class="button" href="#downloads">View downloads <span aria-hidden="true">↑</span></a>
+      </section>
     </main>
 
-    <footer class="site-footer"><p>HostTap · Published by GUIHUI HU</p><a href="/zh-cn/" lang="zh-CN" hreflang="zh-CN">中文隐私政策 <span aria-hidden="true">↗</span></a></footer>
+    <footer class="site-footer landing-footer">
+      <p>HostTap · Published by GUIHUI HU</p>
+      <nav aria-label="Footer"><a href="/privacy/">Privacy policy</a><a href="mailto:kakahu@kakahu.org">Contact</a><a href="/zh-cn/" lang="zh-CN" hreflang="zh-CN">简体中文</a></nav>
+    </footer>
   </div>
 </body>
 </html>
