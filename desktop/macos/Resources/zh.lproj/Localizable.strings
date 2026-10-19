@@ -7,8 +7,8 @@
 "Check for Updates…" = "检查更新…";
 "Click Refresh below to get a new pairing QR code." = "点下方刷新，重新获取配对二维码。";
 "Confirm" = "确认设置";
-"Connect iPhone and Mac to the same network" = "iPhone 与电脑连接同一网络";
-"Connect iPhone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private." = "iPhone 与电脑连接同一网络。二维码和配对链接可以控制这台 Mac，请勿分享。";
+"Connect phone and Mac to the same network" = "手机与电脑连接同一网络";
+"Connect phone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private." = "手机与电脑连接同一网络。二维码和配对链接可以控制这台 Mac，请勿分享。";
 "Connect to Wi-Fi or Ethernet, then click Refresh below." = "连接 Wi-Fi 或网线后，点下方刷新重新检查。";
 "Connection to the Mac receiver component was lost. Reopen HostTap Remote." = "与 Mac 接收组件的连接已中断。请重新打开 HostTap Remote。";
 "Copy Pairing Link" = "复制配对链接";
@@ -19,7 +19,7 @@
 "Dry run · %@" = "演练模式 · %@";
 "Hide HostTap Remote" = "隐藏 HostTap Remote";
 "HostTap Remote can be ready for your phone when you log in to your Mac. You can turn this off here at any time." = "确认后，HostTap Remote 可在你登录 Mac 时自动准备好接收手机操作。可随时在这里关闭。";
-"If multiple networks are available, choose an address your iPhone can reach." = "有多个网络时，请选择 iPhone 能访问的地址。";
+"If multiple networks are available, choose an address your phone can reach." = "有多个网络时，请选择手机能访问的地址。";
 "Keep your pairing code private" = "配对码请勿分享";
 "Launch at login" = "登录时自动启动";
 "Log in and unlock this Mac, then refresh." = "请登录并解锁这台 Mac，再重新检查。";
@@ -27,7 +27,7 @@
 "Mac desktop unavailable" = "Mac 桌面暂时不可用";
 "Mac receiver component not found. Reinstall HostTap Remote." = "找不到 Mac 接收组件。请重新安装 HostTap Remote。";
 "Network address" = "连接地址";
-"Network address: choose an address your iPhone can reach" = "连接地址：选择 iPhone 能访问的网络地址";
+"Network address: choose an address your phone can reach" = "连接地址：选择手机能访问的网络地址";
 "No network address available for pairing" = "没有可配对的网络地址";
 "No pairing address available" = "没有可配对地址";
 "OK" = "好";
@@ -35,7 +35,7 @@
 "Open Settings from the system prompt and allow HostTap Remote. If no prompt appears, click Open System Settings. If the app is missing from the list, click + and select the installed HostTap Remote.app." = "请在系统提示中打开设置，并允许 HostTap Remote。若没有出现提示，可点“打开系统设置”；列表中没有应用时，点 + 选择已安装的 HostTap Remote.app。";
 "Open System Settings" = "打开系统设置";
 "Open System Settings → Privacy & Security → Accessibility and allow HostTap Remote, then return here and refresh." = "请手动打开系统设置 → 隐私与安全 → 辅助功能，允许 HostTap Remote，然后回到这里重新检查。";
-"Open the companion app on your iPhone and scan the QR code" = "在 iPhone 上打开配套 App，扫描二维码";
+"Open the companion app on your phone and scan the QR code" = "在 iOS 或 Android 手机上打开配套 App，扫描二维码";
 "Pairing link copied" = "已复制配对链接";
 "Phone connected" = "手机已连接";
 "Phone connected · Desktop ready" = "手机已连接 · 桌面已就绪";
@@ -46,13 +46,13 @@
 "Quit" = "退出";
 "Quit HostTap Remote" = "退出 HostTap Remote";
 "Quitting" = "正在退出";
-"Ready · Waiting for iPhone" = "已就绪 · 等待 iPhone";
+"Ready · Waiting for phone (iOS/Android)" = "已就绪 · 等待手机（iOS/Android）";
 "Receiver unavailable" = "接收器暂不可用";
 "Refresh" = "刷新";
 "Request Accessibility Permission" = "请求辅助功能授权";
 "Request permission again" = "再次请求授权";
 "Run automatically when you log in. HostTap Remote keeps receiving phone input when the window is closed. Choose Quit to stop it." = "登录这台 Mac 后自动运行。关闭窗口后，HostTap Remote 仍可接收手机操作；选择退出才会停止。";
-"Scan this QR code with the iPhone companion app to pair your Mac" = "用 iPhone 配套 App 扫描此二维码以配对 Mac";
+"Scan this QR code with the phone companion app to pair your Mac" = "用手机上的配套 App 扫描此二维码以配对 Mac";
 "The Mac receiver component has stopped. Refresh, or quit and reopen HostTap Remote." = "Mac 接收组件已停止。请重新检查，或退出后再打开 HostTap Remote。";
 "The QR code and pairing link grant control of this Mac. Keep them private." = "二维码和配对链接可以控制这台 Mac，请勿分享。";
 "The QR code will appear here when the receiver is ready." = "接收组件就绪后，二维码会显示在这里。";
@@ -68,7 +68,7 @@
 "Unable to open HostTap Remote app storage. Make sure you are using the complete Mac App Store app." = "无法打开 HostTap Remote 的应用存储空间。请确认正在使用完整的 Mac App Store 应用。";
 "Unable to start the Mac receiver. Check the installation and whether another copy of HostTap Remote is running." = "无法启动 Mac 接收组件。请确认安装完整，并检查是否已打开另一个 HostTap Remote。";
 "Update Ready" = "更新已准备好";
-"Waiting for iPhone" = "等待 iPhone";
+"Waiting for phone (iOS/Android)" = "等待手机（iOS/Android）";
 "Waiting for receiver status" = "等待接收器状态";
 "Waiting for system approval. Automatic launch is currently disabled." = "等待系统允许；目前不会自动启动。";
 "You can check the connection, but no mouse or keyboard input will be sent to the Mac." = "可测试连接，但不会向 Mac 提交鼠标或键盘操作。";

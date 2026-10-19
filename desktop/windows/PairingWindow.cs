@@ -32,7 +32,7 @@ internal sealed class PairingWindow : Form
     private readonly Panel _content = new() { Dock = DockStyle.Top, BackColor = MintCalm.Canvas };
     private readonly Panel _column = new() { BackColor = MintCalm.Canvas };
     private readonly StatusBadge _status = new() { Text = Strings.Get("Preparing receiver") };
-    private readonly Label _helper = TextLabel(Strings.Get("Open the companion app on your iPhone and scan the QR code"), MintCalm.Muted);
+    private readonly Label _helper = TextLabel(Strings.Get("Open the companion app on your phone and scan the QR code"), MintCalm.Muted);
     private readonly RoundedSurface _card = new();
     private readonly Label _machine = TextLabel(Strings.Get("Starting computer receiver…"), MintCalm.Text);
     private readonly ComboBox _addresses = new()
@@ -40,12 +40,12 @@ internal sealed class PairingWindow : Form
         DropDownStyle = ComboBoxStyle.DropDownList, FlatStyle = FlatStyle.Flat,
         BackColor = MintCalm.Surface, ForeColor = MintCalm.Text,
         AccessibleName = Strings.Get("Computer network address"),
-        AccessibleDescription = Strings.Get("Choose the computer network address your iPhone can reach."), TabIndex = 0,
+        AccessibleDescription = Strings.Get("Choose the computer network address your phone can reach."), TabIndex = 0,
         Enabled = false, IntegralHeight = true
     };
     private readonly QrView _qr = new()
     {
-        AccessibleName = Strings.Get("iPhone private pairing QR code"),
+        AccessibleName = Strings.Get("Private phone pairing QR code"),
         Text = Strings.Get("Creating QR code…")
     };
     private readonly CalmButton _copy = new(true)
@@ -54,7 +54,7 @@ internal sealed class PairingWindow : Form
         AccessibleName = Strings.Get("Copy Pairing Link"),
         AccessibleDescription = Strings.Get("Copy the current pairing link to the clipboard. The link can grant control of this computer, so do not share it.")
     };
-    private readonly Label _networkHint = TextLabel(Strings.Get("Connect iPhone and computer to the same network"), MintCalm.Muted);
+    private readonly Label _networkHint = TextLabel(Strings.Get("Connect phone and computer to the same network"), MintCalm.Muted);
     private readonly Label _privacyHint = TextLabel(Strings.Get("Keep your pairing code private"), MintCalm.Muted);
     private readonly CalmButton _refresh = new(false) { Text = Strings.Get("Refresh"), Enabled = false, TabIndex = 2, AccessibleName = Strings.Get("Refresh pairing QR code") };
     private readonly CalmButton _quit = new(false)
@@ -330,11 +330,11 @@ internal sealed class PairingWindow : Form
     private static string StatusText(ReceiverState state)
     {
         if (state.DryRun || state.InputStatus == "dry_run")
-            return Strings.Format("Dry run · {0}", state.Connected ? Strings.Get("Phone connected") : Strings.Get("Waiting for iPhone"));
+            return Strings.Format("Dry run · {0}", state.Connected ? Strings.Get("Phone connected") : Strings.Get("Waiting for phone (iOS/Android)"));
         if (state.InputStatus != "ready")
             return state.Connected ? Strings.Get("Phone connected · Desktop unavailable") : Strings.Get("Computer desktop unavailable");
         if (!state.Connected && state.Pairings.Length == 0) return Strings.Get("No pairing address available");
-        return state.Connected ? Strings.Get("Phone connected · Desktop ready") : Strings.Get("Ready · Waiting for iPhone");
+        return state.Connected ? Strings.Get("Phone connected · Desktop ready") : Strings.Get("Ready · Waiting for phone (iOS/Android)");
     }
 
     private void ApplyState(ReceiverState state)

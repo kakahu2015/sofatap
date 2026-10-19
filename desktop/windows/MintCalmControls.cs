@@ -111,7 +111,7 @@ internal sealed class QrView : Control
         previous?.Dispose();
         AccessibleDescription = image is null
             ? Text
-            : Strings.Get("Scan this QR code with the iPhone companion app to pair this computer. The QR code grants control of this computer; keep it private.");
+            : Strings.Get("Scan this QR code with the phone companion app to pair this computer. The QR code grants control of this computer; keep it private.");
         Invalidate();
     }
 

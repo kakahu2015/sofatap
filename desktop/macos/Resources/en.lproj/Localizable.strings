@@ -7,8 +7,8 @@
 "Check for Updates…" = "Check for Updates…";
 "Click Refresh below to get a new pairing QR code." = "Click Refresh below to get a new pairing QR code.";
 "Confirm" = "Confirm";
-"Connect iPhone and Mac to the same network" = "Connect iPhone and Mac to the same network";
-"Connect iPhone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private." = "Connect iPhone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private.";
+"Connect phone and Mac to the same network" = "Connect phone and Mac to the same network";
+"Connect phone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private." = "Connect phone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private.";
 "Connect to Wi-Fi or Ethernet, then click Refresh below." = "Connect to Wi-Fi or Ethernet, then click Refresh below.";
 "Connection to the Mac receiver component was lost. Reopen HostTap Remote." = "Connection to the Mac receiver component was lost. Reopen HostTap Remote.";
 "Copy Pairing Link" = "Copy Pairing Link";
@@ -19,7 +19,7 @@
 "Dry run · %@" = "Dry run · %@";
 "Hide HostTap Remote" = "Hide HostTap Remote";
 "HostTap Remote can be ready for your phone when you log in to your Mac. You can turn this off here at any time." = "HostTap Remote can be ready for your phone when you log in to your Mac. You can turn this off here at any time.";
-"If multiple networks are available, choose an address your iPhone can reach." = "If multiple networks are available, choose an address your iPhone can reach.";
+"If multiple networks are available, choose an address your phone can reach." = "If multiple networks are available, choose an address your phone can reach.";
 "Keep your pairing code private" = "Keep your pairing code private";
 "Launch at login" = "Launch at login";
 "Log in and unlock this Mac, then refresh." = "Log in and unlock this Mac, then refresh.";
@@ -27,7 +27,7 @@
 "Mac desktop unavailable" = "Mac desktop unavailable";
 "Mac receiver component not found. Reinstall HostTap Remote." = "Mac receiver component not found. Reinstall HostTap Remote.";
 "Network address" = "Network address";
-"Network address: choose an address your iPhone can reach" = "Network address: choose an address your iPhone can reach";
+"Network address: choose an address your phone can reach" = "Network address: choose an address your phone can reach";
 "No network address available for pairing" = "No network address available for pairing";
 "No pairing address available" = "No pairing address available";
 "OK" = "OK";
@@ -35,7 +35,7 @@
 "Open Settings from the system prompt and allow HostTap Remote. If no prompt appears, click Open System Settings. If the app is missing from the list, click + and select the installed HostTap Remote.app." = "Open Settings from the system prompt and allow HostTap Remote. If no prompt appears, click Open System Settings. If the app is missing from the list, click + and select the installed HostTap Remote.app.";
 "Open System Settings" = "Open System Settings";
 "Open System Settings → Privacy & Security → Accessibility and allow HostTap Remote, then return here and refresh." = "Open System Settings → Privacy & Security → Accessibility and allow HostTap Remote, then return here and refresh.";
-"Open the companion app on your iPhone and scan the QR code" = "Open the companion app on your iPhone and scan the QR code";
+"Open the companion app on your phone and scan the QR code" = "Open the companion app on your phone and scan the QR code";
 "Pairing link copied" = "Pairing link copied";
 "Phone connected" = "Phone connected";
 "Phone connected · Desktop ready" = "Phone connected · Desktop ready";
@@ -46,13 +46,13 @@
 "Quit" = "Quit";
 "Quit HostTap Remote" = "Quit HostTap Remote";
 "Quitting" = "Quitting";
-"Ready · Waiting for iPhone" = "Ready · Waiting for iPhone";
+"Ready · Waiting for phone (iOS/Android)" = "Ready · Waiting for phone (iOS/Android)";
 "Receiver unavailable" = "Receiver unavailable";
 "Refresh" = "Refresh";
 "Request Accessibility Permission" = "Request Accessibility Permission";
 "Request permission again" = "Request permission again";
 "Run automatically when you log in. HostTap Remote keeps receiving phone input when the window is closed. Choose Quit to stop it." = "Run automatically when you log in. HostTap Remote keeps receiving phone input when the window is closed. Choose Quit to stop it.";
-"Scan this QR code with the iPhone companion app to pair your Mac" = "Scan this QR code with the iPhone companion app to pair your Mac";
+"Scan this QR code with the phone companion app to pair your Mac" = "Scan this QR code with the phone companion app to pair your Mac";
 "The Mac receiver component has stopped. Refresh, or quit and reopen HostTap Remote." = "The Mac receiver component has stopped. Refresh, or quit and reopen HostTap Remote.";
 "The QR code and pairing link grant control of this Mac. Keep them private." = "The QR code and pairing link grant control of this Mac. Keep them private.";
 "The QR code will appear here when the receiver is ready." = "The QR code will appear here when the receiver is ready.";
@@ -68,7 +68,7 @@
 "Unable to open HostTap Remote app storage. Make sure you are using the complete Mac App Store app." = "Unable to open HostTap Remote app storage. Make sure you are using the complete Mac App Store app.";
 "Unable to start the Mac receiver. Check the installation and whether another copy of HostTap Remote is running." = "Unable to start the Mac receiver. Check the installation and whether another copy of HostTap Remote is running.";
 "Update Ready" = "Update Ready";
-"Waiting for iPhone" = "Waiting for iPhone";
+"Waiting for phone (iOS/Android)" = "Waiting for phone (iOS/Android)";
 "Waiting for receiver status" = "Waiting for receiver status";
 "Waiting for system approval. Automatic launch is currently disabled." = "Waiting for system approval. Automatic launch is currently disabled.";
 "You can check the connection, but no mouse or keyboard input will be sent to the Mac." = "You can check the connection, but no mouse or keyboard input will be sent to the Mac.";

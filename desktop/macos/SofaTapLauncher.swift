@@ -358,7 +358,7 @@ struct ReceiverContent: View {
 
     private var heading: some View {
         VStack(spacing: 8) {
-            Text(NSLocalizedString("Open the companion app on your iPhone and scan the QR code", comment: ""))
+            Text(NSLocalizedString("Open the companion app on your phone and scan the QR code", comment: ""))
                 .font(.system(size: 14))
                 .foregroundStyle(Palette.muted)
                 .multilineTextAlignment(.center)
@@ -371,7 +371,7 @@ struct ReceiverContent: View {
         if failure != nil { return NSLocalizedString("Receiver unavailable", comment: "") }
         if isStarting { return NSLocalizedString("Preparing receiver", comment: "") }
         guard let state else { return NSLocalizedString("Waiting for receiver status", comment: "") }
-        let connection = state.connected ? NSLocalizedString("Phone connected", comment: "") : NSLocalizedString("Waiting for iPhone", comment: "")
+        let connection = state.connected ? NSLocalizedString("Phone connected", comment: "") : NSLocalizedString("Waiting for phone (iOS/Android)", comment: "")
         if state.dryRun || state.inputStatus == "dry_run" { return String(format: NSLocalizedString("Dry run · %@", comment: ""), connection) }
         if state.inputStatus == "accessibility_required" {
             return state.connected ? NSLocalizedString("Phone connected · Permission needed", comment: "") : NSLocalizedString("Accessibility permission needed", comment: "")
@@ -380,7 +380,7 @@ struct ReceiverContent: View {
             return state.connected ? NSLocalizedString("Phone connected · Desktop unavailable", comment: "") : NSLocalizedString("Mac desktop unavailable", comment: "")
         }
         if !state.connected && state.pairings.isEmpty { return NSLocalizedString("No pairing address available", comment: "") }
-        return state.connected ? NSLocalizedString("Phone connected · Desktop ready", comment: "") : NSLocalizedString("Ready · Waiting for iPhone", comment: "")
+        return state.connected ? NSLocalizedString("Phone connected · Desktop ready", comment: "") : NSLocalizedString("Ready · Waiting for phone (iOS/Android)", comment: "")
     }
 
     private var statusColor: Color {
@@ -464,7 +464,7 @@ struct ReceiverContent: View {
                 ReceiverQRCode(image: image)
                     .padding(10)
                     .background(.white, in: RoundedRectangle(cornerRadius: 12))
-                    .accessibilityLabel(NSLocalizedString("Scan this QR code with the iPhone companion app to pair your Mac", comment: ""))
+                    .accessibilityLabel(NSLocalizedString("Scan this QR code with the phone companion app to pair your Mac", comment: ""))
                 deviceAndNetwork(state, pairing: pairing)
                 Button(action: copyPairing) {
                     Label(copied ? NSLocalizedString("Pairing link copied", comment: "") : NSLocalizedString("Copy Pairing Link", comment: ""), systemImage: copied ? "checkmark" : "doc.on.doc")
@@ -513,8 +513,8 @@ struct ReceiverContent: View {
                     .labelsHidden()
                     .pickerStyle(.menu)
                     .controlSize(.small)
-                    .help(NSLocalizedString("If multiple networks are available, choose an address your iPhone can reach.", comment: ""))
-                    .accessibilityLabel(NSLocalizedString("Network address: choose an address your iPhone can reach", comment: ""))
+                    .help(NSLocalizedString("If multiple networks are available, choose an address your phone can reach.", comment: ""))
+                    .accessibilityLabel(NSLocalizedString("Network address: choose an address your phone can reach", comment: ""))
                 } else {
                     Label(NSLocalizedString("Network address", comment: ""), systemImage: "network")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
@@ -547,11 +547,11 @@ struct ReceiverContent: View {
     private var footer: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 14) {
-                Label(NSLocalizedString("Connect iPhone and Mac to the same network", comment: ""), systemImage: "info.circle")
+                Label(NSLocalizedString("Connect phone and Mac to the same network", comment: ""), systemImage: "info.circle")
                 Label(NSLocalizedString("Keep your pairing code private", comment: ""), systemImage: "lock.shield")
             }
             VStack(spacing: 7) {
-                Label(NSLocalizedString("Connect iPhone and Mac to the same network", comment: ""), systemImage: "info.circle")
+                Label(NSLocalizedString("Connect phone and Mac to the same network", comment: ""), systemImage: "info.circle")
                 Label(NSLocalizedString("Keep your pairing code private", comment: ""), systemImage: "lock.shield")
             }
         }
@@ -560,7 +560,7 @@ struct ReceiverContent: View {
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .help(NSLocalizedString("The QR code and pairing link grant control of this Mac. Keep them private.", comment: ""))
-        .accessibilityLabel(NSLocalizedString("Connect iPhone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private.", comment: ""))
+        .accessibilityLabel(NSLocalizedString("Connect phone and Mac to the same network. The QR code and pairing link grant control of this Mac. Keep them private.", comment: ""))
     }
 
     private var actions: some View {
