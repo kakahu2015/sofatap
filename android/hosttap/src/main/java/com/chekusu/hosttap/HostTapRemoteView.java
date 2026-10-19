@@ -718,6 +718,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
 
     private void closeComposer() {
         if (keyboardVisible) hideSystemKeyboard();
+        keyboardVisible = false;
         draft.clearFocus();
         textCard.setVisibility(GONE);
         updateKeyboardButton();
@@ -747,9 +748,10 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     }
 
     private void setKeyboardVisible(boolean visible) {
-        if (keyboardVisible == visible && keyboardButton != null) return;
+        if (keyboardVisible == visible) return;
         keyboardVisible = visible;
-        updateKeyboardButton();
+        if (visible) updateKeyboardButton();
+        else closeComposer();
     }
 
     private void updateKeyboardButton() {
