@@ -1,8 +1,14 @@
-# Sofatap Android TV receiver
+# Sofatap Android apps
+
+## HostTap phone controller
+
+The HostTap Android phone app provides the computer remote and reviewed text composer. It follows the iOS remote screen's device header, touch surface, shortcut controls and expandable composer. QR scanning uses Android's camera permission flow; text drafts use the system keyboard selected on the device. This app does not include the KeyTrans translation keyboard.
+
+From `android/`, build its APK with `./gradlew :hosttap:assembleDebug`. The APK is written to `hosttap/build/outputs/apk/debug/hosttap-debug.apk`.
+
+## Sofatap Android TV receiver
 
 This is the Android/Google TV experimental receiver for **free manual control**. It uses a native TV pairing screen and the existing Sofatap iPhone touch surface. No model account or paid inference is involved.
-
-The Android tree also contains a [KeyTrans phone app](keytrans/README.md) with the translated iOS keyboard flow and a HostTap computer controller. The controller pairs with the existing Windows/macOS/Linux desktop receiver, sends reviewed text over its pinned TLS WebSocket, and provides mouse movement, clicks, scrolling and shortcut keys. Build it with `./gradlew :keytrans:assembleDebug`; the TV receiver remains `:receiver`.
 
 **No physical TV model or third-party TV app is qualified yet.** A successful build, network connection, or visible cursor does not establish that a television accepts clicks. This is not a Google Play release.
 

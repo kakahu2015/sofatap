@@ -1,0 +1,65 @@
+name: Android HostTap APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'android/hosttap/**'
+      - 'android/gradle/**'
+      - 'android/gradlew'
+      - 'android/gradle.properties'
+      - 'android/build.gradle'
+      - 'android/settings.gradle'
+      - '.github/workflows/android-hosttap-apk.yml'
+  pull_request:
+    paths:
+      - 'android/hosttap/**'
+      - 'android/gradle/**'
+      - 'android/gradlew'
+      - 'android/gradle.properties'
+      - 'android/build.gradle'
+      - 'android/settings.gradle'
+      - '.github/workflows/android-hosttap-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-hosttap-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-hosttap-apk:
+    name: Build HostTap phone APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle
+            android/hosttap/*.gradle
+            android/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
+
+      - name: Build HostTap APK
+        working-directory: android
+        run: ./gradlew --no-daemon --stacktrace :hosttap:assembleDebug
+
+      - name: Upload phone APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: HostTap-phone-debug-apk
+          path: android/hosttap/build/outputs/apk/debug/hosttap-debug.apk
+          if-no-files-found: error
+          retention-days: 14
