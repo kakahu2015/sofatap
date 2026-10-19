@@ -54,7 +54,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     private final HostTapClient client;
     private final TextView computerName, connectionStatus, deliveryStatus, textHelp;
     private final EditText pairingLink, draft;
-    private final Button connectButton, dragButton, sendButton, resendButton, clearDraftButton;
+    private final Button connectButton, dragButton, resendButton;
     private final Button keyboardButton;
     private final LinearLayout textCard;
     private final LinearLayout pairingList, pairedEntries;
@@ -311,16 +311,8 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             sendDraft();
             return true;
         });
-        LinearLayout sendActions = new LinearLayout(activity);
-        textCard.addView(sendActions, topMargin(-1, dp(44), 8));
-        clearDraftButton = button(R.string.hosttap_clear, false);
-        sendButton = button(R.string.hosttap_send, true);
         resendButton = button(R.string.hosttap_allow_resend, false);
-        sendActions.addView(clearDraftButton, new LinearLayout.LayoutParams(0, dp(44), 1));
-        sendActions.addView(sendButton, weightedMargin(0, dp(44), 1, 8, 0));
         textCard.addView(resendButton, topMargin(-1, dp(40), 5));
-        TextView privacy = text(R.string.hosttap_privacy, 12, MUTED, false);
-        page.addView(privacy, topMargin(-1, -2, 14));
 
         computerName.setOnClickListener(view -> setPairingExpanded(!pairingExpanded));
         guideButton.setOnClickListener(view -> showGestureGuide());
@@ -330,17 +322,8 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         connectButton.setOnClickListener(view -> connectFromField());
         rightClick.setOnClickListener(view -> client.click("right"));
         dragButton.setOnClickListener(view -> setDragging(!dragging));
-        clearDraftButton.setOnClickListener(view -> {
-            draft.setText("");
-            lastSentDraft = null;
-            preferences.setHostTapSentPrefix("");
-            uncertain = false; manualResend = false;
-            preferences.setHostTapUncertain(false);
-            deliveryStatus.setText(""); updateControls();
-        });
         keyboardButton.setOnClickListener(view -> toggleSystemKeyboard());
         closeComposerButton.setOnClickListener(view -> closeComposer());
-        sendButton.setOnClickListener(view -> sendDraft());
         resendButton.setOnClickListener(view -> {
             uncertain = false;
             preferences.setHostTapUncertain(false);
@@ -677,16 +660,9 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     }
 
     private void updateControls() {
-        if (sendButton == null) return;
         boolean ready = client.canControl();
         String value = draft == null ? "" : draft.getText().toString();
         boolean hasDraft = !value.isEmpty() && value.length() <= 16_000;
-        boolean appendOnly = lastSentDraft == null ||
-            (value.startsWith(lastSentDraft) && value.length() > lastSentDraft.length());
-        sendButton.setEnabled(ready && hasDraft && !sending && !uncertain && !client.isProtectedFocus() &&
-            (manualResend || appendOnly));
-        sendButton.setAlpha(sendButton.isEnabled() ? 1f : 0.48f);
-        clearDraftButton.setEnabled(!sending);
         resendButton.setVisibility(uncertain || lastSentDraft != null ? VISIBLE : GONE);
         resendButton.setEnabled(ready && hasDraft && !sending);
         dragButton.setEnabled(ready);

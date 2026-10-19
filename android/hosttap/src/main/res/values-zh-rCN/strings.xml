@@ -19,8 +19,6 @@
     <string name="hosttap_remote_backspace">⌫</string>
     <string name="hosttap_text">发送文字到电脑</string>
     <string name="hosttap_draft_hint">输入草稿，确认后发送</string>
-    <string name="hosttap_send">发送</string>
-    <string name="hosttap_clear">清空草稿</string>
     <string name="hosttap_open_keyboard">打开系统键盘</string>
     <string name="hosttap_close_keyboard">收起系统键盘</string>
     <string name="hosttap_close_text">关闭文字编辑区</string>
@@ -35,7 +33,6 @@
     <string name="hosttap_sent_status">电脑已确认上次发送。</string>
     <string name="hosttap_sent_prefix_edited">已发送文字被修改。请检查电脑后再允许整段重发。</string>
     <string name="hosttap_send_confirmed">已检查电脑，允许下一次显式发送整段草稿。</string>
-    <string name="hosttap_privacy">配对链接会在本机加密保存。点击发送前，草稿文字只保留在本机。</string>
     <string name="hosttap_guide">使用指南</string>
     <string name="hosttap_guide_message">在触控板上单指滑动可移动指针，点击可操作。双指滚动电脑页面，三指滚动此页。按住拖拽按钮后在触控板上移动。快捷键按钮会向电脑发送按键。文字会留在草稿中，检查后再发送。</string>
     <string name="hosttap_controls_title">遥控操作设置</string>

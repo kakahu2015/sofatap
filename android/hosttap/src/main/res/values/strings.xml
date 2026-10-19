@@ -19,8 +19,6 @@
     <string name="hosttap_remote_backspace">⌫</string>
     <string name="hosttap_text">Send text to computer</string>
     <string name="hosttap_draft_hint">Write a draft and review it before sending</string>
-    <string name="hosttap_send">Send</string>
-    <string name="hosttap_clear">Clear draft</string>
     <string name="hosttap_open_keyboard">Open system keyboard</string>
     <string name="hosttap_close_keyboard">Hide system keyboard</string>
     <string name="hosttap_close_text">Close text composer</string>
@@ -35,7 +33,6 @@
     <string name="hosttap_sent_status">The computer confirmed the last send.</string>
     <string name="hosttap_sent_prefix_edited">Sent text was edited. Check the computer before allowing the full draft to be sent again.</string>
     <string name="hosttap_send_confirmed">Checked the computer. The next explicit send may resend the full draft.</string>
-    <string name="hosttap_privacy">Pairing links are encrypted on this device. Draft text stays local until you tap Send.</string>
     <string name="hosttap_guide">Guide</string>
     <string name="hosttap_guide_message">Slide one finger on the touchpad to move the pointer and tap to click. Use two fingers to scroll the computer; three fingers scroll this page. Hold the drag button, then move on the touchpad. Use the shortcut keys for computer keys. Text stays in this draft until you review and send it.</string>
     <string name="hosttap_controls_title">Remote controls</string>
