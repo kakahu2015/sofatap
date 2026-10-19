@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.inputmethodservice.InputMethodService;
 import android.os.Build;
 import android.os.Handler;
@@ -123,12 +124,13 @@ public final class KeyTransInputMethodService extends InputMethodService {
 
     @Override public View onCreateInputView() {
         if (preferences == null) preferences = new KeyTransPreferences(this);
-        panel = new LinearLayout(this);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(10), dp(7), dp(10), dp(5));
-        panel.setBackgroundColor(BG);
+        LinearLayout root = new LinearLayout(this);
+        panel = root;
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(10), dp(7), dp(10), dp(5));
+        root.setBackgroundColor(BG);
         renderPanel();
-        return panel;
+        return root;
     }
 
     private void renderPanel() {

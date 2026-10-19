@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.security.GeneralSecurityException;
+import java.util.function.Consumer;
 
 public final class MainActivity extends Activity {
     private static final int BLUE = Color.rgb(0, 122, 255);
@@ -361,7 +362,7 @@ public final class MainActivity extends Activity {
     }
 
     private Switch addToggle(LinearLayout parent, int titleId, int detailId, boolean initial,
-                             android.widget.CompoundButton.OnCheckedChangeListener listener) {
+                             Consumer<Boolean> onCheckedChange) {
         LinearLayout row = new LinearLayout(this);
         row.setGravity(android.view.Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(10), 0, dp(8));
@@ -379,7 +380,7 @@ public final class MainActivity extends Activity {
         Switch toggle = new Switch(this);
         toggle.setChecked(initial);
         row.addView(toggle, params(-2, -2));
-        toggle.setOnCheckedChangeListener(listener);
+        toggle.setOnCheckedChangeListener((button, checked) -> onCheckedChange.accept(checked));
         parent.addView(row, params(-1, -2));
         return toggle;
     }
