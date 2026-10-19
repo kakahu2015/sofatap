@@ -30,7 +30,7 @@ $identityJson = @'
   "publisher": "CN=A4BEB966-7421-4DE4-83EB-CB29EEC65FCE",
   "publisherDisplayName": "GUIHUI HU",
   "displayName": "HostTap",
-  "version": "1.0.1.0"
+  "version": "1.0.2.0"
 }
 '@
 $identityJson | Set-Content .\packaging\windows-store\store-identity.json -Encoding UTF8
@@ -60,6 +60,6 @@ Get-Content .\artifacts\msix\packages\HostTap-Remote.msixupload.sha256
 2. 设备系列只勾选 **Windows 10/11 Desktop**；取消 **Windows 10/11 Xbox**、Mobile、Team 和 Mixed Reality。此应用的清单目标是 `Windows.Desktop`，不支持 Xbox；包里含 x64 架构也不会把桌面应用变成 Xbox 应用。“Let Microsoft decide whether to make this app available to any future device families”是单独设置，保留当前值即可。
 3. 如果草稿里还有旧的验证失败包，先删除旧包，再上传新生成的 `.msixupload`，等待 Partner Center 重新验证。不要提交认证，直到验证错误清零。
 
-不要上传单独的 `.msix` 或 `.msixbundle`。Microsoft Store 包无需本地签名。这个重打包版本从先前已上传的 `1.0.0.0` 提升为 `1.0.1.0`。
+不要上传单独的 `.msix` 或 `.msixbundle`。Microsoft Store 包无需本地签名。当前提交版本从 `1.0.1.0` 提升为 `1.0.2.0`。
 
-**版本号第四段必须为 0。** 第四段由商店保留，提交时非零会被拒绝，报“不允许应用在应用清单中指定版本号不为零的版本”。要提升版本只能改第三段，例如 `1.0.0.0` → `1.0.1.0`；`build-msix.ps1` 现在会直接拒绝非零第四段。
+**版本号第四段必须为 0。** 第四段由商店保留，提交时非零会被拒绝，报“不允许应用在应用清单中指定版本号不为零的版本”。要提升版本只能改第三段，例如 `1.0.1.0` → `1.0.2.0`；`build-msix.ps1` 现在会直接拒绝非零第四段。
