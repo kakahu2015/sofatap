@@ -70,6 +70,7 @@
     <string name="hosttap_forget">移除配对</string>
     <string name="hosttap_touchpad">鼠标</string>
     <string name="hosttap_touchpad_help">滑动移动 · 单击左键 · 双指滚动</string>
+    <string name="hosttap_touchpad_active_area">整个区域都可操控鼠标</string>
     <string name="hosttap_right_click">右键</string>
     <string name="hosttap_drag">拖拽</string>
     <string name="hosttap_keys">电脑快捷键</string>

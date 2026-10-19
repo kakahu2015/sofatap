@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -29,7 +30,6 @@ import java.util.List;
 final class HostTapRemoteView extends ScrollView implements HostTapClient.Listener {
     static final int REQUEST_QR_SCAN = 6412;
     private static final int BLUE = 0xff007aff;
-    private static final int MINT = 0xff8ee3c1;
     private static final int INK = 0xff1c1c1e;
     private static final int MUTED = 0xff707075;
     private static final int PAGE = 0xfff2f2f7;
@@ -92,7 +92,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         page.addView(mouseTitle, topMargin(-1, -2, 2));
         touchPad = new TouchPad(activity);
         touchPadGestures = new TouchPadGestures();
-        page.addView(touchPad, topMargin(-1, dp(188), 8));
+        page.addView(touchPad, topMargin(-1, touchPadHeight(), 8));
         LinearLayout mouseActions = new LinearLayout(activity);
         mouseActions.setGravity(Gravity.CENTER_VERTICAL);
         page.addView(mouseActions, topMargin(-1, dp(44), 0));
@@ -404,8 +404,8 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         value.setAllCaps(false);
         value.setMinHeight(dp(40));
         value.setPadding(dp(7), 0, dp(7), 0);
-        value.setTextColor(primary ? 0xff10231c : INK);
-        value.setBackground(background(primary ? MINT : 0xffeef0f3, 12));
+        value.setTextColor(primary ? Color.WHITE : INK);
+        value.setBackground(background(primary ? BLUE : 0xffeef0f3, 12));
         return value;
     }
 
@@ -444,23 +444,56 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     private int dp(float value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private String getString(int resource) { return activity.getString(resource); }
 
+    private int touchPadHeight() {
+        float density = getResources().getDisplayMetrics().density;
+        float screenHeightDp = getResources().getDisplayMetrics().heightPixels / density;
+        return dp(Math.max(320f, Math.min(480f, screenHeightDp * 0.5f)));
+    }
+
     private final class TouchPad extends View {
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         TouchPad(Context context) {
             super(context);
-            setBackground(background(0xff1d2b30, 20));
+            setBackground(background(0xfffdfefe, 22));
+            setElevation(dp(2));
             setFocusable(true);
-            setContentDescription(getString(R.string.hosttap_touchpad_help));
+            setClickable(true);
+            setContentDescription(getString(R.string.hosttap_touchpad_active_area) + ". "
+                + getString(R.string.hosttap_touchpad_help));
         }
         @Override protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
             float centerX = getWidth() / 2f, centerY = getHeight() / 2f;
-            paint.setColor(MINT); paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(dp(2));
-            canvas.drawRoundRect(centerX - dp(20), centerY - dp(35), centerX + dp(20), centerY + dp(20), dp(18), dp(18), paint);
+            float inset = dp(1);
+            paint.setColor(0xffdce2e8);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(dp(1));
+            canvas.drawRoundRect(inset, inset, getWidth() - inset, getHeight() - inset,
+                dp(22), dp(22), paint);
+
+            float iconY = centerY - dp(28);
             paint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(centerX, centerY + dp(9), dp(3), paint);
-            paint.setTextAlign(Paint.Align.CENTER); paint.setTypeface(Typeface.DEFAULT_BOLD); paint.setTextSize(dp(13));
-            canvas.drawText(getString(R.string.hosttap_touchpad_help), centerX, centerY + dp(57), paint);
+            paint.setColor(0xffeaf3ff);
+            canvas.drawCircle(centerX, iconY, dp(30), paint);
+            paint.setColor(BLUE);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(dp(2));
+            canvas.drawCircle(centerX, iconY, dp(9), paint);
+            canvas.drawLine(centerX - dp(17), iconY, centerX - dp(6), iconY, paint);
+            canvas.drawLine(centerX + dp(6), iconY, centerX + dp(17), iconY, paint);
+            canvas.drawLine(centerX, iconY - dp(17), centerX, iconY - dp(6), paint);
+            canvas.drawLine(centerX, iconY + dp(6), centerX, iconY + dp(17), paint);
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(Typeface.DEFAULT_BOLD);
+            paint.setTextSize(dp(15));
+            paint.setColor(BLUE);
+            canvas.drawText(getString(R.string.hosttap_touchpad_active_area), centerX, centerY + dp(35), paint);
+            paint.setTypeface(Typeface.DEFAULT);
+            paint.setTextSize(dp(12));
+            paint.setColor(MUTED);
+            canvas.drawText(getString(R.string.hosttap_touchpad_help), centerX, centerY + dp(59), paint);
         }
     }
 

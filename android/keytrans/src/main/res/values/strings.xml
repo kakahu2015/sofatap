@@ -69,7 +69,8 @@
     <string name="hosttap_connect">Save and connect</string>
     <string name="hosttap_forget">Remove pairing</string>
     <string name="hosttap_touchpad">Mouse</string>
-    <string name="hosttap_touchpad_help">Slide to move · tap for left click · two fingers to scroll</string>
+    <string name="hosttap_touchpad_help">Slide to move · tap to click · two fingers to scroll</string>
+    <string name="hosttap_touchpad_active_area">Touch anywhere to move the mouse</string>
     <string name="hosttap_right_click">Right click</string>
     <string name="hosttap_drag">Drag</string>
     <string name="hosttap_keys">Computer keys</string>
