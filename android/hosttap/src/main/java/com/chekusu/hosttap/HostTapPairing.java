@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/** Strict parser for a desktop sofatap://pair link. The name is display-only. */
+/** Strict parser for a desktop pairing link. The name is display-only. */
 final class HostTapPairing {
     final String host;
     final int port;
@@ -42,7 +42,7 @@ final class HostTapPairing {
             if (!"sofatap".equalsIgnoreCase(uri.getScheme()) || !"pair".equals(uri.getRawAuthority()) ||
                 uri.getRawUserInfo() != null || uri.getPort() != -1 || uri.getRawPath() == null ||
                 !uri.getRawPath().isEmpty() || uri.getRawFragment() != null || uri.getRawQuery() == null) {
-                throw new IllegalArgumentException("请粘贴电脑接收器的 sofatap://pair 配对链接");
+                throw new IllegalArgumentException("请粘贴电脑接收器提供的配对链接");
             }
             String[] parts = uri.getRawQuery().split("&", -1);
             if (parts.length < 4 || parts.length > 6) throw new IllegalArgumentException("配对字段不完整");
@@ -83,7 +83,7 @@ final class HostTapPairing {
         } catch (IllegalArgumentException error) {
             throw error;
         } catch (Exception error) {
-            throw new IllegalArgumentException("请粘贴有效的 sofatap://pair 配对链接", error);
+            throw new IllegalArgumentException("请粘贴有效的电脑配对链接", error);
         }
     }
 

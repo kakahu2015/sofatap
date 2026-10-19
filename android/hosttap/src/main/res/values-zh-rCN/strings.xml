@@ -6,7 +6,7 @@
     <string name="hosttap_pairing_remove_device">移除此电脑</string>
     <string name="hosttap_pairing_expand">展开已配对电脑</string>
     <string name="hosttap_pairing_collapse">收起已配对电脑</string>
-    <string name="hosttap_pair_hint">扫描电脑二维码，或粘贴 sofatap://pair 链接</string>
+    <string name="hosttap_pair_hint">扫描电脑二维码，或粘贴电脑配对链接</string>
     <string name="hosttap_scan_qr">扫描二维码</string>
     <string name="hosttap_paste">粘贴链接</string>
     <string name="hosttap_connect">保存并连接</string>

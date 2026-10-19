@@ -6,7 +6,7 @@
     <string name="hosttap_pairing_remove_device">このコンピューターを削除</string>
     <string name="hosttap_pairing_expand">ペアリング済みコンピューターを表示</string>
     <string name="hosttap_pairing_collapse">ペアリング済みコンピューターを閉じる</string>
-    <string name="hosttap_pair_hint">コンピューターの QR コードをスキャンするか、sofatap://pair リンクを貼り付けてください</string>
+    <string name="hosttap_pair_hint">コンピューターの QR コードをスキャンするか、ペアリングリンクを貼り付けてください</string>
     <string name="hosttap_scan_qr">QR コードをスキャン</string>
     <string name="hosttap_paste">リンクを貼り付け</string>
     <string name="hosttap_connect">保存して接続</string>

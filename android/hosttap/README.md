@@ -14,7 +14,7 @@ The APK is written to `hosttap/build/outputs/apk/debug/hosttap-debug.apk`.
 
 ## Pair and control
 
-Open the computer's HostTap receiver and scan its pairing QR code, or paste its `sofatap://pair` link. Camera access is requested only when scanning. The link is encrypted with Android Keystore before it is saved. The WSS client checks the paired leaf certificate fingerprint, normal certificate validity dates and the certificate's host name before sending the bearer token.
+Open the computer's HostTap receiver and scan its pairing QR code, or paste its pairing link. Camera access is requested only when scanning. The link is encrypted with Android Keystore before it is saved. The WSS client checks the paired leaf certificate fingerprint, normal certificate validity dates and the certificate's host name before sending the bearer token.
 
 Slide one finger on the touch surface to move the pointer and tap to click. Two fingers scroll the computer; three fingers scroll this page. Use the shortcut bar for computer keys. The settings button switches the directional controls between key presses and a held mouse-joystick mode. Text remains in a local draft until you review and send it.
 
