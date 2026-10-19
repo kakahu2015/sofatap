@@ -41,7 +41,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     private final TouchPad touchPad;
     private final List<View> inputControls = new ArrayList<>();
     private boolean sending, uncertain, dragging, manualResend;
-    private String sentSnapshot;
+    private String sentSnapshot, lastSentDraft;
 
     HostTapRemoteView(Activity activity, KeyTransPreferences preferences) {
         super(activity);
@@ -393,6 +393,10 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     }
 
     private TextView text(int value, int size, int color, boolean bold) {
+        return text(getString(value), size, color, bold);
+    }
+
+    private TextView text(CharSequence value, int size, int color, boolean bold) {
         TextView label = new TextView(activity);
         label.setText(value);
         label.setTextSize(size);
