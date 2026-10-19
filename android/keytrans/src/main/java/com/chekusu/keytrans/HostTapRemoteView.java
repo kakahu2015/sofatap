@@ -5,14 +5,24 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -21,28 +31,54 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Phone-side HostTap controller: mouse gestures and reviewed text delivery. */
 final class HostTapRemoteView extends ScrollView implements HostTapClient.Listener {
     static final int REQUEST_QR_SCAN = 6412;
-    private static final int BLUE = 0xff007aff;
-    private static final int INK = 0xff1c1c1e;
-    private static final int MUTED = 0xff707075;
-    private static final int PAGE = 0xfff2f2f7;
-    private static final int PANEL = 0xffffffff;
+    private static final int MINT = 0xffb8f3d0;
+    private static final int INK = 0xfff3f6f5;
+    private static final int MUTED = 0xff99a6b0;
+    private static final int PAGE = 0xff0a0d11;
+    private static final int PANEL = 0xff141920;
+    private static final int PANEL_HIGHLIGHT = 0xff1c252d;
     private final Activity activity;
     private final KeyTransPreferences preferences;
     private final HostTapClient client;
     private final TextView computerName, connectionStatus, deliveryStatus, textHelp;
     private final EditText pairingLink, draft;
-    private final Button connectButton, dragButton, sendButton, resendButton, clearDraftButton;
+    private final Button connectButton, dragButton, sendButton, resendButton, clearDraftButton, keyboardButton, joystickModeButton;
     private final LinearLayout pairingList, pairedEntries;
     private final TouchPadGestures touchPadGestures;
     private final List<View> inputControls = new ArrayList<>();
-    private boolean sending, uncertain, dragging, manualResend, pairingExpanded, interceptingMouseGesture;
-    private boolean initialTouchOnControl;
+    private final List<Button> arrowButtons = new ArrayList<>();
+    private final Handler joystickHandler = new Handler(Looper.getMainLooper());
+    private final Set<String> heldDirections = new HashSet<>();
+    private final Set<String> joystickPointers = new HashSet<>();
+    private boolean sending, uncertain, dragging, manualResend, pairingExpanded;
+    private boolean keyboardVisible;
+    private boolean joystickMode;
     private String sentSnapshot, lastSentDraft;
+    private ViewTreeObserver keyboardObserver;
+    private final ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = this::syncKeyboardVisibility;
+    private long joystickStartedAt;
+    private final Runnable joystickTick = new Runnable() {
+        @Override public void run() {
+            if (!joystickMode || heldDirections.isEmpty() || !client.canControl()) {
+                stopJoystick();
+                return;
+            }
+            float dx = (heldDirections.contains("right") ? 1 : 0) - (heldDirections.contains("left") ? 1 : 0);
+            float dy = (heldDirections.contains("down") ? 1 : 0) - (heldDirections.contains("up") ? 1 : 0);
+            if (dx != 0 && dy != 0) { dx *= 0.7071f; dy *= 0.7071f; }
+            long heldFor = SystemClock.uptimeMillis() - joystickStartedAt;
+            float speed = Math.min(dp(16), dp(3) + heldFor / 90f * getResources().getDisplayMetrics().density);
+            client.move(dx * speed, dy * speed);
+            joystickHandler.postDelayed(this, 30);
+        }
+    };
 
     HostTapRemoteView(Activity activity, KeyTransPreferences preferences) {
         super(activity);
@@ -53,28 +89,28 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         setBackgroundColor(PAGE);
         LinearLayout page = new LinearLayout(activity);
         page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(18), dp(18), dp(18), dp(28));
+        page.setPadding(dp(16), dp(14), dp(16), dp(22));
         addView(page, new LayoutParams(-1, -2));
 
-        TextView title = text(R.string.hosttap_title, 29, INK, true);
+        TextView title = text(R.string.hosttap_title, 24, INK, true);
         page.addView(title);
-        TextView subtitle = text(R.string.hosttap_subtitle, 14, MUTED, false);
-        page.addView(subtitle, topMargin(-1, -2, 3));
+        TextView subtitle = text(R.string.hosttap_subtitle, 13, MUTED, false);
+        page.addView(subtitle, topMargin(-1, -2, 2));
 
         LinearLayout connectionCard = card();
-        page.addView(connectionCard, topMargin(-1, -2, 16));
-        TextView pairHeading = text(R.string.hosttap_pairing, 17, INK, true);
+        page.addView(connectionCard, topMargin(-1, -2, 12));
+        TextView pairHeading = text(R.string.hosttap_pairing, 14, INK, true);
         connectionCard.addView(pairHeading);
         computerName = text(R.string.hosttap_not_connected, 13, MUTED, false);
-        computerName.setPadding(dp(12), dp(11), dp(12), dp(11));
-        computerName.setBackground(background(0xfff3f4f7, 12));
+        computerName.setPadding(dp(12), dp(9), dp(12), dp(9));
+        computerName.setBackground(background(PANEL_HIGHLIGHT, 12));
         computerName.setClickable(true);
         computerName.setFocusable(true);
-        connectionCard.addView(computerName, topMargin(-1, -2, 6));
+        connectionCard.addView(computerName, topMargin(-1, -2, 7));
         connectionStatus = text(R.string.hosttap_not_connected, 13, MUTED, false);
-        connectionStatus.setPadding(dp(10), dp(8), dp(10), dp(8));
-        connectionStatus.setBackground(background(0xfff0f2f4, 10));
-        connectionCard.addView(connectionStatus, topMargin(-1, -2, 2));
+        connectionStatus.setPadding(dp(10), dp(7), dp(10), dp(7));
+        connectionStatus.setBackground(background(0xff19221f, 10));
+        connectionCard.addView(connectionStatus, topMargin(-1, -2, 5));
 
         pairingList = new LinearLayout(activity);
         pairingList.setOrientation(LinearLayout.VERTICAL);
@@ -98,44 +134,88 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         pairActions.addView(paste, weightedMargin(0, dp(44), 1, 8, 0));
         pairingList.addView(connectButton, topMargin(-1, dp(44), 8));
 
-        TextView mouseTitle = text(R.string.hosttap_touchpad, 17, INK, true);
-        page.addView(mouseTitle, topMargin(-1, -2, 8));
-        TextView touchHelp = text(getString(R.string.hosttap_touchpad_active_area) + " · " +
-            getString(R.string.hosttap_touchpad_help), 12, MUTED, false);
-        page.addView(touchHelp, topMargin(-1, -2, 2));
+        LinearLayout touchHeading = new LinearLayout(activity);
+        touchHeading.setGravity(Gravity.CENTER_VERTICAL);
+        page.addView(touchHeading, topMargin(-1, dp(30), 14));
+        TextView mouseTitle = text(R.string.hosttap_touchpad, 16, INK, true);
+        touchHeading.addView(mouseTitle, new LinearLayout.LayoutParams(0, -2, 1));
+        TextView touchHelp = text(getString(R.string.hosttap_touchpad_active_area), 11, MUTED, false);
+        touchHeading.addView(touchHelp);
         touchPadGestures = new TouchPadGestures();
+        FrameLayout touchSurface = new FrameLayout(activity);
+        GradientDrawable touchSurfaceBackground = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+            new int[] { 0xff13211e, 0xff10171d });
+        touchSurfaceBackground.setCornerRadius(dp(30));
+        touchSurfaceBackground.setStroke(dp(1), 0xff283b38);
+        touchSurface.setBackground(touchSurfaceBackground);
+        touchSurface.setClickable(true);
+        touchSurface.setFocusable(true);
+        touchSurface.setContentDescription(getString(R.string.hosttap_touchpad) + ". " +
+            getString(R.string.hosttap_touchpad_help));
+        LinearLayout touchSurfaceHint = new LinearLayout(activity);
+        touchSurfaceHint.setOrientation(LinearLayout.VERTICAL);
+        touchSurfaceHint.setGravity(Gravity.CENTER);
+        TextView pointerMark = text("⌖", 44, MINT, false);
+        pointerMark.setGravity(Gravity.CENTER);
+        TextView padTitle = text(R.string.hosttap_touchpad, 14, INK, true);
+        TextView padHint = text(R.string.hosttap_touchpad_help, 11, MUTED, false);
+        padHint.setGravity(Gravity.CENTER);
+        touchSurfaceHint.addView(pointerMark);
+        touchSurfaceHint.addView(padTitle, topMargin(-1, -2, 3));
+        touchSurfaceHint.addView(padHint, topMargin(-1, -2, 2));
+        FrameLayout.LayoutParams touchHintParams = new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER);
+        touchSurface.addView(touchSurfaceHint, touchHintParams);
+        touchSurface.setOnTouchListener(touchPadGestures);
+        page.addView(touchSurface, topMargin(-1, dp(214), 6));
         LinearLayout mouseActions = new LinearLayout(activity);
         mouseActions.setGravity(Gravity.CENTER_VERTICAL);
-        page.addView(mouseActions, topMargin(-1, dp(44), 0));
+        page.addView(mouseActions, topMargin(-1, dp(42), 8));
         Button rightClick = button(R.string.hosttap_right_click, false);
         inputControls.add(rightClick);
         dragButton = button(R.string.hosttap_drag, false);
-        mouseActions.addView(rightClick, new LinearLayout.LayoutParams(0, dp(40), 1));
-        mouseActions.addView(dragButton, weightedMargin(0, dp(40), 1, 8, 0));
+        mouseActions.addView(rightClick, new LinearLayout.LayoutParams(0, dp(42), 1));
+        mouseActions.addView(dragButton, weightedMargin(0, dp(42), 1, 8, 0));
 
-        TextView keysTitle = text(R.string.hosttap_keys, 17, INK, true);
-        page.addView(keysTitle, topMargin(-1, -2, 16));
+        LinearLayout keysHeading = new LinearLayout(activity);
+        keysHeading.setGravity(Gravity.CENTER_VERTICAL);
+        page.addView(keysHeading, topMargin(-1, dp(42), 12));
+        TextView keysTitle = text(R.string.hosttap_keys, 16, INK, true);
+        keysTitle.setGravity(Gravity.CENTER_VERTICAL);
+        keysHeading.addView(keysTitle, new LinearLayout.LayoutParams(0, -1, 1));
+        joystickModeButton = button(R.string.hosttap_joystick_enable, false);
+        joystickModeButton.setTextSize(12);
+        joystickModeButton.setMinHeight(dp(36));
+        keysHeading.addView(joystickModeButton, new LinearLayout.LayoutParams(-2, dp(36)));
         LinearLayout keys = new LinearLayout(activity);
         keys.setOrientation(LinearLayout.HORIZONTAL);
-        page.addView(keys, topMargin(-1, dp(42), 7));
+        page.addView(keys, topMargin(-1, dp(42), 5));
         addKey(keys, "Esc", "escape"); addKey(keys, "Tab", "tab");
         addKey(keys, "↵", "enter"); addKey(keys, "←", "left");
         addKey(keys, "↑", "up"); addKey(keys, "↓", "down"); addKey(keys, "→", "right");
         Button backspace = button(R.string.hosttap_remote_backspace, false);
         inputControls.add(backspace);
-        page.addView(backspace, topMargin(-1, dp(40), 6));
+        page.addView(backspace, topMargin(-1, dp(42), 6));
 
         LinearLayout textCard = card();
         page.addView(textCard, topMargin(-1, -2, 16));
+        LinearLayout textHeadingRow = new LinearLayout(activity);
+        textHeadingRow.setGravity(Gravity.CENTER_VERTICAL);
+        textCard.addView(textHeadingRow, topMargin(-1, dp(44), 0));
         TextView textHeading = text(R.string.hosttap_text, 17, INK, true);
-        textCard.addView(textHeading);
+        textHeadingRow.addView(textHeading, new LinearLayout.LayoutParams(0, -2, 1));
+        keyboardButton = button("⌨", false);
+        keyboardButton.setTextSize(20);
+        keyboardButton.setContentDescription(getString(R.string.hosttap_open_keyboard));
+        textHeadingRow.addView(keyboardButton, new LinearLayout.LayoutParams(dp(44), dp(44)));
         textHelp = text(R.string.hosttap_not_connected, 12, MUTED, false);
         textCard.addView(textHelp, topMargin(-1, -2, 3));
-        draft = field(R.string.hosttap_draft_hint, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        draft = draftField(R.string.hosttap_draft_hint,
+            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         draft.setGravity(Gravity.TOP | Gravity.START);
         draft.setMinLines(3);
         draft.setMaxLines(7);
         draft.setPadding(dp(12), dp(11), dp(12), dp(11));
+        draft.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         draft.setText(preferences.hostTapDraft());
         String storedPrefix = preferences.hostTapSentPrefix();
         lastSentDraft = storedPrefix.isEmpty() ? null : storedPrefix;
@@ -159,6 +239,24 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             }
             @Override public void afterTextChanged(android.text.Editable s) { }
         });
+        draft.setOnEditorActionListener((view, actionId, event) -> {
+            boolean enter = actionId == EditorInfo.IME_NULL ||
+                (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                    event.getAction() == KeyEvent.ACTION_DOWN);
+            if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.isShiftPressed())
+                return false;
+            if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_DONE || enter) {
+                sendDraft();
+                return true;
+            }
+            return false;
+        });
+        draft.setOnKeyListener((view, keyCode, event) -> {
+            if (keyCode != KeyEvent.KEYCODE_ENTER || event.getAction() != KeyEvent.ACTION_DOWN ||
+                event.isShiftPressed()) return false;
+            sendDraft();
+            return true;
+        });
         LinearLayout sendActions = new LinearLayout(activity);
         textCard.addView(sendActions, topMargin(-1, dp(44), 8));
         clearDraftButton = button(R.string.hosttap_clear, false);
@@ -168,9 +266,10 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         sendActions.addView(sendButton, weightedMargin(0, dp(44), 1, 8, 0));
         textCard.addView(resendButton, topMargin(-1, dp(40), 5));
         TextView privacy = text(R.string.hosttap_privacy, 12, MUTED, false);
-        page.addView(privacy, topMargin(-1, -2, 12));
+        page.addView(privacy, topMargin(-1, -2, 14));
 
         computerName.setOnClickListener(view -> setPairingExpanded(!pairingExpanded));
+        joystickModeButton.setOnClickListener(view -> setJoystickMode(!joystickMode));
         scan.setOnClickListener(view -> scanPairingQr());
         paste.setOnClickListener(view -> pasteLink());
         connectButton.setOnClickListener(view -> connectFromField());
@@ -185,6 +284,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             preferences.setHostTapUncertain(false);
             deliveryStatus.setText(""); updateControls();
         });
+        keyboardButton.setOnClickListener(view -> toggleSystemKeyboard());
         sendButton.setOnClickListener(view -> sendDraft());
         resendButton.setOnClickListener(view -> {
             uncertain = false;
@@ -193,9 +293,26 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             deliveryStatus.setText(R.string.hosttap_send_confirmed);
             updateControls();
         });
-        setOnTouchListener(touchPadGestures);
         loadSavedPairing();
         updateControls();
+        updateKeyboardButton();
+        updateJoystickButton();
+    }
+
+    @Override protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        View decor = activity.getWindow().getDecorView();
+        keyboardObserver = decor.getViewTreeObserver();
+        if (keyboardObserver.isAlive()) keyboardObserver.addOnGlobalLayoutListener(keyboardLayoutListener);
+        syncKeyboardVisibility();
+    }
+
+    @Override protected void onDetachedFromWindow() {
+        stopJoystick();
+        if (keyboardObserver != null && keyboardObserver.isAlive())
+            keyboardObserver.removeOnGlobalLayoutListener(keyboardLayoutListener);
+        keyboardObserver = null;
+        super.onDetachedFromWindow();
     }
 
     void onVisible() {
@@ -207,28 +324,12 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
 
     void onHidden() {
         touchPadGestures.cancel();
+        stopJoystick();
         if (dragging) client.setDragging(false, result -> { });
         dragging = false;
+        hideSystemKeyboard();
         client.disconnect("未连接电脑");
         updateControls();
-    }
-
-    @Override public boolean onInterceptTouchEvent(MotionEvent event) {
-        int action = event.getActionMasked();
-        if (action == MotionEvent.ACTION_DOWN) {
-            initialTouchOnControl = containsInteractiveAt(this, event.getX(), event.getY());
-            interceptingMouseGesture = client.canControl() && !initialTouchOnControl;
-        } else if (action == MotionEvent.ACTION_POINTER_DOWN && event.getPointerCount() >= 3 &&
-            client.canControl()) {
-            interceptingMouseGesture = true;
-        }
-
-        if (interceptingMouseGesture) {
-            boolean intercept = action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_CANCEL;
-            if (!intercept) interceptingMouseGesture = false;
-            return true;
-        }
-        return super.onInterceptTouchEvent(event);
     }
 
     void setPairingLink(String link) {
@@ -247,11 +348,13 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             if (computerName == null) return;
             updatePairingSelector(savedPairing(), connected ? name : null);
             connectionStatus.setText(message);
-            connectionStatus.setTextColor(connected && inputAvailable ? 0xff137a54 : MUTED);
-            connectionStatus.setBackground(background(connected && inputAvailable ? 0xffe7f8f0 : 0xfff0f2f4, 10));
+            connectionStatus.setTextColor(protectedFocus ? 0xffffb38a : connected && inputAvailable ? MINT : MUTED);
+            connectionStatus.setBackground(background(protectedFocus ? 0xff2a211d :
+                connected && inputAvailable ? 0xff192820 : PANEL_HIGHLIGHT, 10));
             if (protectedFocus) textHelp.setText("电脑当前是安全输入框，已阻止发送。");
             else if (connected && inputAvailable) textHelp.setText(R.string.hosttap_connected);
             else textHelp.setText(message);
+            if (!connected || !inputAvailable || protectedFocus) stopJoystick();
             if (!connected && dragging) { dragging = false; dragButton.setText(R.string.hosttap_drag); }
             updateControls();
         });
@@ -263,8 +366,11 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             if (result.accepted) {
                 String current = draft.getText().toString();
                 if (current.equals(sentSnapshot) || current.startsWith(sentSnapshot)) {
-                    lastSentDraft = sentSnapshot;
-                    preferences.setHostTapSentPrefix(lastSentDraft);
+                    String remaining = current.substring(sentSnapshot.length());
+                    draft.setText(remaining);
+                    draft.setSelection(draft.length());
+                    lastSentDraft = null;
+                    preferences.setHostTapSentPrefix("");
                     deliveryStatus.setText(R.string.hosttap_sent_status);
                     uncertain = false;
                     manualResend = false;
@@ -472,6 +578,95 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             deliveryStatus.setText("电脑当前是安全输入框，已阻止发送。");
     }
 
+    private void setJoystickMode(boolean enabled) {
+        if (joystickMode == enabled) return;
+        joystickMode = enabled;
+        if (!enabled) stopJoystick();
+        updateJoystickButton();
+    }
+
+    private void updateJoystickButton() {
+        if (joystickModeButton == null) return;
+        joystickModeButton.setText(getString(joystickMode ?
+            R.string.hosttap_joystick_disable : R.string.hosttap_joystick_enable));
+        joystickModeButton.setContentDescription(getString(joystickMode ?
+            R.string.hosttap_joystick_disable : R.string.hosttap_joystick_enable));
+        joystickModeButton.setSelected(joystickMode);
+        joystickModeButton.setTextColor(joystickMode ? PAGE : INK);
+        joystickModeButton.setBackground(background(joystickMode ? MINT : PANEL_HIGHLIGHT, 12));
+        for (Button arrow : arrowButtons)
+            arrow.setBackground(background(joystickMode ? 0xff20332b : PANEL_HIGHLIGHT, 12));
+    }
+
+    private void startJoystick(String direction) {
+        if (!joystickMode || !client.canControl()) return;
+        if (heldDirections.add(direction) && heldDirections.size() == 1)
+            joystickStartedAt = SystemClock.uptimeMillis();
+        joystickHandler.removeCallbacks(joystickTick);
+        joystickHandler.post(joystickTick);
+    }
+
+    private void stopJoystickDirection(String direction) {
+        heldDirections.remove(direction);
+        if (heldDirections.isEmpty()) joystickHandler.removeCallbacks(joystickTick);
+    }
+
+    private void stopJoystick() {
+        joystickHandler.removeCallbacks(joystickTick);
+        heldDirections.clear();
+    }
+
+    private void toggleSystemKeyboard() {
+        if (keyboardVisible) {
+            hideSystemKeyboard();
+            return;
+        }
+        draft.requestFocus();
+        draft.post(() -> {
+            if (!draft.isAttachedToWindow()) return;
+            InputMethodManager manager = activity.getSystemService(InputMethodManager.class);
+            if (manager != null) manager.showSoftInput(draft, InputMethodManager.SHOW_IMPLICIT);
+        });
+    }
+
+    private void hideSystemKeyboard() {
+        InputMethodManager manager = activity.getSystemService(InputMethodManager.class);
+        if (manager != null && draft.getWindowToken() != null)
+            manager.hideSoftInputFromWindow(draft.getWindowToken(), 0);
+    }
+
+    private void syncKeyboardVisibility() {
+        View decor = activity.getWindow().getDecorView();
+        boolean visible;
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsets insets = decor.getRootWindowInsets();
+            if (insets != null) {
+                setKeyboardVisible(insets.isVisible(WindowInsets.Type.ime()));
+                return;
+            }
+        }
+        Rect visibleFrame = new Rect();
+        decor.getWindowVisibleDisplayFrame(visibleFrame);
+        int obscuredHeight = decor.getRootView().getHeight() - visibleFrame.bottom;
+        visible = obscuredHeight > dp(160);
+        setKeyboardVisible(visible);
+    }
+
+    private void setKeyboardVisible(boolean visible) {
+        if (keyboardVisible == visible && keyboardButton != null) return;
+        keyboardVisible = visible;
+        updateKeyboardButton();
+    }
+
+    private void updateKeyboardButton() {
+        if (keyboardButton == null) return;
+        keyboardButton.setContentDescription(getString(keyboardVisible ?
+            R.string.hosttap_close_keyboard : R.string.hosttap_open_keyboard));
+        keyboardButton.setSelected(keyboardVisible);
+        keyboardButton.setTextColor(keyboardVisible ? PAGE : INK);
+        keyboardButton.setBackground(background(keyboardVisible ? MINT : PANEL_HIGHLIGHT, 12));
+    }
+
     private void addKey(LinearLayout parent, String label, String key) {
         Button keyButton = button(label, false);
         keyButton.setTextSize(13);
@@ -479,25 +674,57 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         if (parent.getChildCount() > 0) params.leftMargin = dp(5);
         parent.addView(keyButton, params);
         inputControls.add(keyButton);
-        keyButton.setOnClickListener(view -> client.key(key));
+        boolean arrow = "left".equals(key) || "right".equals(key) || "up".equals(key) || "down".equals(key);
+        if (arrow) {
+            arrowButtons.add(keyButton);
+            keyButton.setOnTouchListener((view, event) -> {
+                int action = event.getActionMasked();
+                if (action == MotionEvent.ACTION_DOWN && joystickMode) {
+                    joystickPointers.add(key);
+                    startJoystick(key);
+                    return true;
+                }
+                if (joystickPointers.contains(key)) {
+                    if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                        joystickPointers.remove(key);
+                        stopJoystickDirection(key);
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+        keyButton.setOnClickListener(view -> {
+            if (!joystickMode) client.key(key);
+        });
     }
 
     private LinearLayout card() {
         LinearLayout card = new LinearLayout(activity);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(13), dp(13), dp(13), dp(13));
-        card.setBackground(background(PANEL, 18));
+        card.setPadding(dp(14), dp(12), dp(14), dp(12));
+        GradientDrawable shape = background(PANEL, 20);
+        shape.setStroke(dp(1), 0xff242d35);
+        card.setBackground(shape);
         return card;
     }
 
     private EditText field(int hint, int inputType) {
         EditText value = new EditText(activity);
+        return styleField(value, hint, inputType);
+    }
+
+    private EditText draftField(int hint, int inputType) {
+        return styleField(new SendActionEditText(activity), hint, inputType);
+    }
+
+    private EditText styleField(EditText value, int hint, int inputType) {
         value.setTextSize(15);
         value.setTextColor(INK);
-        value.setHintTextColor(0xff929299);
+        value.setHintTextColor(0xff7f8a93);
         value.setHint(hint);
         value.setInputType(inputType);
-        value.setBackground(background(0xfff3f4f7, 12));
+        value.setBackground(background(PANEL_HIGHLIGHT, 14));
         return value;
     }
 
@@ -509,8 +736,8 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         value.setAllCaps(false);
         value.setMinHeight(dp(40));
         value.setPadding(dp(7), 0, dp(7), 0);
-        value.setTextColor(primary ? Color.WHITE : INK);
-        value.setBackground(background(primary ? BLUE : 0xffeef0f3, 12));
+        value.setTextColor(primary ? PAGE : INK);
+        value.setBackground(background(primary ? MINT : PANEL_HIGHLIGHT, 14));
         return value;
     }
 
@@ -546,24 +773,18 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         return params;
     }
 
-    private boolean containsInteractiveAt(android.view.ViewGroup parent, float x, float y) {
-        float parentX = x + parent.getScrollX();
-        float parentY = y + parent.getScrollY();
-        for (int index = parent.getChildCount() - 1; index >= 0; index--) {
-            View child = parent.getChildAt(index);
-            if (child.getVisibility() != VISIBLE || parentX < child.getLeft() || parentX >= child.getRight() ||
-                parentY < child.getTop() || parentY >= child.getBottom()) continue;
-            if (child.isClickable() || child.isLongClickable() || child.isFocusable()) return true;
-            if (child instanceof android.view.ViewGroup) {
-                if (containsInteractiveAt((android.view.ViewGroup) child,
-                    parentX - child.getLeft(), parentY - child.getTop())) return true;
-            }
-        }
-        return false;
-    }
-
     private int dp(float value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private String getString(int resource) { return activity.getString(resource); }
+
+    private static final class SendActionEditText extends EditText {
+        SendActionEditText(Context context) { super(context); }
+
+        @Override public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+            InputConnection connection = super.onCreateInputConnection(outAttrs);
+            if (connection != null) outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+            return connection;
+        }
+    }
 
     private final class TouchPadGestures implements View.OnTouchListener {
         private float lastX, lastY, downX, downY;

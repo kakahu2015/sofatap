@@ -29,15 +29,18 @@ import java.security.GeneralSecurityException;
 import java.util.function.Consumer;
 
 public final class MainActivity extends Activity {
-    private static final int BLUE = Color.rgb(0, 122, 255);
-    private static final int INK = Color.rgb(28, 28, 30);
-    private static final int MUTED = Color.rgb(112, 112, 117);
-    private static final int PAGE = Color.rgb(242, 242, 247);
+    private static final int MINT = Color.rgb(184, 243, 208);
+    private static final int INK = Color.rgb(243, 246, 245);
+    private static final int MUTED = Color.rgb(153, 166, 176);
+    private static final int PAGE = Color.rgb(10, 13, 17);
+    private static final int PANEL = Color.rgb(20, 25, 32);
+    private static final int PANEL_HIGHLIGHT = Color.rgb(28, 37, 45);
     private KeyTransPreferences preferences;
     private EditText apiKey, baseUrl, model, motherLanguage, foreignLanguage;
     private TextView keyStatus, imeStatus;
     private Switch typeMode, autoTranslate, deleteOriginal, autoSendAfterTranslate, autoLineBreak, autoSwitch;
     private FrameLayout pageHost;
+    private LinearLayout rootContainer, tabs;
     private View keyboardPage;
     private HostTapRemoteView remotePage;
     private Button computerTab, keyboardTab;
@@ -90,7 +93,8 @@ public final class MainActivity extends Activity {
     }
 
     private View createRoot() {
-        LinearLayout root = new LinearLayout(this);
+        rootContainer = new LinearLayout(this);
+        LinearLayout root = rootContainer;
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(PAGE);
         root.setOnApplyWindowInsetsListener((view, insets) -> {
@@ -110,18 +114,18 @@ public final class MainActivity extends Activity {
         pageHost = new FrameLayout(this);
         root.addView(pageHost, new LinearLayout.LayoutParams(-1, 0, 1));
 
-        LinearLayout tabs = new LinearLayout(this);
+        tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
-        tabs.setPadding(dp(12), dp(7), dp(12), dp(7));
+        tabs.setPadding(dp(16), dp(8), dp(16), dp(8));
         tabs.setGravity(Gravity.CENTER);
-        tabs.setBackgroundColor(Color.WHITE);
+        tabs.setBackgroundColor(PAGE);
         computerTab = navButton(R.string.tab_computer);
         keyboardTab = navButton(R.string.tab_keyboard);
         tabs.addView(computerTab, new LinearLayout.LayoutParams(0, dp(42), 1));
         LinearLayout.LayoutParams keyboardParams = new LinearLayout.LayoutParams(0, dp(42), 1);
         keyboardParams.leftMargin = dp(8);
         tabs.addView(keyboardTab, keyboardParams);
-        root.addView(tabs, new LinearLayout.LayoutParams(-1, dp(56)));
+        root.addView(tabs, new LinearLayout.LayoutParams(-1, dp(60)));
 
         remotePage = new HostTapRemoteView(this, preferences);
         keyboardPage = createPage();
@@ -148,17 +152,24 @@ public final class MainActivity extends Activity {
         if (page != null) pageHost.addView(page, new FrameLayout.LayoutParams(-1, -1));
         computerTab.setSelected(tab == 0);
         keyboardTab.setSelected(tab == 1);
-        computerTab.setTextColor(tab == 0 ? Color.WHITE : INK);
+        int selectedText = PAGE;
+        int unselectedText = MUTED;
+        computerTab.setTextColor(tab == 0 ? selectedText : unselectedText);
         computerTab.setBackground(navBackground(tab == 0));
-        keyboardTab.setTextColor(tab == 1 ? Color.WHITE : INK);
+        keyboardTab.setTextColor(tab == 1 ? selectedText : unselectedText);
         keyboardTab.setBackground(navBackground(tab == 1));
+        tabs.setBackgroundColor(PAGE);
+        rootContainer.setBackgroundColor(PAGE);
+        getWindow().setStatusBarColor(PAGE);
+        getWindow().setNavigationBarColor(PAGE);
+        getWindow().getDecorView().setSystemUiVisibility(0);
         if (tab == 0 && activityResumed && remotePage != null) remotePage.onVisible();
     }
 
     private GradientDrawable navBackground(boolean selected) {
         GradientDrawable shape = new GradientDrawable();
-        shape.setColor(selected ? BLUE : Color.rgb(242, 242, 247));
-        shape.setCornerRadius(dp(12));
+        shape.setColor(selected ? MINT : PANEL_HIGHLIGHT);
+        shape.setCornerRadius(dp(18));
         return shape;
     }
 
@@ -168,12 +179,12 @@ public final class MainActivity extends Activity {
         scroll.setBackgroundColor(PAGE);
         LinearLayout page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(20), dp(20), dp(20), dp(32));
+        page.setPadding(dp(16), dp(14), dp(16), dp(26));
         scroll.addView(page);
 
-        TextView title = text("KeyTrans", 30, INK, true);
+        TextView title = text("KeyTrans", 24, INK, true);
         page.addView(title);
-        TextView tagline = text(R.string.tagline, 15, MUTED, false);
+        TextView tagline = text(R.string.tagline, 13, MUTED, false);
         LinearLayout.LayoutParams taglineParams = params(-1, -2);
         taglineParams.topMargin = dp(4);
         page.addView(tagline, taglineParams);
@@ -185,8 +196,8 @@ public final class MainActivity extends Activity {
         addButton(setup, R.string.select_keyboard, this::showKeyboardPicker);
 
         LinearLayout service = card(page, R.string.service_section);
-        baseUrl = addField(service, R.string.base_url, "https://api.openai.com/v1/chat/completions", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        model = addField(service, R.string.model, "gpt-3.5-turbo", InputType.TYPE_CLASS_TEXT);
+        baseUrl = addField(service, R.string.base_url, "https://api.deepseek.com", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        model = addField(service, R.string.model, "deepseek-flash", InputType.TYPE_CLASS_TEXT);
         motherLanguage = addField(service, R.string.mother_language, "Chinese (Simplified)", InputType.TYPE_CLASS_TEXT);
         foreignLanguage = addField(service, R.string.foreign_language, "English", InputType.TYPE_CLASS_TEXT);
         apiKey = addField(service, R.string.api_key, R.string.api_key_hint,
@@ -334,16 +345,16 @@ public final class MainActivity extends Activity {
     private LinearLayout card(LinearLayout page, int heading) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(16), dp(14), dp(16), dp(16));
+        card.setPadding(dp(14), dp(12), dp(14), dp(14));
         GradientDrawable shape = new GradientDrawable();
-        shape.setColor(Color.WHITE);
-        shape.setCornerRadius(dp(16));
-        shape.setStroke(dp(1), Color.rgb(226, 226, 231));
+        shape.setColor(PANEL);
+        shape.setCornerRadius(dp(20));
+        shape.setStroke(dp(1), Color.rgb(36, 45, 53));
         card.setBackground(shape);
         LinearLayout.LayoutParams cardParams = params(-1, -2);
-        cardParams.topMargin = dp(16);
+        cardParams.topMargin = dp(12);
         page.addView(card, cardParams);
-        TextView title = text(heading, 17, INK, true);
+        TextView title = text(heading, 15, INK, true);
         card.addView(title);
         return card;
     }
@@ -354,6 +365,7 @@ public final class MainActivity extends Activity {
         EditText field = new EditText(this);
         field.setTextSize(15);
         field.setTextColor(INK);
+        field.setHintTextColor(Color.rgb(127, 138, 147));
         field.setSingleLine(true);
         field.setInputType(inputType);
         field.setHint(hint);
@@ -395,10 +407,10 @@ public final class MainActivity extends Activity {
     private void addButton(LinearLayout parent, int title, Runnable action) {
         Button button = new Button(this);
         button.setText(title);
-        button.setTextColor(Color.WHITE);
+        button.setTextColor(PAGE);
         button.setTextSize(14);
         button.setAllCaps(false);
-        button.setBackground(buttonBackground(BLUE));
+        button.setBackground(buttonBackground(MINT));
         button.setOnClickListener(view -> action.run());
         LinearLayout.LayoutParams buttonParams = params(-1, dp(46));
         buttonParams.topMargin = dp(10);
@@ -432,16 +444,16 @@ public final class MainActivity extends Activity {
 
     private GradientDrawable fieldBackground() {
         GradientDrawable shape = new GradientDrawable();
-        shape.setColor(PAGE);
-        shape.setCornerRadius(dp(10));
-        shape.setStroke(dp(1), Color.rgb(220, 220, 225));
+        shape.setColor(PANEL_HIGHLIGHT);
+        shape.setCornerRadius(dp(14));
+        shape.setStroke(dp(1), Color.rgb(40, 50, 58));
         return shape;
     }
 
     static GradientDrawable buttonBackground(int color) {
         GradientDrawable shape = new GradientDrawable();
         shape.setColor(color);
-        shape.setCornerRadius(dpStatic(10));
+        shape.setCornerRadius(dpStatic(14));
         return shape;
     }
 

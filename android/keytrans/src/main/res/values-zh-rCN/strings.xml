@@ -9,7 +9,7 @@
     <string name="api_key_saved">API 密钥已安全保存</string>
     <string name="api_key_missing">添加 API 密钥后即可翻译</string>
     <string name="api_key_clear">清除已保存的密钥</string>
-    <string name="base_url">API 地址</string>
+    <string name="base_url">OpenAI 兼容 API 地址</string>
     <string name="model">模型</string>
     <string name="mother_language">母语</string>
     <string name="foreign_language">对方语言</string>
@@ -84,6 +84,10 @@
     <string name="hosttap_draft_hint">输入草稿，确认后发送</string>
     <string name="hosttap_send">发送</string>
     <string name="hosttap_clear">清空草稿</string>
+    <string name="hosttap_open_keyboard">打开系统键盘</string>
+    <string name="hosttap_close_keyboard">收起系统键盘</string>
+    <string name="hosttap_joystick_enable">摇杆模式</string>
+    <string name="hosttap_joystick_disable">方向键模式</string>
     <string name="hosttap_allow_resend">已检查电脑，允许重发</string>
     <string name="hosttap_not_connected">未连接电脑</string>
     <string name="hosttap_connected">已连接 · 请先点选电脑里的输入框</string>
@@ -92,7 +96,7 @@
     <string name="hosttap_clipboard_empty">剪贴板里没有配对链接。</string>
     <string name="hosttap_pair_removed">已移除电脑配对。</string>
     <string name="hosttap_text_uncertain">发送结果未确认。请检查电脑后再允许重发。</string>
-    <string name="hosttap_sent_status">接收器已确认提交操作。请检查电脑屏幕；之后只发送新增文字。</string>
+    <string name="hosttap_sent_status">电脑已确认上次发送。</string>
     <string name="hosttap_sent_prefix_edited">已发送文字被修改。请检查电脑后再允许整段重发。</string>
     <string name="hosttap_send_confirmed">已检查电脑，允许下一次显式发送整段草稿。</string>
     <string name="hosttap_privacy">配对链接会在本机加密保存。文字在你点击发送前只保留在本地草稿中。</string>

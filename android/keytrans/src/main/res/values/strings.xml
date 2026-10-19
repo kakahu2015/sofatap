@@ -9,7 +9,7 @@
     <string name="api_key_saved">API key saved securely</string>
     <string name="api_key_missing">Add an API key to translate</string>
     <string name="api_key_clear">Clear saved key</string>
-    <string name="base_url">API endpoint</string>
+    <string name="base_url">OpenAI-compatible API URL</string>
     <string name="model">Model</string>
     <string name="mother_language">Native language</string>
     <string name="foreign_language">Other language</string>
@@ -84,6 +84,10 @@
     <string name="hosttap_draft_hint">Type a draft, review it, then send</string>
     <string name="hosttap_send">Send</string>
     <string name="hosttap_clear">Clear draft</string>
+    <string name="hosttap_open_keyboard">Open system keyboard</string>
+    <string name="hosttap_close_keyboard">Close system keyboard</string>
+    <string name="hosttap_joystick_enable">Joystick</string>
+    <string name="hosttap_joystick_disable">Keyboard arrows</string>
     <string name="hosttap_allow_resend">I checked the computer; allow resend</string>
     <string name="hosttap_not_connected">Not connected to a computer</string>
     <string name="hosttap_connected">Connected · click a computer text field first</string>
@@ -92,7 +96,7 @@
     <string name="hosttap_clipboard_empty">Clipboard has no pairing link.</string>
     <string name="hosttap_pair_removed">Computer pairing removed.</string>
     <string name="hosttap_text_uncertain">Delivery is unconfirmed. Check the computer before allowing a resend.</string>
-    <string name="hosttap_sent_status">The receiver acknowledged submission. Check the computer; only newly added text can be sent.</string>
+    <string name="hosttap_sent_status">The computer confirmed the previous send.</string>
     <string name="hosttap_sent_prefix_edited">Previously sent text was edited. Check the computer before resending the full draft.</string>
     <string name="hosttap_send_confirmed">Checked. The full draft is ready for one explicit resend.</string>
     <string name="hosttap_privacy">The pairing link is encrypted on this device. Text stays in the local draft until you send it.</string>

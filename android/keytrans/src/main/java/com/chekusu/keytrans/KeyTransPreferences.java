@@ -36,8 +36,8 @@ public final class KeyTransPreferences {
         values = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    public String baseUrl() { return values.getString("base_url", "https://api.openai.com/v1/chat/completions"); }
-    public String model() { return values.getString("model", "gpt-3.5-turbo"); }
+    public String baseUrl() { return values.getString("base_url", "https://api.deepseek.com"); }
+    public String model() { return values.getString("model", "deepseek-flash"); }
     public String motherLanguage() { return values.getString("mother_language", "Chinese (Simplified)"); }
     public String foreignLanguage() { return values.getString("foreign_language", "English"); }
     public boolean startsInTypeMode() { return values.getBoolean("start_in_type_mode", false); }
