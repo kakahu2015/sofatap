@@ -19,7 +19,7 @@ public sealed class DryRunInput : IInputInjector
 public sealed class WindowsInput : IInputInjector
 {
     private const uint Mouse = 0, Keyboard = 1;
-    private const uint Move = 0x0001, LeftDown = 0x0002, LeftUp = 0x0004, RightDown = 0x0008, RightUp = 0x0010;
+    private const uint LeftDown = 0x0002, LeftUp = 0x0004, RightDown = 0x0008, RightUp = 0x0010;
     private const uint Wheel = 0x0800, HorizontalWheel = 0x1000, KeyUp = 0x0002, Unicode = 0x0004, Extended = 0x0001;
     private readonly HashSet<string> _held = [];
     private double _fractionX, _fractionY, _scrollX, _scrollY;
@@ -55,7 +55,7 @@ public sealed class WindowsInput : IInputInjector
                 case "move":
                     _fractionX += action.Dx; _fractionY += action.Dy;
                     var x = (int)_fractionX; var y = (int)_fractionY;
-                    if (x != 0 || y != 0) Submit([MouseEvent(Move, x, y)]);
+                    if (x != 0 || y != 0) MoveCursor(x, y);
                     _fractionX -= x; _fractionY -= y;
                     break;
                 case "scroll":
@@ -107,6 +107,17 @@ public sealed class WindowsInput : IInputInjector
             }
             _held.Clear(); _fractionX = 0; _fractionY = 0; _scrollX = 0; _scrollY = 0;
         }
+    }
+    private static void MoveCursor(int dx, int dy)
+    {
+        if (!Native.GetCursorPos(out var position))
+        {
+            var error = Marshal.GetLastPInvokeError();
+            throw new InputInjectionException($"input_failed: GetCursorPos failed (error {error}).");
+        }
+        if (Native.SetCursorPos(position.X + dx, position.Y + dy)) return;
+        var setError = Marshal.GetLastPInvokeError();
+        throw new InputInjectionException($"input_failed: SetCursorPos failed (error {setError}).");
     }
     private void Submit(Native.Input[] events)
     {
@@ -189,7 +200,10 @@ public sealed class WindowsInput : IInputInjector
         [StructLayout(LayoutKind.Sequential)] public struct MouseInput { public int Dx, Dy; public uint MouseData, Flags, Time; public IntPtr ExtraInfo; }
         [StructLayout(LayoutKind.Sequential)] public struct KeyboardInput { public ushort VirtualKey, Scan; public uint Flags, Time; public IntPtr ExtraInfo; }
         [StructLayout(LayoutKind.Sequential)] public struct HardwareInput { public uint Message; public ushort ParamL, ParamH; }
+        [StructLayout(LayoutKind.Sequential)] public struct Point { public int X, Y; }
         [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int virtualKey);
+        [DllImport("user32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetCursorPos(out Point point);
+        [DllImport("user32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool SetCursorPos(int x, int y);
         [DllImport("user32.dll", SetLastError = true)] public static extern uint SendInput(uint count, [In] Input[] inputs, int size);
         [DllImport("user32.dll", SetLastError = true)] public static extern IntPtr OpenInputDesktop(uint flags, [MarshalAs(UnmanagedType.Bool)] bool inherit, uint access);
         [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool CloseDesktop(IntPtr desktop);
