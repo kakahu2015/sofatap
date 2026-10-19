@@ -25,7 +25,7 @@ As on iOS, **Foreign→Native** is a preview action and **Native→Foreign** can
 
 ## HostTap computer control
 
-Open the **Computer** tab, copy the `sofatap://pair` link shown by the Windows, macOS or Linux HostTap receiver, paste it into the pairing field and choose **Save and connect**. The link is encrypted with Android Keystore before it is saved. The WSS client checks the paired leaf certificate fingerprint, normal certificate validity dates and the certificate's host name before sending the bearer token.
+Open the **Computer** tab and scan the QR code shown by the Windows, macOS or Linux HostTap receiver. You can also paste its `sofatap://pair` link and choose **Save and connect**. Camera permission is requested only when scanning; QR decoding happens on-device, and only a valid HostTap pairing link is accepted. The link is encrypted with Android Keystore before it is saved. The WSS client checks the paired leaf certificate fingerprint, normal certificate validity dates and the certificate's host name before sending the bearer token.
 
 The remote surface supports pointer movement, left/right click, two-finger scrolling, a held left-button drag, common computer keys and a review-before-send text draft. Draft text remains on the phone when disconnected. An uncertain send is blocked until the user checks the computer and explicitly allows another send; it is never replayed during reconnection. Live text-field synchronization and dictation are not included in this first Android controller.
 

@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -26,6 +27,7 @@ import java.util.List;
 
 /** Phone-side HostTap controller: mouse gestures and reviewed text delivery. */
 final class HostTapRemoteView extends ScrollView implements HostTapClient.Listener {
+    static final int REQUEST_QR_SCAN = 6412;
     private static final int BLUE = 0xff007aff;
     private static final int MINT = 0xff8ee3c1;
     private static final int INK = 0xff1c1c1e;
@@ -39,6 +41,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     private final EditText pairingLink, draft;
     private final Button connectButton, dragButton, sendButton, resendButton, clearDraftButton;
     private final TouchPad touchPad;
+    private final TouchPadGestures touchPadGestures;
     private final List<View> inputControls = new ArrayList<>();
     private boolean sending, uncertain, dragging, manualResend;
     private String sentSnapshot, lastSentDraft;
@@ -76,16 +79,19 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         LinearLayout pairActions = new LinearLayout(activity);
         pairActions.setOrientation(LinearLayout.HORIZONTAL);
         connectionCard.addView(pairActions);
+        Button scan = button(R.string.hosttap_scan_qr, false);
         Button paste = button(R.string.hosttap_paste, false);
         connectButton = button(R.string.hosttap_connect, true);
-        pairActions.addView(paste, new LinearLayout.LayoutParams(0, dp(44), 1));
-        pairActions.addView(connectButton, weightedMargin(0, dp(44), 1, 8, 0));
+        pairActions.addView(scan, new LinearLayout.LayoutParams(0, dp(44), 1));
+        pairActions.addView(paste, weightedMargin(0, dp(44), 1, 8, 0));
+        connectionCard.addView(connectButton, topMargin(-1, dp(44), 8));
         Button forget = button(R.string.hosttap_forget, false);
         connectionCard.addView(forget, topMargin(-1, dp(40), 5));
 
         TextView mouseTitle = text(R.string.hosttap_touchpad, 17, INK, true);
         page.addView(mouseTitle, topMargin(-1, -2, 2));
         touchPad = new TouchPad(activity);
+        touchPadGestures = new TouchPadGestures();
         page.addView(touchPad, topMargin(-1, dp(188), 8));
         LinearLayout mouseActions = new LinearLayout(activity);
         mouseActions.setGravity(Gravity.CENTER_VERTICAL);
@@ -153,6 +159,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         TextView privacy = text(R.string.hosttap_privacy, 12, MUTED, false);
         page.addView(privacy, topMargin(-1, -2, 12));
 
+        scan.setOnClickListener(view -> scanPairingQr());
         paste.setOnClickListener(view -> pasteLink());
         connectButton.setOnClickListener(view -> connectFromField());
         forget.setOnClickListener(view -> forgetPairing());
@@ -175,7 +182,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
             deliveryStatus.setText(R.string.hosttap_send_confirmed);
             updateControls();
         });
-        touchPad.setOnTouchListener(new TouchPadGestures());
+        touchPad.setOnTouchListener(touchPadGestures);
         loadSavedPairing();
         updateControls();
     }
@@ -188,6 +195,7 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     }
 
     void onHidden() {
+        touchPadGestures.cancel();
         if (dragging) client.setDragging(false, result -> { });
         dragging = false;
         client.disconnect("未连接电脑");
@@ -197,6 +205,11 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
     void setPairingLink(String link) {
         pairingLink.setText(link == null ? "" : link);
         pairingLink.setSelection(pairingLink.length());
+    }
+
+    void acceptScannedPairingLink(String link) {
+        setPairingLink(link);
+        connectFromField();
     }
 
     @Override public void onState(String message, boolean connecting, boolean connected, boolean inputAvailable,
@@ -298,6 +311,10 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         } catch (Exception error) {
             Toast.makeText(activity, error.getMessage() == null ? getString(R.string.hosttap_invalid_link) : error.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void scanPairingQr() {
+        activity.startActivityForResult(new android.content.Intent(activity, QrScannerActivity.class), REQUEST_QR_SCAN);
     }
 
     private void loadSavedPairing() {
@@ -451,21 +468,59 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
         private float lastX, lastY, downX, downY;
         private boolean moved, scrolling;
         private final int touchSlop = ViewConfiguration.get(activity).getScaledTouchSlop();
+        private final int minimumFlingVelocity = ViewConfiguration.get(activity).getScaledMinimumFlingVelocity();
+        private final int maximumFlingVelocity = ViewConfiguration.get(activity).getScaledMaximumFlingVelocity();
+        private float scrollVelocity, lastScrollSampleY;
+        private long lastScrollSampleAt, lastFlingAt;
+        private final Runnable fling = new Runnable() {
+            @Override public void run() {
+                if (!client.canControl() || Math.abs(scrollVelocity) < minimumFlingVelocity) {
+                    stopFling();
+                    return;
+                }
+                long now = SystemClock.uptimeMillis();
+                float seconds = Math.min(0.05f, Math.max(0f, (now - lastFlingAt) / 1000f));
+                if (seconds > 0f) {
+                    client.scroll(scrollVelocity * seconds);
+                    scrollVelocity *= (float) Math.exp(-5.0 * seconds);
+                }
+                lastFlingAt = now;
+                if (Math.abs(scrollVelocity) >= minimumFlingVelocity) touchPad.postOnAnimation(this);
+                else stopFling();
+            }
+        };
+
         @Override public boolean onTouch(View view, MotionEvent event) {
-            if (!client.canControl()) return false;
+            if (!client.canControl()) {
+                if (event.getActionMasked() == MotionEvent.ACTION_UP ||
+                    event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                    stopFling();
+                    releaseParentIntercept(view);
+                }
+                return false;
+            }
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    stopFling();
+                    if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(true);
                     lastX = downX = event.getX(); lastY = downY = event.getY();
                     moved = false; scrolling = false;
                     return true;
                 case MotionEvent.ACTION_POINTER_DOWN:
-                    if (event.getPointerCount() >= 2) { scrolling = true; moved = true; lastY = averageY(event); }
+                    if (event.getPointerCount() >= 2) {
+                        scrolling = true;
+                        moved = true;
+                        lastY = lastScrollSampleY = averageY(event);
+                        lastScrollSampleAt = event.getEventTime();
+                        scrollVelocity = 0f;
+                    }
                     return true;
                 case MotionEvent.ACTION_MOVE:
                     if (event.getPointerCount() >= 2) {
                         scrolling = true; moved = true;
                         float y = averageY(event);
                         client.scroll(lastY - y);
+                        sampleScrollVelocity(y, event.getEventTime());
                         lastY = y;
                     } else if (!scrolling) {
                         float x = event.getX(), y = event.getY();
@@ -477,12 +532,57 @@ final class HostTapRemoteView extends ScrollView implements HostTapClient.Listen
                     return true;
                 case MotionEvent.ACTION_UP:
                     if (!moved && !scrolling) client.click("left");
+                    if (scrolling) startFling(event.getEventTime());
+                    releaseParentIntercept(view);
                     return true;
                 case MotionEvent.ACTION_CANCEL:
+                    stopFling();
+                    releaseParentIntercept(view);
                     return true;
                 default: return true;
             }
         }
+
+        private void sampleScrollVelocity(float y, long eventTime) {
+            long elapsed = eventTime - lastScrollSampleAt;
+            if (elapsed > 0 && elapsed <= 100) {
+                float instantaneous = (lastScrollSampleY - y) * 1000f / elapsed;
+                instantaneous = Math.max(-maximumFlingVelocity, Math.min(maximumFlingVelocity, instantaneous));
+                scrollVelocity = scrollVelocity * 0.35f + instantaneous * 0.65f;
+            } else {
+                scrollVelocity = 0f;
+            }
+            lastScrollSampleY = y;
+            lastScrollSampleAt = eventTime;
+        }
+
+        private void startFling(long eventTime) {
+            long idle = eventTime - lastScrollSampleAt;
+            if (idle > 100) scrollVelocity = 0f;
+            else if (idle > 0) scrollVelocity *= (float) Math.exp(-5.0 * idle / 1000.0);
+            if (Math.abs(scrollVelocity) < minimumFlingVelocity) {
+                stopFling();
+                return;
+            }
+            lastFlingAt = SystemClock.uptimeMillis();
+            touchPad.postOnAnimation(fling);
+        }
+
+        private void stopFling() {
+            touchPad.removeCallbacks(fling);
+            scrollVelocity = 0f;
+            lastFlingAt = 0;
+        }
+
+        private void releaseParentIntercept(View view) {
+            if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(false);
+        }
+
+        void cancel() {
+            stopFling();
+            releaseParentIntercept(touchPad);
+        }
+
         private float averageY(MotionEvent event) {
             float total = 0;
             int count = Math.min(event.getPointerCount(), 2);

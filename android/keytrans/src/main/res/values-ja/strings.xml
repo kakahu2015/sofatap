@@ -58,4 +58,12 @@
     <string name="endpoint_not_https">HTTPS エンドポイントのみ利用できます</string>
     <string name="ime_subtype">KeyTrans 英語キーボード</string>
     <string name="language_pair">%1$s → %2$s</string>
+    <string name="hosttap_scan_qr">QR コードをスキャン</string>
+    <string name="qr_scan_title">HostTap コードをスキャン</string>
+    <string name="qr_scan_instruction">コンピューターの HostTap ペアリング QR コードを枠内に合わせてください。</string>
+    <string name="qr_scan_invalid">有効な HostTap ペアリングコードではありません。</string>
+    <string name="qr_scan_camera_denied">ペアリングコードのスキャンにはカメラへのアクセスが必要です。</string>
+    <string name="qr_scan_camera_unavailable">このデバイスでカメラを起動できません。</string>
+    <string name="qr_scan_open_settings">カメラ設定を開く</string>
+    <string name="qr_scan_cancel">キャンセル</string>
 </resources>

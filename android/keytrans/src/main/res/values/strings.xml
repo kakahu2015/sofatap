@@ -63,7 +63,8 @@
     <string name="hosttap_title">HostTap</string>
     <string name="hosttap_subtitle">Control your computer and send reviewed text.</string>
     <string name="hosttap_pairing">Pair a computer</string>
-    <string name="hosttap_pair_hint">Paste the computer’s sofatap://pair link</string>
+    <string name="hosttap_pair_hint">Scan the computer QR code or paste its sofatap://pair link</string>
+    <string name="hosttap_scan_qr">Scan QR code</string>
     <string name="hosttap_paste">Paste link</string>
     <string name="hosttap_connect">Save and connect</string>
     <string name="hosttap_forget">Remove pairing</string>
@@ -89,4 +90,11 @@
     <string name="hosttap_sent_prefix_edited">Previously sent text was edited. Check the computer before resending the full draft.</string>
     <string name="hosttap_send_confirmed">Checked. The full draft is ready for one explicit resend.</string>
     <string name="hosttap_privacy">The pairing link is encrypted on this device. Text stays in the local draft until you send it.</string>
+    <string name="qr_scan_title">Scan HostTap code</string>
+    <string name="qr_scan_instruction">Place the computer’s HostTap pairing QR code inside the frame.</string>
+    <string name="qr_scan_invalid">This is not a valid HostTap pairing code.</string>
+    <string name="qr_scan_camera_denied">Camera access is needed to scan a pairing code.</string>
+    <string name="qr_scan_camera_unavailable">The camera could not be started on this device.</string>
+    <string name="qr_scan_open_settings">Open camera settings</string>
+    <string name="qr_scan_cancel">Cancel</string>
 </resources>

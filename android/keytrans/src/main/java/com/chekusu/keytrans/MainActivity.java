@@ -73,6 +73,13 @@ public final class MainActivity extends Activity {
         handlePairingIntent(intent);
     }
 
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != HostTapRemoteView.REQUEST_QR_SCAN || resultCode != RESULT_OK || data == null) return;
+        String link = data.getStringExtra(QrScannerActivity.EXTRA_PAIRING_LINK);
+        if (link != null && remotePage != null) remotePage.acceptScannedPairingLink(link);
+    }
+
     private void handlePairingIntent(Intent intent) {
         if (intent == null || intent.getData() == null) return;
         Uri data = intent.getData();

@@ -42,6 +42,19 @@ The Android receiver includes the following runtime dependencies. License and no
 
 The Android runtime's OpenJDK backports retain their GPL license and Classpath Exception; they are not described as Apache-licensed. Build tools (Gradle, Android Gradle Plugin, SDK tools) and test-only JUnit/AndroidX test libraries are not bundled as application runtime dependencies. This table describes the initial Android feasibility build; dependency upgrades must update the bundled notices before redistribution.
 
+## Android KeyTrans phone app
+
+The KeyTrans APK includes the following runtime dependencies. License and notice texts are bundled under [`assets/licenses/`](android/keytrans/src/main/assets/licenses) in the phone APK.
+
+| Component | Version | License and notices | Source |
+| --- | --- | --- | --- |
+| AndroidX Activity | 1.12.0 | [Apache-2.0](android/keytrans/src/main/assets/licenses/APACHE-2.0.txt) | [AndroidX](https://developer.android.com/jetpack/androidx) |
+| AndroidX CameraX (`camera-camera2`, `camera-lifecycle`, `camera-view`) | 1.6.2 | [Apache-2.0](android/keytrans/src/main/assets/licenses/APACHE-2.0.txt) | [CameraX release documentation](https://developer.android.com/jetpack/androidx/releases/camera) |
+| ZXing Core | 3.5.3 | [Apache-2.0](android/keytrans/src/main/assets/licenses/ZXING-LICENSE.txt), [notice](android/keytrans/src/main/assets/licenses/ZXING-NOTICE.txt) | [Versioned source](https://github.com/zxing/zxing/tree/zxing-3.5.3) |
+| OkHttp and Okio | 4.12.0 / 3.6.0 | [Apache-2.0](android/keytrans/src/main/assets/licenses/OKHTTP-LICENSE.txt), [Okio license](android/keytrans/src/main/assets/licenses/OKIO-LICENSE.txt) | [OkHttp](https://github.com/square/okhttp/tree/parent-4.12.0) |
+
+The QR scanner requests camera access only when opened. It decodes locally and passes only a valid HostTap pairing link into the existing encrypted storage and pinned TLS connection flow.
+
 ## Sparkle (macOS website receiver only)
 
 The macOS website receiver bundles Sparkle 2.10.0, copyright the Sparkle contributors, under its BSD-style license. The exact upstream license is included in the application at `Contents/Resources/licenses/Sparkle-LICENSE.txt`. Sparkle and its helpers are not included in the Mac App Store basic build. Source and license: https://github.com/sparkle-project/Sparkle/tree/2.10.0

@@ -1,0 +1,21 @@
+KeyTrans for Android includes the following runtime libraries:
+
+AndroidX Activity 1.12.0 and AndroidX CameraX 1.6.2 (camera-camera2,
+camera-lifecycle, camera-view) are distributed under the Apache License 2.0.
+The license text is in APACHE-2.0.txt.
+
+ZXing Core 3.5.3 is distributed under the Apache License 2.0 and includes
+additional upstream notices. See ZXING-LICENSE.txt and ZXING-NOTICE.txt.
+
+OkHttp 4.12.0 and Okio are distributed under the Apache License 2.0. See
+OKHTTP-LICENSE.txt and OKIO-LICENSE.txt. OkHttp's bundled Public Suffix List
+data includes Mozilla Public License 2.0 notices in the MOZILLA-PUBLIC-SUFFIX-
+LIST files.
+
+Kotlin standard-library components are distributed under the Apache License
+2.0. See KOTLIN-LICENSE.txt, KOTLIN-NOTICE.txt and KOTLIN-COPYRIGHT.txt.
+JetBrains annotations are distributed under the Apache License 2.0; see
+JETBRAINS-ANNOTATIONS-LICENSE.txt.
+
+The QR scanner processes camera frames on-device. It does not upload or log
+camera frames or decoded pairing links.
