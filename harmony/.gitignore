@@ -3,6 +3,7 @@ oh_modules/
 entry/build/
 build/
 local.properties
+.ci-signing/
 *.p12
 *.cer
 *.pem

@@ -1,5 +1,8 @@
+import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { HostTapPairing } from '../model/HostTapPairing';
-import { HostTapActionResult, HostTapClient, HostTapState, HostTapStateListener } from '../model/HostTapClient';
+import { HostTapActionResult, HostTapClient, HostTapState, HostTapStateListener, LiveTextSnapshot, hostTapClient } from '../model/HostTapClient';
+import { PairingStore, SavedComputer } from '../model/PairingStore';
 
 @Entry
 @Component
@@ -12,13 +15,26 @@ struct Index {
   @State private inputAvailable: boolean = false;
   @State private protectedFocus: boolean = false;
   @State private draft: string = '';
+  @State private liveTextDraft: string = '';
+  @State private liveSelectionStart: number = 0;
+  @State private liveSelectionLength: number = 0;
   @State private operationMessage: string = '';
+  @State private savedComputers: SavedComputer[] = [];
+  @State private liveTextSupported: boolean = false;
+  @State private liveTextActive: boolean = false;
+  @State private liveTextAvailable: boolean = false;
+  @State private liveTextPaused: boolean = false;
+  @State private autoReconnectEnabled: boolean = true;
+  @State private dragStarted: boolean = false;
 
-  private readonly client: HostTapClient = new HostTapClient();
+  private readonly client: HostTapClient = hostTapClient;
+  private appContext?: common.UIAbilityContext;
   private lastPanX: number = 0;
   private lastPanY: number = 0;
+  private lastScrollY: number = 0;
 
   aboutToAppear(): void {
+    this.appContext = getContext(this) as common.UIAbilityContext;
     const listener: HostTapStateListener = {
       onState: (state: HostTapState): void => {
         this.status = state.status;
@@ -27,13 +43,28 @@ struct Index {
         this.connected = state.connected;
         this.inputAvailable = state.inputAvailable;
         this.protectedFocus = state.protectedFocus;
+        this.liveTextSupported = state.liveTextSupported;
+        this.liveTextActive = state.liveTextActive;
+        this.liveTextAvailable = state.liveTextAvailable;
+        this.liveTextPaused = state.liveTextPaused;
+        this.autoReconnectEnabled = state.autoReconnectEnabled;
       }
     };
     this.client.setListener(listener);
+    this.client.setForeground(true);
+    void this.refreshSavedComputers();
   }
 
-  aboutToDisappear(): void {
-    void this.client.disconnect();
+  private async refreshSavedComputers(): Promise<void> {
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      return;
+    }
+    try {
+      this.savedComputers = await PairingStore.list(context);
+    } catch (error) {
+      this.operationMessage = error instanceof Error ? error.message : '无法读取已保存的电脑';
+    }
   }
 
   private async toggleConnection(): Promise<void> {
@@ -65,6 +96,112 @@ struct Index {
     this.operationMessage = result.error;
   }
 
+  private async scanPairingQr(): Promise<void> {
+    this.operationMessage = '';
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      this.operationMessage = '扫码页面尚未准备好';
+      return;
+    }
+    try {
+      const permission = await abilityAccessCtrl.createAtManager()
+        .requestPermissionsFromUser(context, ['ohos.permission.CAMERA']);
+      if (permission.authResults.length === 0 || permission.authResults[0] !== 0) {
+        this.operationMessage = '需要相机权限才能扫描电脑配对二维码';
+        return;
+      }
+      const result: scanBarcode.ScanResult = await scanBarcode.scanBarcode({
+        scanTypes: [scanCore.ScanType.QR_CODE],
+        enableAlbum: false
+      });
+      if (typeof result.originalValue !== 'string' || result.originalValue.length === 0) {
+        this.operationMessage = '二维码中没有配对链接';
+        return;
+      }
+      HostTapPairing.parse(result.originalValue);
+      this.pairingLink = result.originalValue;
+      this.operationMessage = '已读取配对二维码，请连接或保存电脑';
+    } catch (error) {
+      this.operationMessage = error instanceof Error ? error.message : '二维码扫描失败';
+    }
+  }
+
+  private async saveCurrentComputer(): Promise<void> {
+    this.operationMessage = '';
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      this.operationMessage = '设备存储尚未准备好';
+      return;
+    }
+    try {
+      const pairing: HostTapPairing = HostTapPairing.parse(this.pairingLink);
+      this.savedComputers = await PairingStore.save(context, pairing);
+      this.operationMessage = `已保存 ${pairing.displayName()}`;
+    } catch (error) {
+      this.operationMessage = error instanceof Error ? error.message : '无法保存电脑';
+    }
+  }
+
+  private async connectSavedComputer(computer: SavedComputer): Promise<void> {
+    this.operationMessage = '';
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      this.operationMessage = '设备存储尚未准备好';
+      return;
+    }
+    try {
+      const pairing: HostTapPairing = await PairingStore.resolve(context, computer);
+      this.pairingLink = pairing.link;
+      await this.client.connect(pairing);
+    } catch (error) {
+      this.operationMessage = error instanceof Error ? error.message : '无法连接已保存的电脑';
+    }
+  }
+
+  private async removeSavedComputer(computer: SavedComputer): Promise<void> {
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      return;
+    }
+    try {
+      this.savedComputers = await PairingStore.remove(context, computer.id);
+      this.operationMessage = `已移除 ${computer.name}`;
+    } catch (error) {
+      this.operationMessage = error instanceof Error ? error.message : '无法移除已保存的电脑';
+    }
+  }
+
+  private async toggleLiveText(): Promise<void> {
+    this.operationMessage = '';
+    if (this.liveTextActive) {
+      await this.client.endLiveText();
+      return;
+    }
+    const result: HostTapActionResult = await this.client.beginLiveText();
+    const snapshot: LiveTextSnapshot | undefined = result.liveText;
+    if (!result.accepted || snapshot === undefined) {
+      this.operationMessage = result.error;
+      return;
+    }
+    this.liveTextDraft = snapshot.text;
+    this.liveSelectionStart = snapshot.selectionStart;
+    this.liveSelectionLength = snapshot.selectionLength;
+  }
+
+  private onLiveTextSelection(start: number, end: number): void {
+    this.liveSelectionStart = Math.min(start, end);
+    this.liveSelectionLength = Math.abs(end - start);
+  }
+
+  private onLiveTextChange(value: string): void {
+    this.liveTextDraft = value;
+    this.client.syncLiveText(value, this.liveSelectionStart, this.liveSelectionLength);
+  }
+
+  private toggleAutoReconnect(): void {
+    this.client.setAutoReconnect(!this.autoReconnectEnabled);
+  }
+
   build() {
     Scroll() {
       Column({ space: 14 }) {
@@ -73,7 +210,7 @@ struct Index {
             Text('HostTap')
               .fontSize(28)
               .fontWeight(FontWeight.Bold)
-            Text('HarmonyOS MVP')
+            Text('HarmonyOS')
               .fontSize(13)
               .fontColor('#667085')
           }
@@ -99,24 +236,65 @@ struct Index {
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
             .width('100%')
-          TextInput({
-            text: this.pairingLink,
-            placeholder: '粘贴电脑端 sofatap://pair?... 配对链接'
-          })
+          Button('拍照扫描电脑二维码')
             .width('100%')
             .height(48)
             .enabled(!this.connected && !this.connecting)
-            .onChange((value: string) => {
-              this.pairingLink = value;
+            .onClick(() => {
+              void this.scanPairingQr();
             })
           Button(this.connecting ? '连接中…' : (this.connected ? '断开连接' : '连接电脑'))
             .width('100%')
             .height(44)
-            .enabled(!this.connecting)
+            .enabled(!this.connecting && (this.connected || this.pairingLink.length > 0))
             .onClick(() => {
               void this.toggleConnection();
             })
-          Text('第一版先用“复制配对链接 → 手机粘贴”验证完整控制链路；二维码扫描后续补。')
+          Row({ space: 8 }) {
+            Button('保存电脑')
+              .layoutWeight(1)
+              .enabled(!this.connected && !this.connecting && this.pairingLink.length > 0)
+              .onClick(() => {
+                void this.saveCurrentComputer();
+              })
+            Button(this.autoReconnectEnabled ? '自动重连：开' : '自动重连：关')
+              .layoutWeight(1)
+              .onClick(() => this.toggleAutoReconnect())
+          }
+          .width('100%')
+          if (this.savedComputers.length > 0) {
+            Text('已保存的电脑')
+              .fontSize(14)
+              .fontWeight(FontWeight.Medium)
+              .width('100%')
+            ForEach(this.savedComputers, (computer: SavedComputer) => {
+              Row({ space: 8 }) {
+                Column({ space: 2 }) {
+                  Text(computer.name || computer.host)
+                    .fontSize(14)
+                    .maxLines(1)
+                  Text(`${computer.host.indexOf(':') >= 0 ? `[${computer.host}]` : computer.host}:${computer.port}`)
+                    .fontSize(11)
+                    .fontColor('#667085')
+                    .maxLines(1)
+                }
+                .alignItems(HorizontalAlign.Start)
+                .layoutWeight(1)
+                Button('连接')
+                  .enabled(!this.connecting)
+                  .onClick(() => {
+                    void this.connectSavedComputer(computer);
+                  })
+                Button('删除')
+                  .onClick(() => {
+                    void this.removeSavedComputer(computer);
+                  })
+              }
+              .width('100%')
+              .padding({ top: 6, bottom: 6 })
+            }, (computer: SavedComputer) => computer.id)
+          }
+          Text(this.pairingLink.length > 0 ? '已扫描到配对码；凭据仅在本机处理。' : '请用相机扫描电脑端显示的配对二维码。')
             .fontSize(12)
             .fontColor('#667085')
             .width('100%')
@@ -127,7 +305,7 @@ struct Index {
         .borderRadius(14)
 
         Column({ space: 10 }) {
-          Text(this.inputAvailable ? '触控区 · 单指滑动移动鼠标' : '触控区 · 连接并就绪后可用')
+          Text(this.inputAvailable ? '触控区 · 单指移动 · 双指滚动 · 双指轻点右键' : '触控区 · 连接并就绪后可用')
             .fontSize(15)
             .fontWeight(FontWeight.Medium)
           Text('在下面区域滑动')
@@ -155,6 +333,39 @@ struct Index {
             .onActionEnd(() => {
               this.lastPanX = 0;
               this.lastPanY = 0;
+            })
+        )
+        .gesture(
+          PanGesture({ fingers: 2, direction: PanDirection.All, distance: 2 })
+            .onActionStart(() => {
+              this.lastScrollY = 0;
+            })
+            .onActionUpdate((event: GestureEvent) => {
+              const deltaY: number = event.offsetY - this.lastScrollY;
+              this.lastScrollY = event.offsetY;
+              this.client.scrollXY(0, -deltaY * 1.4);
+            })
+            .onActionEnd(() => {
+              this.lastScrollY = 0;
+            })
+        )
+        .gesture(
+          TapGesture({ count: 1, fingers: 2 })
+            .onAction(() => this.client.click('right'))
+        )
+        .gesture(
+          LongPressGesture({ duration: 500 })
+            .onAction(() => {
+              if (this.inputAvailable) {
+                this.dragStarted = true;
+                this.client.button('left', true);
+              }
+            })
+            .onActionEnd(() => {
+              if (this.dragStarted) {
+                this.client.button('left', false);
+                this.dragStarted = false;
+              }
             })
         )
 
@@ -226,6 +437,40 @@ struct Index {
             .onClick(() => {
               void this.sendDraft();
             })
+
+          if (this.liveTextSupported || this.liveTextPaused) {
+            if (this.liveTextSupported) {
+              Button(this.liveTextActive ? '结束实时编辑' :
+                (this.liveTextPaused ? '放弃手机草稿并重读电脑' : '实时编辑当前输入框'))
+                .width('100%')
+                .height(44)
+                .enabled(this.liveTextActive || this.liveTextAvailable)
+                .onClick(() => {
+                  void this.toggleLiveText();
+                })
+            }
+            if (this.liveTextActive || this.liveTextPaused) {
+              Text(this.liveTextPaused
+                ? '实时编辑已暂停；手机草稿仅保留在本机，请先核对电脑文字，不会自动重发。'
+                : '实时编辑 · 内容来自电脑当前输入框，仅保留在本机内存')
+                .fontSize(12)
+                .fontColor('#667085')
+                .width('100%')
+              TextArea({
+                text: this.liveTextDraft,
+                placeholder: '电脑当前输入框为空'
+              })
+                .width('100%')
+                .height(150)
+                .enabled(this.liveTextActive && this.inputAvailable)
+                .onTextSelectionChange((start: number, end: number) => {
+                  this.onLiveTextSelection(start, end);
+                })
+                .onChange((value: string) => {
+                  this.onLiveTextChange(value);
+                })
+            }
+          }
         }
         .width('100%')
         .padding(14)

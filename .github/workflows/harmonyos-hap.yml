@@ -1,0 +1,180 @@
+name: HarmonyOS HostTap HAP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'harmony/**'
+      - '.github/workflows/harmonyos-hap.yml'
+  pull_request:
+    paths:
+      - 'harmony/**'
+      - '.github/workflows/harmonyos-hap.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harmonyos-hap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-hap:
+    name: Build HarmonyOS HAP
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install native build dependency
+        run: sudo apt-get update && sudo apt-get install -y libgl1
+
+      - name: Cache HarmonyOS SDK and command-line tools
+        id: harmony-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/ohos-sdk
+          key: harmonyos-sdk-${{ runner.os }}-${{ runner.arch }}-6.0.0.858
+
+      - name: Download and verify HarmonyOS SDK and command-line tools
+        if: steps.harmony-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk_dir="$HOME/ohos-sdk"
+          archive_dir="$RUNNER_TEMP/harmonyos-sdk"
+          release_url="https://github.com/ErBWs/ohos-sdk/releases/download/6.0.0.858"
+          mkdir -p "$sdk_dir" "$archive_dir"
+
+          curl --fail --location --retry 3 "$release_url/ohos-sdk-linux-amd64.tar.gz.aa" -o "$archive_dir/ohos-sdk-linux-amd64.tar.gz.aa"
+          curl --fail --location --retry 3 "$release_url/ohos-sdk-linux-amd64.tar.gz.ab" -o "$archive_dir/ohos-sdk-linux-amd64.tar.gz.ab"
+          curl --fail --location --retry 3 "$release_url/ohos-sdk-linux-amd64.tar.gz.sha256" -o "$archive_dir/ohos-sdk-linux-amd64.tar.gz.sha256"
+
+          printf '%s  %s\n' \
+            'ce8e66b9b4a8c0f492e348595173cbccd685ed029e33eab4097d6affc184b4de' "$archive_dir/ohos-sdk-linux-amd64.tar.gz.aa" \
+            '785590e57b730333fdc9b71167dd7a32cb9341d88a7625704960b52c6dc33a35' "$archive_dir/ohos-sdk-linux-amd64.tar.gz.ab" \
+            'fa97d3887f81de8d97f91f7653e3a83337544588261a4163b885179c3bd43e4c' "$archive_dir/ohos-sdk-linux-amd64.tar.gz.sha256" \
+            | sha256sum --check
+
+          cat "$archive_dir/ohos-sdk-linux-amd64.tar.gz.aa" "$archive_dir/ohos-sdk-linux-amd64.tar.gz.ab" > "$archive_dir/ohos-sdk-linux-amd64.tar.gz"
+          (cd "$archive_dir" && sha256sum --check ohos-sdk-linux-amd64.tar.gz.sha256)
+          tar -xzf "$archive_dir/ohos-sdk-linux-amd64.tar.gz" -C "$sdk_dir"
+          rm -rf "$archive_dir"
+
+      - name: Add HarmonyOS tools to PATH
+        shell: bash
+        run: |
+          echo "$HOME/ohos-sdk/command-line-tools/bin" >> "$GITHUB_PATH"
+          echo "$HOME/ohos-sdk/command-line-tools/tool/node/bin" >> "$GITHUB_PATH"
+          echo "HOS_SDK_HOME=$HOME/ohos-sdk/command-line-tools/sdk" >> "$GITHUB_ENV"
+
+      - name: Configure debug signing when secrets are available
+        id: signing
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SIGNING_P12_BASE64: ${{ secrets.HARMONYOS_SIGNING_P12_BASE64 }}
+          SIGNING_CER_BASE64: ${{ secrets.HARMONYOS_SIGNING_CER_BASE64 }}
+          SIGNING_PROFILE_BASE64: ${{ secrets.HARMONYOS_SIGNING_PROFILE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.HARMONYOS_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HARMONYOS_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.HARMONYOS_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Fork-safe build: signing secrets are not used for pull requests."
+            exit 0
+          fi
+
+          if [[ -z "$SIGNING_P12_BASE64" || -z "$SIGNING_CER_BASE64" || -z "$SIGNING_PROFILE_BASE64" || -z "$STORE_PASSWORD" || -z "$KEY_ALIAS" || -z "$KEY_PASSWORD" ]]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are incomplete; building an unsigned HAP."
+            exit 0
+          fi
+
+          mkdir -p harmony/.ci-signing
+          printf '%s' "$SIGNING_P12_BASE64" | base64 --decode > harmony/.ci-signing/signing.p12
+          printf '%s' "$SIGNING_CER_BASE64" | base64 --decode > harmony/.ci-signing/signing.cer
+          printf '%s' "$SIGNING_PROFILE_BASE64" | base64 --decode > harmony/.ci-signing/signing.p7b
+          cp harmony/build-profile.json5 "$RUNNER_TEMP/harmony-build-profile.json5"
+
+          SIGNING_ROOT="$GITHUB_WORKSPACE/harmony/.ci-signing" \
+          STORE_PASSWORD="$STORE_PASSWORD" \
+          KEY_ALIAS="$KEY_ALIAS" \
+          KEY_PASSWORD="$KEY_PASSWORD" \
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("harmony/build-profile.json5")
+          config = json.loads(root.read_text())
+          signing_dir = Path(os.environ["SIGNING_ROOT"])
+          config["app"]["signingConfigs"] = [{
+              "name": "default",
+              "type": "HarmonyOS",
+              "material": {
+                  "certpath": str(signing_dir / "signing.cer"),
+                  "storePassword": os.environ["STORE_PASSWORD"],
+                  "keyAlias": os.environ["KEY_ALIAS"],
+                  "keyPassword": os.environ["KEY_PASSWORD"],
+                  "profile": str(signing_dir / "signing.p7b"),
+                  "signAlg": "SHA256withECDSA",
+                  "storeFile": str(signing_dir / "signing.p12"),
+              },
+          }]
+          config["app"]["products"][0]["signingConfig"] = "default"
+          root.write_text(json.dumps(config, indent=2) + "\n")
+          PY
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Install HarmonyOS project dependencies
+        working-directory: harmony
+        run: ohpm install --all
+
+      - name: Build HAP
+        working-directory: harmony
+        run: hvigorw --mode module -p product=default -p module=entry@default -p buildMode=debug assembleHap --no-daemon
+
+      - name: Collect and identify HAP
+        id: collect
+        shell: bash
+        run: |
+          mkdir -p artifacts/harmonyos
+          find harmony/entry/build -type f -name '*.hap' -print -exec cp '{}' artifacts/harmonyos/ \;
+          if ! find artifacts/harmonyos -type f -name '*.hap' -print -quit | grep -q .; then
+            echo "Hvigor completed without producing a HAP." >&2
+            exit 1
+          fi
+          sha256sum artifacts/harmonyos/*.hap | tee artifacts/harmonyos/SHA256SUMS
+          if [[ "${{ steps.signing.outputs.enabled }}" == "true" ]]; then
+            echo "artifact-name=HostTap-HarmonyOS-signed-debug-hap" >> "$GITHUB_OUTPUT"
+          else
+            echo "artifact-name=HostTap-HarmonyOS-unsigned-debug-hap" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload HAP artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.collect.outputs.artifact-name }}
+          path: artifacts/harmonyos/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove temporary signing material
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$RUNNER_TEMP/harmony-build-profile.json5" ]]; then
+            cp "$RUNNER_TEMP/harmony-build-profile.json5" harmony/build-profile.json5
+          fi
+          rm -rf harmony/.ci-signing

@@ -3,6 +3,7 @@
     { "name": "app_name", "value": "HostTap" },
     { "name": "module_desc", "value": "HostTap HarmonyOS controller" },
     { "name": "EntryAbility_desc", "value": "Control a paired Windows, macOS or Linux computer on the local network." },
-    { "name": "EntryAbility_label", "value": "HostTap" }
+    { "name": "EntryAbility_label", "value": "HostTap" },
+    { "name": "camera_permission_reason", "value": "扫描电脑端 HostTap 配对二维码" }
   ]
 }

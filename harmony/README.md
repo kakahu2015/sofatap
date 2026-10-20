@@ -1,38 +1,42 @@
-# HostTap for HarmonyOS (MVP)
+# HostTap for HarmonyOS
 
-Minimal native HarmonyOS controller for the existing HostTap/Sofatap Windows, macOS and Linux receiver.
+Native HarmonyOS controller for the existing HostTap/Sofatap Windows, macOS and Linux receiver.
 
-This first cut intentionally targets the smallest useful flow instead of UI parity with iOS/Android:
+The HarmonyOS client supports:
 
-- paste a desktop `sofatap://pair?...` link;
+- pair with a desktop by scanning its QR code with the camera;
 - validate the pairing fields;
+- save up to 20 computers, keeping bearer tokens in HarmonyOS Asset Store and device metadata in app preferences;
 - connect over TLS and pin the desktop leaf certificate with the SHA-256 fingerprint from the pairing link;
+- resolve DNS hostnames and connect to IPv4 or IPv6 endpoints;
 - perform the WebSocket upgrade without an `Origin` header, matching the existing receiver security policy;
 - receive protocol-v1 `hello`/ACK frames;
-- move the pointer with one-finger pan;
-- left/right click;
-- scroll up/down;
+- reconnect to the selected computer while the app is active, with capped backoff; backgrounding closes the socket and foregrounding can reconnect;
+- move the pointer with one-finger pan, drag after a long press, scroll with two fingers and right-click with a two-finger tap;
+- left/right click and scroll up/down with buttons;
 - send Enter, Backspace and Escape;
 - review and send Unicode text;
+- edit supported Windows and macOS text fields live, using the existing v1 `textBegin`/`textSync`/`textEnd` protocol;
 - keep the foreground connection alive with `ping`.
 
-QR scanning, saved-device persistence, automatic reconnect, live text editing, speech, advanced gestures and UI parity are deliberately deferred until the transport is verified on a physical HarmonyOS device.
+QR scanning requests camera access only when the user taps **拍照扫描电脑二维码**. The app does not request microphone access or include speech or AI features.
 
 ## Open and build
 
 Open the `harmony/` directory as a HarmonyOS project in a current DevEco Studio installation with HarmonyOS SDK 5.0.0 (API 12) or newer. The project currently targets HarmonyOS 6.0.0 (API 20) while keeping API 12 as the compatibility floor.
 
-Configure a normal debug signing profile in DevEco Studio, select the `entry` module, then run it on a physical HarmonyOS phone on the same LAN as the desktop receiver.
+Run `hvigorw --mode module -p product=default -p module=entry@default -p buildMode=debug assembleHap --no-daemon` from this directory to build a HAP. Configure a normal debug signing profile in DevEco Studio to install it on a physical HarmonyOS phone on the same LAN as the desktop receiver.
+
+The GitHub Actions workflow builds a HAP on Harmony source changes and manual dispatch. Without signing secrets it uploads an unsigned HAP for build review. To produce a device-installable debug HAP, configure these repository Actions secrets from the same HarmonyOS debug signing profile: `HARMONYOS_SIGNING_P12_BASE64`, `HARMONYOS_SIGNING_CER_BASE64`, `HARMONYOS_SIGNING_PROFILE_BASE64`, `HARMONYOS_STORE_PASSWORD`, `HARMONYOS_KEY_ALIAS`, and `HARMONYOS_KEY_PASSWORD`. Signed debug profiles are device-bound; register the target phone when creating the profile. The workflow does not store signing material in Git.
 
 ## Pairing test
 
 1. Start the HostTap desktop receiver.
-2. Use its **Copy pairing link** action.
-3. Transfer that link to the HarmonyOS phone without publishing it anywhere; it contains the bearer credential.
-4. Paste it into the HarmonyOS HostTap pairing field and tap **连接电脑**.
-5. After the status becomes **已连接**, use the touch surface, click/scroll buttons or reviewed-text field.
+2. Keep its pairing QR code visible to the phone; the pairing data contains a bearer credential.
+3. Tap **拍照扫描电脑二维码**, allow camera access, and scan the QR code.
+4. After the status becomes **已连接**, use the touch surface, click/scroll buttons, reviewed-text field or supported live editor.
 
-The HarmonyOS MVP intentionally accepts only the receiver's currently advertised IPv4 host format. DNS-name and IPv6 pairing are deferred until after physical-device transport validation.
+Saved computers can be selected from the pairing card. Their bearer tokens are stored as sensitive assets; no pairing data is sent to a cloud service.
 
 ## Transport security
 
@@ -51,11 +55,8 @@ Instead it uses `TLSSocket` directly:
 
 A transport failure never replays input. Text timeouts/connection failures are surfaced as uncertain delivery so the user can inspect the computer before sending again.
 
-## MVP limitations
+## Validation limits
 
-- Pairing is paste-only; no Scan Kit integration yet.
-- Pairings are kept only in memory for this first transport validation build.
-- No automatic reconnect yet.
-- No live-text extension yet; text uses the protocol-v1 review-and-send fallback.
-- No background control. Leaving the page closes the connection.
-- This source has not yet been certified by a physical-device compatibility matrix; validate against the intended HarmonyOS release and desktop receivers before store submission.
+- Live Text is advertised only by compatible desktop receivers and only opens when the current desktop focus is a supported editable field. Unsupported fields retain review-and-send text. The receiver controls whether a field is eligible.
+- App backgrounding closes the control socket; no background remote input is attempted.
+- The implementation has not yet been built or validated on a physical HarmonyOS device. Confirm Scan Kit permission behavior, hostname/IPv6 connectivity, gesture arbitration, secure asset persistence and desktop Live Text behavior on the target device and receiver versions.

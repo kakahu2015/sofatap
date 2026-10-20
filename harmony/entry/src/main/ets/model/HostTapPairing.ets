@@ -65,6 +65,68 @@ function validIpv4(value: string): boolean {
   return true;
 }
 
+function validIpv6(value: string): boolean {
+  if (value.length === 0 || value.indexOf('%') >= 0 || value.indexOf(':::') >= 0) {
+    return false;
+  }
+  const compression: number = value.indexOf('::');
+  if (compression >= 0 && value.indexOf('::', compression + 2) >= 0) {
+    return false;
+  }
+  const groups: string[] = value.split(':').filter((group: string) => group.length > 0);
+  let count: number = 0;
+  for (let i: number = 0; i < groups.length; i++) {
+    const group: string = groups[i];
+    if (group.indexOf('.') >= 0) {
+      if (i !== groups.length - 1 || !validIpv4(group)) {
+        return false;
+      }
+      count += 2;
+    } else {
+      if (!/^[0-9A-Fa-f]{1,4}$/.test(group)) {
+        return false;
+      }
+      count++;
+    }
+  }
+  return compression >= 0 ? count < 8 : count === 8;
+}
+
+function normalizeHost(value: string): string {
+  let host: string = value;
+  if (host.startsWith('[') && host.endsWith(']')) {
+    host = host.substring(1, host.length - 1);
+    if (!validIpv6(host)) {
+      throw new Error('IPv6 地址格式无效');
+    }
+  } else if (host.startsWith('[') || host.endsWith(']')) {
+    throw new Error('电脑地址无效');
+  }
+  if (validIpv6(host)) {
+    return host.toLowerCase();
+  }
+  if (validIpv4(host)) {
+    return host;
+  }
+
+  if (host.length === 0 || host.length > 253 || host.indexOf(':') >= 0 ||
+    /^[0-9.]+$/.test(host)) {
+    throw new Error('电脑地址必须是 IPv4、IPv6 或 DNS 主机名');
+  }
+  const dnsName: string = host.endsWith('.') ? host.substring(0, host.length - 1) : host;
+  if (dnsName.length === 0 || dnsName.length > 253) {
+    throw new Error('DNS 主机名无效');
+  }
+  const labels: string[] = dnsName.split('.');
+  for (const label of labels) {
+    if (label.length < 1 || label.length > 63 ||
+      !/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(label)) {
+      throw new Error('DNS 主机名无效');
+    }
+  }
+  return dnsName.toLowerCase();
+}
+
 function allowedField(key: string): boolean {
   return key === 'host' || key === 'port' || key === 'token' || key === 'fingerprint' ||
     key === 'platform' || key === 'name';
@@ -98,7 +160,7 @@ export class HostTapPairing {
 
     const prefix: string = 'sofatap://pair?';
     if (!trimmed.toLowerCase().startsWith(prefix) || trimmed.indexOf('#') >= 0) {
-      throw new Error('请粘贴电脑接收器提供的配对链接');
+      throw new Error('请扫描电脑接收器显示的配对二维码');
     }
 
     const query: string = trimmed.substring(prefix.length);
@@ -125,16 +187,15 @@ export class HostTapPairing {
       fields.set(key, value);
     }
 
-    const host: string = fields.get('host') ?? '';
+    const hostValue: string = fields.get('host') ?? '';
     const portText: string = fields.get('port') ?? '';
     const token: string = fields.get('token') ?? '';
     const fingerprint: string = fields.get('fingerprint') ?? '';
 
-    // The desktop receiver currently advertises IPv4. Keep the first HarmonyOS build on that
-    // verified path; DNS/IPv6 can be added after the transport works on a physical device.
-    if (!validIpv4(host) || !/^[0-9]{1,5}$/.test(portText)) {
-      throw new Error('HarmonyOS MVP 当前只支持电脑端提供的 IPv4 配对地址');
+    if (!/^[0-9]{1,5}$/.test(portText)) {
+      throw new Error('配对地址或端口无效');
     }
+    const host: string = normalizeHost(hostValue);
     const port: number = Number(portText);
     if (!Number.isInteger(port) || port < 1 || port > 65535 || token.length < 32 || token.length > 256 ||
       !/^[A-Za-z0-9_-]+$/.test(token) || !/^[0-9A-Fa-f]{64}$/.test(fingerprint)) {
@@ -158,8 +219,26 @@ export class HostTapPairing {
     return new HostTapPairing(host, port, token, fingerprint.toLowerCase(), platform, name, trimmed);
   }
 
+  static fromFields(host: string, port: number, token: string, fingerprint: string,
+    platform: string, name: string): HostTapPairing {
+    const fields: string[] = [
+      `host=${encodeURIComponent(host)}`,
+      `port=${port}`,
+      `token=${encodeURIComponent(token)}`,
+      `fingerprint=${encodeURIComponent(fingerprint)}`
+    ];
+    if (platform.length > 0) {
+      fields.push(`platform=${encodeURIComponent(platform)}`);
+    }
+    if (name.length > 0) {
+      fields.push(`name=${encodeURIComponent(name)}`);
+    }
+    return HostTapPairing.parse(`sofatap://pair?${fields.join('&')}`);
+  }
+
   endpointLabel(): string {
-    return `${this.host}:${this.port}`;
+    const hostLabel: string = this.host.indexOf(':') >= 0 ? `[${this.host}]` : this.host;
+    return `${hostLabel}:${this.port}`;
   }
 
   displayName(): string {

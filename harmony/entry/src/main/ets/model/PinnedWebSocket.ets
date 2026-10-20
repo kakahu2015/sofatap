@@ -1,4 +1,4 @@
-import { socket } from '@kit.NetworkKit';
+import { connection, socket } from '@kit.NetworkKit';
 import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { cert } from '@kit.DeviceCertificateKit';
 import { util } from '@kit.ArkTS';
@@ -109,60 +109,119 @@ export class PinnedWebSocket {
     this.handshakeComplete = false;
     this.closed = false;
 
-    const tls: socket.TLSSocket = socket.constructTLSSocketInstance();
-    this.tls = tls;
-
-    tls.on('message', (info: socket.SocketMessageInfo) => {
-      this.handleIncoming(new Uint8Array(info.message));
-    });
-    tls.on('error', (error: BusinessError) => {
-      this.fail(`安全连接失败 (${error.code})`);
-    });
-    tls.on('close', () => {
-      this.fail('电脑连接已关闭');
-    });
-
     try {
-      await tls.bind({ address: '0.0.0.0', port: 0 });
-      const options: socket.TLSConnectOptions = {
-        address: { address: pairing.host, port: pairing.port },
-        secureOptions: {},
-        // No credential is sent before the scanned SHA-256 pin is checked below.
-        skipRemoteValidation: true
-      };
-      await tls.connect(options);
-
-      const remote: socket.X509CertRawData = await tls.getRemoteCertificate();
-      const der: Uint8Array = derFromCertificate(remote);
-      const actualFingerprint: string = hex(sha256(der));
-      if (!constantTimeEqual(actualFingerprint, pairing.fingerprint)) {
-        throw new Error('电脑证书指纹与配对链接不一致');
+      const candidates: Array<socket.NetAddress> = await this.resolveAddresses(pairing.host, pairing.port);
+      if (candidates.length === 0) {
+        throw new Error('电脑地址没有解析到可用的 IPv4 或 IPv6 地址');
       }
 
-      const randomKey: Uint8Array = cryptoFramework.createRandom().generateRandomSync(16).data;
-      this.handshakeKey = new util.Base64Helper().encodeToStringSync(randomKey);
-      const hostHeader: string = pairing.port === 443 ? pairing.host : `${pairing.host}:${pairing.port}`;
-      const request: string =
-        `GET /control HTTP/1.1\r\n` +
-        `Host: ${hostHeader}\r\n` +
-        `Upgrade: websocket\r\n` +
-        `Connection: Upgrade\r\n` +
-        `Sec-WebSocket-Key: ${this.handshakeKey}\r\n` +
-        `Sec-WebSocket-Version: 13\r\n` +
-        `Authorization: Bearer ${pairing.token}\r\n` +
-        `\r\n`;
+      let lastError: string = '无法连接电脑';
+      for (const candidate of candidates) {
+        const tls: socket.TLSSocket = socket.constructTLSSocketInstance();
+        this.tls = tls;
+        this.closed = false;
+        let pinningAndConnecting: boolean = true;
 
-      const handshake: Promise<void> = new Promise<void>((resolve, reject) => {
-        this.handshakeResolve = resolve;
-        this.handshakeReject = (reason: Error) => reject(reason);
-      });
-      await tls.send(request);
-      await this.withTimeout(handshake, 10_000, '电脑没有完成 WebSocket 握手');
+        tls.on('message', (info: socket.SocketMessageInfo) => {
+          this.handleIncoming(new Uint8Array(info.message));
+        });
+        tls.on('error', (error: BusinessError) => {
+          if (!pinningAndConnecting) {
+            this.fail(`安全连接失败 (${error.code})`);
+          }
+        });
+        tls.on('close', () => {
+          if (!pinningAndConnecting) {
+            this.fail('电脑连接已关闭');
+          }
+        });
+
+        try {
+          const localAddress: string = candidate.family === 2 ? '::' : '0.0.0.0';
+          await tls.bind({ address: localAddress, family: candidate.family, port: 0 });
+          const options: socket.TLSConnectOptions = {
+            address: candidate,
+            secureOptions: {},
+            // No credential is sent before the scanned SHA-256 pin is checked below.
+            skipRemoteValidation: true
+          };
+          await tls.connect(options);
+
+          const remote: socket.X509CertRawData = await tls.getRemoteCertificate();
+          const der: Uint8Array = derFromCertificate(remote);
+          const actualFingerprint: string = hex(sha256(der));
+          if (!constantTimeEqual(actualFingerprint, pairing.fingerprint)) {
+            throw new Error('电脑证书指纹与配对链接不一致');
+          }
+          pinningAndConnecting = false;
+
+          const randomKey: Uint8Array = cryptoFramework.createRandom().generateRandomSync(16).data;
+          this.handshakeKey = new util.Base64Helper().encodeToStringSync(randomKey);
+          const bracketedHost: string = pairing.host.indexOf(':') >= 0 ? `[${pairing.host}]` : pairing.host;
+          const hostHeader: string = pairing.port === 443 ? bracketedHost : `${bracketedHost}:${pairing.port}`;
+          const request: string =
+            `GET /control HTTP/1.1\r\n` +
+            `Host: ${hostHeader}\r\n` +
+            `Upgrade: websocket\r\n` +
+            `Connection: Upgrade\r\n` +
+            `Sec-WebSocket-Key: ${this.handshakeKey}\r\n` +
+            `Sec-WebSocket-Version: 13\r\n` +
+            `Authorization: Bearer ${pairing.token}\r\n` +
+            `\r\n`;
+
+          const handshake: Promise<void> = new Promise<void>((resolve, reject) => {
+            this.handshakeResolve = resolve;
+            this.handshakeReject = (reason: Error) => reject(reason);
+          });
+          await tls.send(request);
+          await this.withTimeout(handshake, 10_000, '电脑没有完成 WebSocket 握手');
+          return;
+        } catch (error) {
+          pinningAndConnecting = false;
+          lastError = error instanceof Error ? error.message : '无法连接电脑';
+          await this.close(false);
+          if (this.isFatalConnectionError(lastError)) {
+            throw new Error(lastError);
+          }
+        }
+      }
+      throw new Error(lastError);
     } catch (error) {
       const message: string = error instanceof Error ? error.message : '无法连接电脑';
       await this.close(false);
       throw new Error(message);
     }
+  }
+
+  private async resolveAddresses(host: string, port: number): Promise<Array<socket.NetAddress>> {
+    const candidates: Array<socket.NetAddress> = [];
+    if (host.indexOf(':') >= 0) {
+      candidates.push({ address: host, port: port, family: 2 });
+      return candidates;
+    }
+    if (/^[0-9.]+$/.test(host)) {
+      candidates.push({ address: host, port: port, family: 1 });
+      return candidates;
+    }
+
+    const resolved: Array<connection.NetAddress> = await connection.getAddressesByName(host);
+    for (const address of resolved) {
+      if ((address.family === 1 || address.family === 2) && address.address.length > 0) {
+        const key: string = `${address.family}|${address.address}`;
+        const duplicate: boolean = candidates.some((candidate: socket.NetAddress) =>
+          `${candidate.family}|${candidate.address}` === key);
+        if (!duplicate && candidates.length < 8) {
+          candidates.push({ address: address.address, port: port, family: address.family });
+        }
+      }
+    }
+    return candidates;
+  }
+
+  private isFatalConnectionError(message: string): boolean {
+    return message.indexOf('证书') >= 0 || message.indexOf('认证失败') >= 0 || message.indexOf('协议') >= 0 ||
+      message.indexOf('握手') >= 0 || message.indexOf('WebSocket') >= 0 || message.indexOf('返回了') >= 0 ||
+      message.indexOf('返回的') >= 0;
   }
 
   isOpen(): boolean {
@@ -258,7 +317,20 @@ export class PinnedWebSocket {
   private verifyHandshake(header: string): void {
     const lines: string[] = header.split('\r\n');
     if (lines.length === 0 || !/^HTTP\/1\.[01] 101(?: |$)/.test(lines[0])) {
-      throw new Error('电脑拒绝了控制连接');
+      const status: RegExpMatchArray | null = lines.length > 0 ? lines[0].match(/^HTTP\/1\.[01] ([0-9]{3})(?: |$)/) : null;
+      if (status !== null) {
+        if (status[1] === '401' || status[1] === '403') {
+          throw new Error('配对认证失败，请重新扫描电脑二维码');
+        }
+        if (status[1] === '409') {
+          throw new Error('电脑正被其他手机控制，请稍后重连');
+        }
+        if (status[1].startsWith('5')) {
+          throw new Error(`电脑服务暂时错误 (HTTP ${status[1]})`);
+        }
+        throw new Error(`控制连接协议失败 (HTTP ${status[1]})`);
+      }
+      throw new Error('控制连接协议失败');
     }
     const headers: Map<string, string> = new Map<string, string>();
     for (let i: number = 1; i < lines.length; i++) {
