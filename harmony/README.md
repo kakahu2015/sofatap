@@ -19,7 +19,7 @@ The HarmonyOS client supports:
 - edit supported Windows and macOS text fields live, using the existing v1 `textBegin`/`textSync`/`textEnd` protocol;
 - keep the foreground connection alive with `ping`.
 
-QR scanning requests camera access only when the user taps **拍照扫描电脑二维码**. The app does not request microphone access or include speech or AI features.
+QR scanning opens the system Scan Kit interface when the user taps **拍照扫描电脑二维码**. The system scanner handles camera access without an app camera permission request. The app does not request microphone access or include speech or AI features.
 
 ## Open and build
 
@@ -33,7 +33,7 @@ The GitHub Actions workflow builds a HAP on Harmony source changes and manual di
 
 1. Start the HostTap desktop receiver.
 2. Keep its pairing QR code visible to the phone; the pairing data contains a bearer credential.
-3. Tap **拍照扫描电脑二维码**, allow camera access, and scan the QR code.
+3. Tap **拍照扫描电脑二维码** and scan the QR code in the system scanning interface.
 4. After the status becomes **已连接**, use the touch surface, click/scroll buttons, reviewed-text field or supported live editor.
 
 Saved computers can be selected from the pairing card. Their bearer tokens are stored as sensitive assets; no pairing data is sent to a cloud service.

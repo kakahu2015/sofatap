@@ -1,9 +1,11 @@
-import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
+import { router } from '@kit.ArkUI';
 import { HostTapPairing } from '../model/HostTapPairing';
 import { HostTapActionResult, HostTapClient, HostTapState, HostTapStateListener, LiveTextSnapshot, hostTapClient } from '../model/HostTapClient';
 import { PairingStore, SavedComputer } from '../model/PairingStore';
+import { PrivacyStore } from '../model/PrivacyStore';
 
 class IndexHostTapStateListener implements HostTapStateListener {
   private readonly stateHandler: (state: HostTapState) => void;
@@ -24,6 +26,7 @@ struct Index {
   @State private status: string = '未连接电脑';
   @State private computerName: string = '';
   @State private connecting: boolean = false;
+  @State private scanning: boolean = false;
   @State private connected: boolean = false;
   @State private inputAvailable: boolean = false;
   @State private protectedFocus: boolean = false;
@@ -39,6 +42,8 @@ struct Index {
   @State private liveTextPaused: boolean = false;
   @State private autoReconnectEnabled: boolean = true;
   @State private dragStarted: boolean = false;
+  @State private privacyChecked: boolean = false;
+  @State private privacyAgreed: boolean = false;
 
   private readonly client: HostTapClient = hostTapClient;
   private appContext?: common.UIAbilityContext;
@@ -64,6 +69,44 @@ struct Index {
     this.client.setListener(listener);
     this.client.setForeground(true);
     void this.refreshSavedComputers();
+    void this.loadPrivacyState();
+  }
+
+  private async loadPrivacyState(): Promise<void> {
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context === undefined) {
+      this.privacyChecked = true;
+      return;
+    }
+    try {
+      this.privacyAgreed = await PrivacyStore.isAgreed(context);
+    } catch (error) {
+      this.privacyAgreed = false;
+    }
+    this.privacyChecked = true;
+  }
+
+  private async agreePrivacy(): Promise<void> {
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context !== undefined) {
+      try {
+        await PrivacyStore.setAgreed(context);
+      } catch (error) {
+        this.operationMessage = '无法保存隐私政策确认状态';
+      }
+    }
+    this.privacyAgreed = true;
+  }
+
+  private declinePrivacy(): void {
+    const context: common.UIAbilityContext | undefined = this.appContext;
+    if (context !== undefined) {
+      context.terminateSelf();
+    }
+  }
+
+  private openPrivacyPolicy(): void {
+    router.pushUrl({ url: 'pages/Privacy' });
   }
 
   private async refreshSavedComputers(): Promise<void> {
@@ -108,19 +151,17 @@ struct Index {
   }
 
   private async scanPairingQr(): Promise<void> {
+    if (this.scanning) {
+      return;
+    }
     this.operationMessage = '';
     const context: common.UIAbilityContext | undefined = this.appContext;
     if (context === undefined) {
       this.operationMessage = '扫码页面尚未准备好';
       return;
     }
+    this.scanning = true;
     try {
-      const permission = await abilityAccessCtrl.createAtManager()
-        .requestPermissionsFromUser(context, ['ohos.permission.CAMERA']);
-      if (permission.authResults.length === 0 || permission.authResults[0] !== 0) {
-        this.operationMessage = '需要相机权限才能扫描电脑配对二维码';
-        return;
-      }
       const options: scanBarcode.ScanOptions = {
         scanTypes: [scanCore.ScanType.QR_CODE],
         enableAlbum: false
@@ -143,6 +184,8 @@ struct Index {
       this.operationMessage = '已读取配对二维码，请连接或保存电脑';
     } catch (error) {
       this.operationMessage = error instanceof Error ? error.message : '二维码扫描失败';
+    } finally {
+      this.scanning = false;
     }
   }
 
@@ -222,7 +265,68 @@ struct Index {
     this.client.setAutoReconnect(!this.autoReconnectEnabled);
   }
 
+  @Builder
+  privacyDialog() {
+    Column() {
+      Column({ space: 14 }) {
+        Text('隐私政策')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .width('100%')
+        Text('HostTap 是一款局域网内的电脑远程控制工具，仅用于控制您本人的电脑。')
+          .fontSize(13)
+          .fontColor('#475467')
+          .lineHeight(21)
+          .width('100%')
+        Text('本应用不设服务器，不收集、不上传、不共享您的任何个人信息。配对凭据仅保存在本机，连接仅在同一局域网内直连您的电脑。')
+          .fontSize(13)
+          .fontColor('#475467')
+          .lineHeight(21)
+          .width('100%')
+        Text('请您先阅读《隐私政策》的完整内容，再决定是否同意。')
+          .fontSize(13)
+          .fontColor('#475467')
+          .lineHeight(21)
+          .width('100%')
+        Text('查看完整隐私政策')
+          .fontSize(14)
+          .fontColor('#1A6DD4')
+          .onClick(() => {
+            this.openPrivacyPolicy();
+          })
+        Row({ space: 10 }) {
+          Button('不同意并退出')
+            .layoutWeight(1)
+            .height(42)
+            .backgroundColor('#F2F4F7')
+            .fontColor('#475467')
+            .onClick(() => {
+              this.declinePrivacy();
+            })
+          Button('同意并继续')
+            .layoutWeight(1)
+            .height(42)
+            .onClick(() => {
+              void this.agreePrivacy();
+            })
+        }
+        .width('100%')
+        .margin({ top: 4 })
+      }
+      .width('86%')
+      .padding(20)
+      .backgroundColor('#FFFFFF')
+      .borderRadius(16)
+      .alignItems(HorizontalAlign.Start)
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor('rgba(16,24,40,0.45)')
+  }
+
   build() {
+    Stack() {
     Scroll() {
       Column({ space: 14 }) {
         Row() {
@@ -256,10 +360,10 @@ struct Index {
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
             .width('100%')
-          Button('拍照扫描电脑二维码')
+          Button(this.scanning ? '正在打开扫码…' : '拍照扫描电脑二维码')
             .width('100%')
             .height(48)
-            .enabled(!this.connected && !this.connecting)
+            .enabled(!this.connected && !this.connecting && !this.scanning)
             .onClick(() => {
               void this.scanPairingQr();
             })
@@ -504,16 +608,32 @@ struct Index {
             .width('100%')
         }
 
-        Text('本地局域网直连 · 配对凭据不会发送到云端')
-          .fontSize(12)
-          .fontColor('#98A2B3')
-          .margin({ top: 4, bottom: 18 })
+        Row({ space: 6 }) {
+          Text('本地局域网直连 · 配对凭据不会发送到云端')
+            .fontSize(12)
+            .fontColor('#98A2B3')
+          Text('隐私政策')
+            .fontSize(12)
+            .fontColor('#1A6DD4')
+            .onClick(() => {
+              this.openPrivacyPolicy();
+            })
+        }
+        .margin({ top: 4, bottom: 18 })
       }
       .width('100%')
       .padding({ left: 16, right: 16, top: 18 })
     }
     .width('100%')
     .height('100%')
+    .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
     .backgroundColor('#FFFFFF')
+
+    if (this.privacyChecked && !this.privacyAgreed) {
+      this.privacyDialog()
+    }
+    }
+    .width('100%')
+    .height('100%')
   }
 }

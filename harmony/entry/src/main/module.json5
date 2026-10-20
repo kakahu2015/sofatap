@@ -14,14 +14,6 @@
       },
       {
         "name": "ohos.permission.GET_NETWORK_INFO"
-      },
-      {
-        "name": "ohos.permission.CAMERA",
-        "reason": "$string:camera_permission_reason",
-        "usedScene": {
-          "abilities": ["EntryAbility"],
-          "when": "inuse"
-        }
       }
     ],
     "abilities": [
@@ -30,7 +22,7 @@
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
         "label": "$string:EntryAbility_label",
-        "icon": "$media:start_icon",
+        "icon": "$media:app_icon",
         "startWindowIcon": "$media:start_icon",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,

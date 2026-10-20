@@ -4,6 +4,9 @@ entry/build/
 build/
 local.properties
 .ci-signing/
+signing/
 *.p12
 *.cer
 *.pem
+*.csr
+*.p7b
