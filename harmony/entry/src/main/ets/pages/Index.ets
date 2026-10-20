@@ -1,8 +1,21 @@
 import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { HostTapPairing } from '../model/HostTapPairing';
 import { HostTapActionResult, HostTapClient, HostTapState, HostTapStateListener, LiveTextSnapshot, hostTapClient } from '../model/HostTapClient';
 import { PairingStore, SavedComputer } from '../model/PairingStore';
+
+class IndexHostTapStateListener implements HostTapStateListener {
+  private readonly stateHandler: (state: HostTapState) => void;
+
+  constructor(stateHandler: (state: HostTapState) => void) {
+    this.stateHandler = stateHandler;
+  }
+
+  onState(state: HostTapState): void {
+    this.stateHandler(state);
+  }
+}
 
 @Entry
 @Component
@@ -35,8 +48,7 @@ struct Index {
 
   aboutToAppear(): void {
     this.appContext = getContext(this) as common.UIAbilityContext;
-    const listener: HostTapStateListener = {
-      onState: (state: HostTapState): void => {
+    const listener: HostTapStateListener = new IndexHostTapStateListener((state: HostTapState): void => {
         this.status = state.status;
         this.computerName = state.computerName;
         this.connecting = state.connecting;
@@ -48,8 +60,7 @@ struct Index {
         this.liveTextAvailable = state.liveTextAvailable;
         this.liveTextPaused = state.liveTextPaused;
         this.autoReconnectEnabled = state.autoReconnectEnabled;
-      }
-    };
+      });
     this.client.setListener(listener);
     this.client.setForeground(true);
     void this.refreshSavedComputers();
@@ -110,9 +121,18 @@ struct Index {
         this.operationMessage = '需要相机权限才能扫描电脑配对二维码';
         return;
       }
-      const result: scanBarcode.ScanResult = await scanBarcode.scanBarcode({
+      const options: scanBarcode.ScanOptions = {
         scanTypes: [scanCore.ScanType.QR_CODE],
         enableAlbum: false
+      };
+      const result: scanBarcode.ScanResult = await new Promise<scanBarcode.ScanResult>((resolve, reject) => {
+        scanBarcode.startScanForResult(context, options, (error: BusinessError, scanResult: scanBarcode.ScanResult): void => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(scanResult);
+        });
       });
       if (typeof result.originalValue !== 'string' || result.originalValue.length === 0) {
         this.operationMessage = '二维码中没有配对链接';

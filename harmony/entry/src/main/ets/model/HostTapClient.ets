@@ -73,6 +73,24 @@ interface PendingAction {
   resolve: (result: HostTapActionResult) => void;
 }
 
+class HostTapPinnedWebSocketListener implements PinnedWebSocketListener {
+  private readonly textHandler: (message: string) => void;
+  private readonly closedHandler: (message: string) => void;
+
+  constructor(textHandler: (message: string) => void, closedHandler: (message: string) => void) {
+    this.textHandler = textHandler;
+    this.closedHandler = closedHandler;
+  }
+
+  onText(message: string): void {
+    this.textHandler(message);
+  }
+
+  onClosed(message: string): void {
+    this.closedHandler(message);
+  }
+}
+
 export interface HostTapActionResult {
   accepted: boolean;
   uncertain: boolean;
@@ -257,21 +275,21 @@ export class HostTapClient {
 
     const transport: PinnedWebSocket = new PinnedWebSocket();
     this.transport = transport;
-    const wsListener: PinnedWebSocketListener = {
-      onText: (message: string): void => {
+    const wsListener: PinnedWebSocketListener = new HostTapPinnedWebSocketListener(
+      (message: string): void => {
         if (current !== this.generation) {
           return;
         }
         this.receive(message, current, helloResolve, helloReject);
       },
-      onClosed: (message: string): void => {
+      (message: string): void => {
         if (current !== this.generation) {
           return;
         }
         helloReject?.(new Error(message));
         this.connectionLost(message, current);
       }
-    };
+    );
 
     try {
       await transport.connect(target, wsListener);
