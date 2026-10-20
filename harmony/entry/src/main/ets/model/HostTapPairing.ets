@@ -65,26 +65,6 @@ function validIpv4(value: string): boolean {
   return true;
 }
 
-function validDnsName(value: string): boolean {
-  if (value.length === 0 || value.length > 253 || !/^[A-Za-z0-9.-]+$/.test(value)) {
-    return false;
-  }
-  const labels: string[] = value.split('.');
-  for (const label of labels) {
-    if (label.length === 0 || label.length > 63 || label.startsWith('-') || label.endsWith('-') ||
-      !/^[A-Za-z0-9-]+$/.test(label)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function validHost(value: string): boolean {
-  // Desktop receivers currently advertise IPv4. DNS names are also accepted for manual links.
-  // IPv6 is intentionally deferred in the HarmonyOS MVP to keep the transport parser small.
-  return validIpv4(value) || validDnsName(value);
-}
-
 function allowedField(key: string): boolean {
   return key === 'host' || key === 'port' || key === 'token' || key === 'fingerprint' ||
     key === 'platform' || key === 'name';
@@ -150,8 +130,10 @@ export class HostTapPairing {
     const token: string = fields.get('token') ?? '';
     const fingerprint: string = fields.get('fingerprint') ?? '';
 
-    if (!validHost(host) || !/^[0-9]{1,5}$/.test(portText)) {
-      throw new Error('主机地址或端口无效');
+    // The desktop receiver currently advertises IPv4. Keep the first HarmonyOS build on that
+    // verified path; DNS/IPv6 can be added after the transport works on a physical device.
+    if (!validIpv4(host) || !/^[0-9]{1,5}$/.test(portText)) {
+      throw new Error('HarmonyOS MVP 当前只支持电脑端提供的 IPv4 配对地址');
     }
     const port: number = Number(portText);
     if (!Number.isInteger(port) || port < 1 || port > 65535 || token.length < 32 || token.length > 256 ||
@@ -173,7 +155,7 @@ export class HostTapPairing {
       }
     }
 
-    return new HostTapPairing(host.toLowerCase(), port, token, fingerprint.toLowerCase(), platform, name, trimmed);
+    return new HostTapPairing(host, port, token, fingerprint.toLowerCase(), platform, name, trimmed);
   }
 
   endpointLabel(): string {
