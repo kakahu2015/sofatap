@@ -39,7 +39,7 @@ jobs:
 
       - name: Cache HarmonyOS SDK and command-line tools
         id: harmony-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/ohos-sdk
           key: harmonyos-sdk-${{ runner.os }}-${{ runner.arch }}-6.0.0.858
@@ -137,9 +137,10 @@ jobs:
 
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
-      - name: Install HarmonyOS project dependencies
-        working-directory: harmony
-        run: ohpm install --all
+      - name: Configure HarmonyOS package registries
+        run: |
+          npm config set registry https://repo.huaweicloud.com/repository/npm/
+          npm config set @ohos:registry https://repo.harmonyos.com/npm/
 
       - name: Build HAP
         working-directory: harmony
@@ -163,7 +164,7 @@ jobs:
           fi
 
       - name: Upload HAP artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ steps.collect.outputs.artifact-name }}
           path: artifacts/harmonyos/
