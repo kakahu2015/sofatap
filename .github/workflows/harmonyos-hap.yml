@@ -76,7 +76,7 @@ jobs:
           echo "$HOME/ohos-sdk/command-line-tools/tool/node/bin" >> "$GITHUB_PATH"
           echo "HOS_SDK_HOME=$HOME/ohos-sdk/command-line-tools/sdk" >> "$GITHUB_ENV"
 
-      - name: Configure debug signing when secrets are available
+      - name: Require debug signing for device-installable HAP
         id: signing
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -95,9 +95,8 @@ jobs:
           fi
 
           if [[ -z "$SIGNING_P12_BASE64" || -z "$SIGNING_CER_BASE64" || -z "$SIGNING_PROFILE_BASE64" || -z "$STORE_PASSWORD" || -z "$KEY_ALIAS" || -z "$KEY_PASSWORD" ]]; then
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "Signing secrets are incomplete; building an unsigned HAP."
-            exit 0
+            echo "::error::Configure all HarmonyOS debug signing secrets before building a sideloadable HAP. See harmony/README.md."
+            exit 1
           fi
 
           mkdir -p harmony/.ci-signing
@@ -150,6 +149,10 @@ jobs:
         id: collect
         shell: bash
         run: |
+          if [[ "${{ github.event_name }}" != "pull_request" && "${{ steps.signing.outputs.enabled }}" != "true" ]]; then
+            echo "Only signed debug HAPs are uploaded for device installation." >&2
+            exit 1
+          fi
           mkdir -p artifacts/harmonyos
           find harmony/entry/build -type f -name '*.hap' -print -exec cp '{}' artifacts/harmonyos/ \;
           if ! find artifacts/harmonyos -type f -name '*.hap' -print -quit | grep -q .; then
@@ -157,13 +160,10 @@ jobs:
             exit 1
           fi
           sha256sum artifacts/harmonyos/*.hap | tee artifacts/harmonyos/SHA256SUMS
-          if [[ "${{ steps.signing.outputs.enabled }}" == "true" ]]; then
-            echo "artifact-name=HostTap-HarmonyOS-signed-debug-hap" >> "$GITHUB_OUTPUT"
-          else
-            echo "artifact-name=HostTap-HarmonyOS-unsigned-debug-hap" >> "$GITHUB_OUTPUT"
-          fi
+          echo "artifact-name=HostTap-HarmonyOS-signed-debug-hap" >> "$GITHUB_OUTPUT"
 
       - name: Upload HAP artifact
+        if: steps.signing.outputs.enabled == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ steps.collect.outputs.artifact-name }}
