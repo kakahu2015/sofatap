@@ -32,7 +32,7 @@ Configure a normal debug signing profile in DevEco Studio, select the `entry` mo
 4. Paste it into the HarmonyOS HostTap pairing field and tap **连接电脑**.
 5. After the status becomes **已连接**, use the touch surface, click/scroll buttons or reviewed-text field.
 
-The HarmonyOS MVP currently accepts the receiver's advertised IPv4 host format plus ordinary DNS hostnames. IPv6 pairing is deferred.
+The HarmonyOS MVP intentionally accepts only the receiver's currently advertised IPv4 host format. DNS-name and IPv6 pairing are deferred until after physical-device transport validation.
 
 ## Transport security
 
