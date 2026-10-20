@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.chekusu.hosttap",
+    "bundleName": "org.kakahu.hosttap",
     "vendor": "chekusu",
     "versionCode": 1,
     "versionName": "0.1.0",

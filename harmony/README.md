@@ -27,7 +27,7 @@ Open the `harmony/` directory as a HarmonyOS project in a current DevEco Studio 
 
 Run `hvigorw --mode module -p product=default -p module=entry@default -p buildMode=debug assembleHap --no-daemon` from this directory to build a HAP. Configure a normal debug signing profile in DevEco Studio to install it on a physical HarmonyOS phone on the same LAN as the desktop receiver.
 
-The GitHub Actions workflow builds a HAP on Harmony source changes and manual dispatch. Main-branch and manual builds require all six repository Actions secrets: `HARMONYOS_SIGNING_P12_BASE64`, `HARMONYOS_SIGNING_CER_BASE64`, `HARMONYOS_SIGNING_PROFILE_BASE64`, `HARMONYOS_STORE_PASSWORD`, `HARMONYOS_KEY_ALIAS`, and `HARMONYOS_KEY_PASSWORD`. Use a HarmonyOS **debug** certificate and Profile for bundle name `com.chekusu.hosttap`, and register the target phone's UDID in that Profile. The workflow uploads only signed debug HAPs for sideloading; pull requests still compile without signing secrets and do not upload a HAP. The workflow does not store signing material in Git.
+The GitHub Actions workflow builds a HAP on Harmony source changes and manual dispatch. Main-branch and manual builds require all six repository Actions secrets: `HARMONYOS_SIGNING_P12_BASE64`, `HARMONYOS_SIGNING_CER_BASE64`, `HARMONYOS_SIGNING_PROFILE_BASE64`, `HARMONYOS_STORE_PASSWORD`, `HARMONYOS_KEY_ALIAS`, and `HARMONYOS_KEY_PASSWORD`. Use a HarmonyOS **debug** certificate and Profile for bundle name `org.kakahu.hosttap`, and register the target phone's UDID in that Profile. The workflow uploads only signed debug HAPs for sideloading; pull requests still compile without signing secrets and do not upload a HAP. The workflow does not store signing material in Git.
 
 ## Pairing test
 
