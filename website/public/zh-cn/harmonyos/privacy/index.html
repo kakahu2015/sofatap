@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="通过 AppGallery 分发的 HostTap 鸿蒙（HarmonyOS）应用隐私政策。">
+  <meta name="theme-color" content="#e7f2ed">
+  <title>HostTap 鸿蒙版隐私政策</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .policy ul { margin: 0 0 15px 38px; padding-left: 20px; font-size: 14px; line-height: 2; color: #506259; }
+    .policy li { margin: 0 0 6px; overflow-wrap: anywhere; }
+    .policy li:last-child { margin-bottom: 0; }
+    .policy code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; color: #344e3e; background: #eef4f0; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    .policy table { width: calc(100% - 38px); border-collapse: collapse; margin: 4px 0 16px 38px; font-size: 13.5px; color: #506259; }
+    .policy th, .policy td { text-align: left; padding: 9px 12px; border: 1px solid #dbe6df; vertical-align: top; }
+    .policy th { background: #eef4f0; color: #344e3e; font-weight: 650; }
+    .policy td { line-height: 1.9; }
+    @media (max-width: 600px) {
+      .policy ul { margin-left: 0; }
+      .policy table { width: 100%; margin-left: 0; font-size: 12.5px; }
+      .policy th, .policy td { padding: 7px 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/zh-cn/" aria-label="HostTap 首页"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="语言"><a href="/harmonyos/privacy/" lang="en" hreflang="en">English</a><span aria-current="page" lang="zh-CN">简体中文</span></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">鸿蒙版 · AppGallery</p>
+        <h1>鸿蒙版隐私政策</h1>
+        <p class="lead">当你把鸿蒙手机当作电脑的触控板与键盘使用时，HostTap 鸿蒙应用如何处理相关信息。</p>
+        <p class="date">生效日期：2026 年 10 月 21 日</p>
+        <nav class="policy-switcher" aria-label="隐私政策版本"><a href="/zh-cn/privacy/">Windows 版</a><span aria-current="page">鸿蒙版</span></nav>
+      </div>
+
+      <aside class="summary" aria-label="政策摘要">
+        <p><strong>鸿蒙应用没有 HostTap 账户，也没有我们运营的服务器。</strong>控制指令直接发送到你配对过的电脑，不收集任何个人信息，未集成广告、跟踪、分析或崩溃上报 SDK。</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>本政策的适用范围</h2>
+          <p>本政策适用于由 <strong>GUIHUI HU</strong> 通过 AppGallery 发布的 HostTap 鸿蒙应用，包名为 <code>org.kakahu.hosttap</code>，仅说明该应用在手机端的处理方式。</p>
+          <p>电脑端是另一个独立程序，其处理方式见 <a href="/zh-cn/privacy/">HostTap 通用隐私政策</a>。本政策也不涵盖未来服务，以及你使用的输入法、语音识别服务或被控应用各自的隐私处理方式。</p>
+        </section>
+
+        <section aria-labelledby="not-collected">
+          <h2 id="not-collected"><span class="section-number">02</span>本应用不收集的信息</h2>
+          <p>本应用不会收集、传输或分享以下任何信息：</p>
+          <ul>
+            <li>姓名、手机号、邮箱等任何身份信息；</li>
+            <li>任何形式的位置信息；</li>
+            <li>通讯录、短信、通话记录、照片、文件或剪贴板内容；</li>
+            <li>IMEI、OAID、序列号、广告标识等设备标识符；</li>
+            <li>应用使用行为、崩溃日志或诊断统计。</li>
+          </ul>
+          <p>本应用没有登录、没有用户资料，也没有任何由我们运营、会接收你数据的服务器。</p>
+        </section>
+
+        <section aria-labelledby="permissions">
+          <h2 id="permissions"><span class="section-number">03</span>本应用申请的权限</h2>
+          <p>本应用仅声明两项普通权限，且只用于连接你已配对的电脑。</p>
+          <table>
+            <tr><th>权限</th><th>用途</th><th>会离开手机的内容</th></tr>
+            <tr>
+              <td><code>ohos.permission.INTERNET</code></td>
+              <td>与你本人的电脑建立加密连接，传输鼠标、键盘与文字输入</td>
+              <td>仅你主动产生的控制指令，直接发送给该电脑。不经过中继服务，也不经过发布者运营的服务器。</td>
+            </tr>
+            <tr>
+              <td><code>ohos.permission.GET_NETWORK_INFO</code></td>
+              <td>判断当前是否存在可用网络，以便重新连接你的电脑</td>
+              <td>无。应用不读取网络名称、不读取 Wi-Fi 密码，也不读取你的网络流量。</td>
+            </tr>
+          </table>
+          <p>本应用不申请相机、麦克风、位置、通讯录、日历、电话状态、存储或后台运行等任何权限。</p>
+        </section>
+
+        <section aria-labelledby="scan">
+          <h2 id="scan"><span class="section-number">04</span>扫码配对</h2>
+          <p>配对从扫描电脑上显示的二维码开始。本应用调用<strong>系统扫码服务</strong>完成扫描，因此不申请相机权限：相机画面由系统处理，系统只把识别出的文本交给应用。</p>
+          <p>本应用既不接收、也不存储或上传任何图像或视频。你可以随时退出系统扫码页停止扫描；只有在你主动打开扫码时，应用才会扫描。</p>
+        </section>
+
+        <section aria-labelledby="local">
+          <h2 id="local"><span class="section-number">05</span>手机本地保存的信息</h2>
+          <p>为免去每次重新配对，本应用会在<strong>你的手机本地</strong>保存以下内容：</p>
+          <table>
+            <tr><th>内容</th><th>保存位置</th><th>说明</th></tr>
+            <tr>
+              <td>已保存的电脑：名称、地址、端口、TLS 证书指纹</td>
+              <td>应用偏好设置（Preferences）</td>
+              <td>最多 20 条，可在应用内查看并删除</td>
+            </tr>
+            <tr>
+              <td>每台已配对电脑的访问凭据</td>
+              <td>系统资产存储服务（Asset Store）</td>
+              <td>由鸿蒙系统加密并控制访问，不写入普通文件</td>
+            </tr>
+            <tr>
+              <td>你的隐私同意记录</td>
+              <td>应用偏好设置（Preferences）</td>
+              <td>仅记录你是否同意本政策及政策版本号</td>
+            </tr>
+          </table>
+          <p>以上内容不会上传到任何地方。在应用内删除已保存的电脑，会同时删除该记录及其凭据；卸载应用会清除全部本地数据。应用不在别处保留副本，因此不存在需要你另行申请删除的服务端数据。</p>
+        </section>
+
+        <section aria-labelledby="transport">
+          <h2 id="transport"><span class="section-number">06</span>发送到电脑的内容</h2>
+          <p>与电脑之间的连接具有以下保护措施：</p>
+          <ul>
+            <li>输入通过 TLS 传输，应用会校验配对时记录的证书指纹；指纹不符即中止连接；</li>
+            <li>凭据仅在指纹校验通过后才发送；</li>
+            <li>传输内容为鼠标移动、点击、按键，以及你主动发送的文字——包括在「文字发送」中提交的内容与「实时编辑」中的修改。</li>
+          </ul>
+          <p>这些内容只发往你配对过的电脑，不会发送给我们，我们也不保留任何副本。设备通常连接在同一局域网内；实际网络路径取决于你的网络配置。</p>
+          <p>使用实时编辑时，应用会读取电脑上受支持输入框中的当前文字及选区，草稿仅保留在手机本机。若手机与电脑的文字不一致，实时编辑会停止，而不是覆盖你的文字。</p>
+        </section>
+
+        <section aria-labelledby="third-party">
+          <h2 id="third-party"><span class="section-number">07</span>AppGallery、本网站与问题支持</h2>
+          <p><strong>AppGallery。</strong>鸿蒙版本由华为分发和更新，华为可能依据其<a href="https://consumer.huawei.com/cn/privacy/privacy-policy/" rel="noreferrer">隐私政策</a>处理分发、安装及诊断信息。</p>
+          <p><strong>本网站。</strong>本隐私页由 Cloudflare Pages 托管。Cloudflare 依据其<a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">隐私政策</a>处理 IP 地址等网络及请求信息，以交付和保护本站。我们没有在本站添加任何广告、跟踪脚本、分析、表单或自有 Cookie。</p>
+          <p><strong>问题支持。</strong>如果你主动发送邮件到 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>，GUIHUI HU 会收到你的邮件地址和你主动填写的内容，仅用于回复你的问题。请勿发送密码、配对链接、二维码或私人文字。支持邮件仅在处理请求所需的时间内保留，你可以通过邮件申请删除。</p>
+        </section>
+
+        <section aria-labelledby="sharing">
+          <h2 id="sharing"><span class="section-number">08</span>信息分享与你的选择</h2>
+          <p>我们不出售、出租或分享你的信息，因为本应用不收集任何信息；我们也不使用你的输入训练 AI。你主动邮件提供的信息，仅在法律强制要求时才会披露。</p>
+          <p>在应用内，你可以删除已保存的电脑、随时断开连接、退出扫码页停止扫描。卸载应用即删除全部本地数据。如需撤回同意，停止使用并卸载本应用即可。</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">09</span>未成年人保护</h2>
+          <p>本应用为工具类软件，不面向未成年人设计，不收集任何与年龄相关的信息，也不含任何针对未成年人的广告或内容。</p>
+        </section>
+
+        <section aria-labelledby="changes">
+          <h2 id="changes"><span class="section-number">10</span>政策更新与联系</h2>
+          <p>若未来版本对信息的处理方式发生变化，本页面将同步更新，并修改上方的生效日期；涉及重大变更时，我们会在变更生效前于应用内以显著方式提示。</p>
+          <p>如有隐私问题或相关请求，可通过 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a> 联系 GUIHUI HU，我们将在 15 个工作日内答复。</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap 鸿蒙版 · 发布者 GUIHUI HU</p><a href="/zh-cn/" lang="zh-CN">首页</a><a href="/harmonyos/privacy/" lang="en" hreflang="en">English <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

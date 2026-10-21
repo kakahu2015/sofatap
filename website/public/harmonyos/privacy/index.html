@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for the HostTap HarmonyOS app distributed through AppGallery.">
+  <meta name="theme-color" content="#e7f2ed">
+  <title>HostTap Privacy Policy for HarmonyOS</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .policy ul { margin: 0 0 15px 38px; padding-left: 20px; font-size: 14px; line-height: 1.95; color: #506259; }
+    .policy li { margin: 0 0 6px; overflow-wrap: anywhere; }
+    .policy li:last-child { margin-bottom: 0; }
+    .policy code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; color: #344e3e; background: #eef4f0; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    .policy table { width: calc(100% - 38px); border-collapse: collapse; margin: 4px 0 16px 38px; font-size: 13.5px; color: #506259; }
+    .policy th, .policy td { text-align: left; padding: 9px 12px; border: 1px solid #dbe6df; vertical-align: top; }
+    .policy th { background: #eef4f0; color: #344e3e; font-weight: 650; }
+    .policy td { line-height: 1.8; }
+    :lang(zh-CN) .policy ul { line-height: 2; }
+    @media (max-width: 600px) {
+      .policy ul { margin-left: 0; }
+      .policy table { width: 100%; margin-left: 0; font-size: 12.5px; }
+      .policy th, .policy td { padding: 7px 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="HostTap home"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="Language"><span aria-current="page" lang="en">English</span><a href="/zh-cn/harmonyos/privacy/" lang="zh-CN" hreflang="zh-CN">简体中文</a></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">HarmonyOS app · AppGallery</p>
+        <h1>Privacy policy for HarmonyOS</h1>
+        <p class="lead">How the HostTap HarmonyOS app handles information when you use a HarmonyOS phone as a touchpad and keyboard for your own computer.</p>
+        <p class="date">Effective October 21, 2026</p>
+        <nav class="policy-switcher" aria-label="Privacy policy version"><a href="/privacy/">Windows</a><span aria-current="page">HarmonyOS</span></nav>
+      </div>
+
+      <aside class="summary" aria-label="Policy at a glance">
+        <p><strong>The HarmonyOS app has no HostTap account and no server of ours.</strong> It sends control input directly to the computer you paired with, collects no personal information, and includes no advertising, tracking, analytics, or crash-reporting SDK.</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>What this policy covers</h2>
+          <p>This policy covers the HarmonyOS app published by <strong>GUIHUI HU</strong> through AppGallery, with bundle name <code>org.kakahu.hosttap</code>. It describes what the app does on your phone only.</p>
+          <p>The computer side is a separate program; its practices are described in the <a href="/privacy/">general HostTap privacy policy</a>. This policy also does not cover future services, or the privacy practices of your keyboard, speech-recognition provider, or the applications you control.</p>
+        </section>
+
+        <section aria-labelledby="not-collected">
+          <h2 id="not-collected"><span class="section-number">02</span>Information the app does not collect</h2>
+          <p>The app does not collect, transmit, or share any of the following:</p>
+          <ul>
+            <li>Name, phone number, email address, or any other identity information;</li>
+            <li>Location information of any kind;</li>
+            <li>Contacts, messages, call records, photos, files, or clipboard content;</li>
+            <li>Device identifiers such as IMEI, OAID, serial number, or advertising ID;</li>
+            <li>App usage behaviour, crash logs, or diagnostic analytics.</li>
+          </ul>
+          <p>There is no sign-in, no user profile, and no HostTap-operated server that receives your data.</p>
+        </section>
+
+        <section aria-labelledby="permissions">
+          <h2 id="permissions"><span class="section-number">03</span>Permissions the app requests</h2>
+          <p>The app declares two ordinary permissions. Both are used only to reach the computer you paired with.</p>
+          <table>
+            <tr><th>Permission</th><th>Why it is needed</th><th>What leaves your phone</th></tr>
+            <tr>
+              <td><code>ohos.permission.INTERNET</code></td>
+              <td>Opens the encrypted connection to your computer and carries mouse, keyboard, and text input</td>
+              <td>Only the control input you produce, sent directly to that computer. No relay or publisher-operated server is involved.</td>
+            </tr>
+            <tr>
+              <td><code>ohos.permission.GET_NETWORK_INFO</code></td>
+              <td>Tells whether a usable network is present, so the app can reconnect to your computer</td>
+              <td>Nothing. The app does not read the network name, the Wi-Fi password, or your traffic.</td>
+            </tr>
+          </table>
+          <p>The app requests no permission for the camera, microphone, location, contacts, calendar, phone state, storage, or background running.</p>
+        </section>
+
+        <section aria-labelledby="scan">
+          <h2 id="scan"><span class="section-number">04</span>Pairing with the scanning service</h2>
+          <p>Pairing starts when you scan the QR code shown on your computer. The app calls the <strong>system scanning service</strong> to do this, so it does not request camera permission: the system handles the camera preview and hands the app only the decoded text.</p>
+          <p>The app does not receive, store, or upload any image or video. You can leave the system scanning screen at any time to stop scanning, and the app scans only when you open the scanner yourself.</p>
+        </section>
+
+        <section aria-labelledby="local">
+          <h2 id="local"><span class="section-number">05</span>Information stored on your phone</h2>
+          <p>To spare you from pairing again every time, the app keeps the following <strong>on your phone</strong>:</p>
+          <table>
+            <tr><th>Content</th><th>Where it is kept</th><th>Notes</th></tr>
+            <tr>
+              <td>Saved computers: name, address, port, and TLS certificate fingerprint</td>
+              <td>The app’s own preferences</td>
+              <td>Up to 20 records; visible and removable in the app</td>
+            </tr>
+            <tr>
+              <td>Access credential for each paired computer</td>
+              <td>The system Asset Store</td>
+              <td>Encrypted and access-controlled by HarmonyOS; never written to an ordinary file</td>
+            </tr>
+            <tr>
+              <td>Your privacy-consent choice</td>
+              <td>The app’s own preferences</td>
+              <td>Records only that you accepted this policy and which version</td>
+            </tr>
+          </table>
+          <p>None of this is uploaded anywhere. Removing a saved computer in the app deletes that record and its credential; uninstalling the app removes all of it. The app keeps no copy elsewhere, so there is no server-side data for you to request or delete.</p>
+        </section>
+
+        <section aria-labelledby="transport">
+          <h2 id="transport"><span class="section-number">06</span>What is sent to your computer</h2>
+          <p>The connection to your computer is protected as follows:</p>
+          <ul>
+            <li>Input travels over TLS, and the app verifies the certificate fingerprint recorded at pairing; if it does not match, the connection is aborted;</li>
+            <li>The access credential is sent only after that verification succeeds;</li>
+            <li>The payload is mouse movement, clicks, key presses, and the text you deliberately send — including the text you submit in the text-send field and the edits you make in live editing.</li>
+          </ul>
+          <p>That content goes only to the computer you paired with. It is not sent to us, and we keep no copy. Devices usually connect on the same local network; the actual route depends on your network setup.</p>
+          <p>In live editing the app receives the current text and selection of the supported input field on your computer and keeps that draft on the phone only. If the phone and the computer disagree, live editing stops instead of overwriting your text.</p>
+        </section>
+
+        <section aria-labelledby="third-party">
+          <h2 id="third-party"><span class="section-number">07</span>AppGallery, this website, and support</h2>
+          <p><strong>AppGallery.</strong> Huawei distributes and updates this version of the app and may process distribution, installation, and diagnostic information under the <a href="https://consumer.huawei.com/en/privacy/privacy-policy/" rel="noreferrer">Huawei Privacy Policy</a>.</p>
+          <p><strong>This website.</strong> Cloudflare Pages hosts this privacy page. Cloudflare processes network and request information such as IP addresses to deliver and protect the site under the <a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">Cloudflare Privacy Policy</a>. We add no advertising, tracking scripts, analytics, forms, or cookies of our own.</p>
+          <p><strong>Support.</strong> If you email <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>, GUIHUI HU receives your address and whatever you choose to write, and uses them only to reply. Please do not send passwords, pairing links, QR codes, or private text. We keep support mail only as long as needed to handle your request, and you can email us to have it deleted.</p>
+        </section>
+
+        <section aria-labelledby="sharing">
+          <h2 id="sharing"><span class="section-number">08</span>Sharing, and your choices</h2>
+          <p>We do not sell, rent, or share your information, because the app does not collect any. We do not use your input to train AI. Information you voluntarily email to us may be disclosed only if the law requires it.</p>
+          <p>Within the app you can remove saved computers, disconnect at any time, and leave the scanner to stop scanning. Uninstalling the app deletes all local data. To withdraw consent, simply stop using the app and uninstall it.</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">09</span>Children</h2>
+          <p>The app is a utility tool and is not directed at children. It collects no age-related information and contains no advertising or content aimed at minors.</p>
+        </section>
+
+        <section aria-labelledby="changes">
+          <h2 id="changes"><span class="section-number">10</span>Changes and contact</h2>
+          <p>If a future version of the app handles information differently, this page will be updated and the effective date above will change. Material changes will also be announced inside the app before they take effect.</p>
+          <p>For privacy questions or requests, contact GUIHUI HU at <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>. We reply within 15 business days.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap for HarmonyOS · Published by GUIHUI HU</p><a href="/" lang="en">Home</a><a href="/zh-cn/harmonyos/privacy/" lang="zh-CN" hreflang="zh-CN">中文版 <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

@@ -30,6 +30,10 @@ a:focus-visible { outline: 2px solid var(--green); outline-offset: 5px; border-r
 h1 { margin: 0; font-size: clamp(36px, 6vw, 54px); line-height: 1.12; font-weight: 550; letter-spacing: -2.2px; }
 .lead { max-width: 600px; margin: 22px 0 0; color: #53695c; font-size: 19px; line-height: 1.6; }
 .date { margin: 25px 0 0; color: var(--muted); font-size: 12px; }
+.policy-switcher { display: flex; gap: 9px; margin-top: 20px; font-size: 12px; }
+.policy-switcher a, .policy-switcher span { padding: 7px 11px; border: 1px solid #d5e3da; border-radius: 6px; text-decoration: none; }
+.policy-switcher a { color: var(--green); background: #fff; }
+.policy-switcher span { color: #315d49; background: #eaf4ed; }
 .summary { margin: 0 0 38px; padding: 23px 26px; border: 1px solid #d0e5d7; border-radius: 12px; background: #eaf4ed; }
 .summary p { margin: 0; font-size: 14px; line-height: 1.8; color: #3b5c49; }
 .summary strong { font-weight: 650; color: #284f3b; }
