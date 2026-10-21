@@ -33,6 +33,7 @@ internal sealed class MiniProgramServer : IDisposable
         _textFocus = textFocus;
         _textEditorFactory = textEditorFactory;
         _controller = controller;
+        WindowsInput.Diagnostics = Log;
         _masterKey = DecodeBase64Url(token);
         if (_masterKey.Length != 32) throw new InvalidOperationException("Invalid mini program pairing key.");
         _listener = new TcpListener(IPAddress.Any, options.MiniProgramPort);
@@ -80,15 +81,16 @@ internal sealed class MiniProgramServer : IDisposable
     private async Task HandleClient(TcpClient client, CancellationToken stopping)
     {
         client.NoDelay = true;
+        Log($"accept from {(client.Client.RemoteEndPoint as IPEndPoint)?.Address}");
         using var stream = client.GetStream();
         using var handshake = CancellationTokenSource.CreateLinkedTokenSource(stopping);
         handshake.CancelAfter(TimeSpan.FromSeconds(10));
 
         var hello = await ReadLine(stream, 256, handshake.Token);
         var helloParts = hello.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (helloParts.Length != 3 || helloParts[0] != Prefix || helloParts[1] != "HELLO") return;
+        if (helloParts.Length != 3 || helloParts[0] != Prefix || helloParts[1] != "HELLO") { Log("reject: bad hello"); return; }
         var clientNonce = DecodeBase64Url(helloParts[2]);
-        if (clientNonce.Length != 32) return;
+        if (clientNonce.Length != 32) { Log("reject: bad nonce"); return; }
 
         var serverNonce = RandomNumberGenerator.GetBytes(32);
         var serverProof = Proof("server", clientNonce, serverNonce);
@@ -103,9 +105,11 @@ internal sealed class MiniProgramServer : IDisposable
 
         if (!await _controller.WaitAsync(0, handshake.Token))
         {
+            Log("busy: controller already held");
             await WriteLine(stream, $"{Prefix} BUSY", handshake.Token);
             return;
         }
+        Log("auth ok");
 
         try
         {
@@ -131,6 +135,7 @@ internal sealed class MiniProgramServer : IDisposable
             ReceiverDistribution.SupportsTextInspection && code == "ready" && !_options.DryRun && _textFocus is not null
                 ? _textFocus.Read() : new(TextFocusKind.Unknown), code == "ready" && !_options.DryRun);
         var status = ReceiverPlatform.StatusCode(_input, _options.DryRun);
+        Log($"hello status={status} dryRun={_options.DryRun}");
         using var liveText = ReceiverDistribution.SupportsTextInspection && !_options.DryRun && _textEditorFactory is not null
             ? new LiveTextSession(_textEditorFactory(), () => ReceiverPlatform.StatusCode(_input, _options.DryRun) == "ready") : null;
 
@@ -149,21 +154,26 @@ internal sealed class MiniProgramServer : IDisposable
 
             ActionAck ack;
             bool isPing = false;
+            string actionType = "";
             try
             {
                 var action = Protocol.Parse(bytes);
+                actionType = action.Type;
                 isPing = action.Type == "ping";
                 ack = session.Execute(action);
             }
             catch (ProtocolException error)
             {
+                Log($"action rejected type={actionType} bytes={bytes.Length} error={error.Message}");
                 ack = ActionAck.Failure(Protocol.TryReadId(bytes), error.Message);
                 await channel.SendJson(ack, stopping);
                 if (error.Message.StartsWith("Session action limit", StringComparison.Ordinal)) return;
                 continue;
             }
-            catch (JsonException) { ack = ActionAck.Failure("", "Malformed JSON."); }
+            catch (JsonException) { Log($"malformed json bytes={bytes.Length}"); ack = ActionAck.Failure("", "Malformed JSON."); }
             catch (InvalidOperationException) { ack = ActionAck.Failure(Protocol.TryReadId(bytes), "Invalid JSON string."); }
+
+            if (!isPing) Log($"action type={actionType} ok={ack.Ok} error={ack.Error}");
 
             if (isPing)
             {
@@ -175,6 +185,20 @@ internal sealed class MiniProgramServer : IDisposable
             }
             else await channel.SendJson(ack, stopping);
         }
+    }
+
+    private static readonly object LogGate = new();
+
+    // Diagnostics only: record action types and outcomes, never payload text or keys.
+    private static void Log(string message)
+    {
+        try
+        {
+            Directory.CreateDirectory(Credentials.DefaultDirectory);
+            var line = $"{DateTime.Now:HH:mm:ss.fff} {message}{Environment.NewLine}";
+            lock (LogGate) File.AppendAllText(Path.Combine(Credentials.DefaultDirectory, "miniprogram.log"), line);
+        }
+        catch { }
     }
 
     private byte[] Proof(string role, byte[] clientNonce, byte[] serverNonce)

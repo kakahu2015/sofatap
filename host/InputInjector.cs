@@ -18,9 +18,13 @@ public sealed class DryRunInput : IInputInjector
 
 public sealed class WindowsInput : IInputInjector
 {
+    // Optional diagnostic sink; unset in shipping runs.
+    internal static Action<string>? Diagnostics;
     private const uint Mouse = 0, Keyboard = 1;
     private const uint LeftDown = 0x0002, LeftUp = 0x0004, RightDown = 0x0008, RightUp = 0x0010;
     private const uint Wheel = 0x0800, HorizontalWheel = 0x1000, KeyUp = 0x0002, Unicode = 0x0004, Extended = 0x0001;
+    private const uint Move = 0x0001;
+    private const int VirtualScreenLeft = 76, VirtualScreenTop = 77, VirtualScreenWidth = 78, VirtualScreenHeight = 79;
     private readonly HashSet<string> _held = [];
     private double _fractionX, _fractionY, _scrollX, _scrollY;
     private readonly object _gate = new();
@@ -112,12 +116,28 @@ public sealed class WindowsInput : IInputInjector
     {
         if (!Native.GetCursorPos(out var position))
         {
-            var error = Marshal.GetLastPInvokeError();
-            throw new InputInjectionException($"input_failed: GetCursorPos failed (error {error}).");
+            // A rejected absolute read does not imply the relative channel is
+            // closed; keep the gesture alive with an injected relative move.
+            if (Native.SendInput(1, [MouseEvent(Move, dx, dy)], Marshal.SizeOf<Native.Input>()) == 1) return;
+            var readError = Marshal.GetLastPInvokeError();
+            throw new InputInjectionException($"input_failed: GetCursorPos failed (error {readError}).");
         }
-        if (Native.SetCursorPos(position.X + dx, position.Y + dy)) return;
+        // Clamp to the virtual screen: out-of-range absolute targets are rejected
+        // outright on some desktop states instead of being clamped by the OS.
+        var left = Native.GetSystemMetrics(VirtualScreenLeft);
+        var top = Native.GetSystemMetrics(VirtualScreenTop);
+        var right = left + Native.GetSystemMetrics(VirtualScreenWidth) - 1;
+        var bottom = top + Native.GetSystemMetrics(VirtualScreenHeight) - 1;
+        var targetX = Math.Clamp(position.X + dx, left, right);
+        var targetY = Math.Clamp(position.Y + dy, top, bottom);
+        if (Native.SetCursorPos(targetX, targetY)) return;
         var setError = Marshal.GetLastPInvokeError();
-        throw new InputInjectionException($"input_failed: SetCursorPos failed (error {setError}).");
+        Diagnostics?.Invoke($"absolute move rejected (error {setError}) from ({position.X},{position.Y}) target ({targetX},{targetY}); trying relative");
+        // Minimized/secure-desktop transitions and cursor confinement can reject
+        // absolute positioning while relative injection still works.
+        if (Native.SendInput(1, [MouseEvent(Move, dx, dy)], Marshal.SizeOf<Native.Input>()) == 1) return;
+        var moveError = Marshal.GetLastPInvokeError();
+        throw new InputInjectionException($"input_failed: SetCursorPos failed (error {setError}) from ({position.X},{position.Y}) delta ({dx},{dy}) target ({targetX},{targetY}); relative move failed (error {moveError}).");
     }
     private void Submit(Native.Input[] events)
     {
@@ -203,6 +223,7 @@ public sealed class WindowsInput : IInputInjector
         [StructLayout(LayoutKind.Sequential)] public struct Point { public int X, Y; }
         [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int virtualKey);
         [DllImport("user32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool GetCursorPos(out Point point);
+        [DllImport("user32.dll")] public static extern int GetSystemMetrics(int index);
         [DllImport("user32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool SetCursorPos(int x, int y);
         [DllImport("user32.dll", SetLastError = true)] public static extern uint SendInput(uint count, [In] Input[] inputs, int size);
         [DllImport("user32.dll", SetLastError = true)] public static extern IntPtr OpenInputDesktop(uint flags, [MarshalAs(UnmanagedType.Bool)] bool inherit, uint access);

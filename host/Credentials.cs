@@ -10,11 +10,36 @@ namespace SofaTap;
 
 public static class NetworkAddresses
 {
+    // Virtual adapters (VirtualBox host-only, Hyper-V/WSL, VPN/overlay) never carry
+    // the home network the phone is on, so a pairing QR built from them can only fail.
+    // Rank them last and prefer the adapter that actually has an IPv4 default gateway.
+    private static readonly string[] VirtualAdapterMarkers =
+    [
+        "virtualbox", "vmware", "hyper-v", "vethernet", "wsl", "docker", "loopback",
+        "tap-", "tap adapter", "tun", "vpn", "wireguard", "zerotier", "tailscale",
+        "npcap", "hamachi", "radmin", "openvpn", "anyconnect"
+    ];
+
     public static string[] LocalIPv4() => NetworkInterface.GetAllNetworkInterfaces()
         .Where(adapter => adapter.OperationalStatus == OperationalStatus.Up && adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-        .SelectMany(adapter => adapter.GetIPProperties().UnicastAddresses)
-        .Where(address => address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(address.Address))
-        .Select(address => address.Address.ToString()).Distinct().OrderBy(address => address.StartsWith("192.168.", StringComparison.Ordinal) ? 0 : 1).ToArray();
+        .SelectMany(adapter =>
+        {
+            var properties = adapter.GetIPProperties();
+            var virtualAdapter = VirtualAdapterMarkers.Any(marker =>
+                (adapter.Name + " " + adapter.Description).Contains(marker, StringComparison.OrdinalIgnoreCase));
+            var hasGateway = properties.GatewayAddresses.Any(gateway =>
+                gateway.Address.AddressFamily == AddressFamily.InterNetwork && !gateway.Address.Equals(IPAddress.Any));
+            var rank = virtualAdapter ? 2 : hasGateway ? 0 : 1;
+            return properties.UnicastAddresses
+                .Where(address => address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(address.Address))
+                .Select(address => (Address: address.Address.ToString(), Rank: rank));
+        })
+        .GroupBy(entry => entry.Address, StringComparer.Ordinal)
+        .Select(group => (Address: group.Key, Rank: group.Min(entry => entry.Rank)))
+        .OrderBy(entry => entry.Rank)
+        .ThenBy(entry => entry.Address.StartsWith("192.168.", StringComparison.Ordinal) ? 0 : 1)
+        .Select(entry => entry.Address)
+        .ToArray();
 }
 
 public sealed class Credentials : IDisposable
