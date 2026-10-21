@@ -8,7 +8,7 @@ using QRCoder;
 
 namespace SofaTap;
 
-public sealed record ReceiverOptions(bool DryRun, string DataDirectory, int ControlPort = 53319);
+public sealed record ReceiverOptions(bool DryRun, string DataDirectory, int ControlPort = 53319, int MiniProgramPort = 53320);
 
 public sealed class ReceiverServer(ReceiverOptions options, Credentials credentials, IInputInjector input, ITextFocusProbe? textFocus = null,
     Func<ILiveTextEditor>? textEditorFactory = null)
@@ -17,6 +17,8 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
     private static readonly JsonSerializerOptions JsonOptions = LiveTextWire.Options;
     private readonly byte[] _token = Encoding.ASCII.GetBytes(credentials.Token);
     private CancellationToken _applicationStopping;
+    private MiniProgramServer? _miniProgram;
+
     public WebApplication Build()
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [], ContentRootPath = AppContext.BaseDirectory });
@@ -32,11 +34,15 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         });
         var app = builder.Build();
         _applicationStopping = app.Lifetime.ApplicationStopping;
+        _miniProgram = new MiniProgramServer(options, credentials.Token, input, textFocus, textEditorFactory, _controller);
+        app.Lifetime.ApplicationStarted.Register(() => _miniProgram.Start(app.Lifetime.ApplicationStopping));
+        app.Lifetime.ApplicationStopping.Register(() => _miniProgram.Dispose());
         app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(10) });
         app.Run(HandleRequest);
         app.Lifetime.ApplicationStopping.Register(input.ReleaseAll);
         return app;
     }
+
     private async Task HandleRequest(HttpContext context)
     {
         context.Response.Headers.CacheControl = "no-store";
@@ -57,6 +63,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         catch (WebSocketException) { }
         finally { input.ReleaseAll(); _controller.Release(); }
     }
+
     private bool Authorized(HttpRequest request)
     {
         if (!request.Headers.TryGetValue("Authorization", out var header) || header.Count != 1) return false;
@@ -65,6 +72,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         var candidate = Encoding.ASCII.GetBytes(authorization[7..]);
         return CryptographicOperations.FixedTimeEquals(candidate, _token);
     }
+
     // The retired account-password pilot must not be discoverable, even when a
     // legacy enrollment file remains on disk. PIN control needs a separate, verified protocol.
     internal static object CreateHello(string name, string platform, bool dryRun,
@@ -144,6 +152,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
             }
         }
     }
+
     private static async Task Send(WebSocket socket, object message, CancellationToken cancellation)
     {
         using var bounded = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
@@ -152,6 +161,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         if (bytes.Length > Protocol.MaximumFrameBytes) throw new WebSocketException("Response exceeds the frame limit.");
         await socket.SendAsync(bytes, WebSocketMessageType.Text, true, bounded.Token);
     }
+
     private static async Task Close(WebSocket socket, WebSocketCloseStatus status, string reason)
     {
         using var bounded = new CancellationTokenSource(TimeSpan.FromSeconds(2));
@@ -159,12 +169,15 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
     }
+
     private string PairingUrl(string host) => PairingUri.Create(host, options.ControlPort, credentials.Token,
         credentials.Fingerprint, ReceiverPlatform.Id, Environment.MachineName);
+
     public void RequestLinuxAccess()
     {
         if (!options.DryRun && input is LinuxInput linux) linux.RequestAccess();
     }
+
     public object NativeState()
     {
         var pairings = LocalAddresses().Select(address =>
@@ -176,8 +189,9 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         }).ToArray();
         return new { type = "state", name = Environment.MachineName, platform = ReceiverPlatform.Id,
             inputStatus = ReceiverPlatform.StatusCode(input, options.DryRun), dryRun = options.DryRun,
-            connected = _controller.CurrentCount == 0, pairings };
+            connected = _controller.CurrentCount == 0, miniProgramPort = options.MiniProgramPort, pairings };
     }
+
     private string[] LocalAddresses()
     {
         var certificateAddresses = credentials.CertificateIPv4.ToHashSet(StringComparer.Ordinal);
