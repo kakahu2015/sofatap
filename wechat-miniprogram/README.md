@@ -8,7 +8,7 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 - 严格解析现有 `sofatap://pair?...` 二维码，继续使用同一个随机配对 token。
 - 最多保存 20 台电脑。
 - 小程序前台自动重连；进入后台主动暂停连接，返回前台后按设置恢复。
-- 单指移动鼠标、轻点左键、双指滚动。
+- 单指移动鼠标、轻点左键、双指滚动；双指滚动方向和灵敏度与当前 HarmonyOS 版一致。
 - 左键、右键、上下滚动、Enter、Backspace、Esc。
 - 手机输入文字后明确发送到电脑；超时或连接中断时保留“结果不确定”语义，不自动重发文字。
 - Live Text 实时文字编辑：`textBegin` / `textSync` / `textEnd`，120ms 合并同步，并验证 revision 与电脑端回读结果。
@@ -27,6 +27,9 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 - 会话密钥由 HKDF-SHA256 派生，方向分离。
 - 后续帧使用 AES-256-CBC + HMAC-SHA256（Encrypt-then-MAC），并验证严格递增的 32-bit 序号。
 - Mini Program 和原生 WSS 客户端共享 Receiver 的单控制器锁，同一时刻仍只允许一个控制端。
+- 如果 Mini Program 监听端口被占用，Receiver 会保留原有 WSS 控制能力，不会因为 53320 失败而拖垮 iOS/Android/HarmonyOS 控制端。
+
+Windows Store 包已经使用 `privateNetworkClientServer`，macOS App Sandbox 已使用 `com.apple.security.network.server`，因此增加第二个本地监听端口不需要新的平台网络权限。
 
 ## 在微信开发者工具中打开
 
@@ -42,6 +45,12 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 4. 在开发者工具执行 **工具 → 构建 npm**，生成 `miniprogram_npm`。
 5. 使用真机预览/调试。TCP 控制需要手机与电脑位于可互访的同一局域网。
 6. 电脑端必须运行包含 `MiniProgramServer` 的 Receiver；旧版 Receiver 只有 53319/WSS，微信小程序无法连接。
+
+## 微信隐私配置
+
+本项目只通过 `wx.scanCode` 调用摄像头完成配对，并在 `app.json` 中显式启用了 `__usePrivacyCheck__`。
+
+发布/真机测试前仍需要在微信小程序管理后台配置《小程序用户隐私保护指引》，如实声明摄像头/扫码用途。微信的隐私机制会在用户尚未同意时拦截相关隐私接口；没有完成后台隐私配置时，不应把“扫码失败”误判为 HostTap 配对协议问题。
 
 ## 配对流程
 
@@ -64,6 +73,16 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 ## 存储说明
 
 HarmonyOS 版把 token 放在 Asset Store；微信小程序没有等价的 HostTap 专用硬件密钥存储接口，因此当前版本把已保存电脑的配对记录放在该小程序自己的本地 storage 沙箱中。页面响应式数据只包含设备名称、地址、端口和 ID，不包含 token 或 fingerprint。
+
+## 验证状态
+
+当前代码已完成仓库级实现和静态审查，但不要把它视为“已真机验证”：
+
+- 本仓库 fork 的 Draft PR 当前没有自动启动 GitHub Actions workflow。
+- 当前执行环境没有 .NET SDK，无法在这里本地编译 Receiver。
+- 当前执行环境也没有微信开发者工具、真实小程序 AppID 和微信真机运行环境。
+
+因此合并前至少应完成一次：Receiver Release 编译、微信开发者工具“构建 npm”、真机扫码、53320 安全握手、鼠标/滚动/按键/普通文字和 Live Text 实测。
 
 ## 当前范围
 
