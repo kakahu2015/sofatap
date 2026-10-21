@@ -22,7 +22,8 @@ internal sealed class MiniProgramServer : IDisposable
     private readonly SemaphoreSlim _controller;
     private readonly TcpListener _listener;
     private CancellationTokenRegistration _stopRegistration;
-    private Task? _loop;
+    private bool _started;
+    private bool _disposed;
 
     internal MiniProgramServer(ReceiverOptions options, string token, IInputInjector input,
         ITextFocusProbe? textFocus, Func<ILiveTextEditor>? textEditorFactory, SemaphoreSlim controller)
@@ -39,11 +40,12 @@ internal sealed class MiniProgramServer : IDisposable
 
     internal void Start(CancellationToken stopping)
     {
-        if (_loop is not null) return;
+        if (_started) return;
+        _started = true;
         try { _listener.Start(8); }
         catch (SocketException) { throw new InvalidOperationException($"Mini Program control port {_options.MiniProgramPort} is unavailable."); }
-        _stopRegistration = stopping.Register(() => _listener.Stop());
-        _loop = Task.Run(() => AcceptLoop(stopping), CancellationToken.None);
+        _stopRegistration = stopping.Register(_listener.Stop);
+        _ = Task.Run(() => AcceptLoop(stopping), CancellationToken.None);
     }
 
     private async Task AcceptLoop(CancellationToken stopping)
@@ -53,14 +55,21 @@ internal sealed class MiniProgramServer : IDisposable
             TcpClient client;
             try { client = await _listener.AcceptTcpClientAsync(stopping); }
             catch (OperationCanceledException) { break; }
-            catch (ObjectDisposedException) when (stopping.IsCancellationRequested) { break; }
-            catch (SocketException) when (stopping.IsCancellationRequested) { break; }
+            catch (ObjectDisposedException) when (stopping.IsCancellationRequested || _disposed) { break; }
+            catch (SocketException) when (stopping.IsCancellationRequested || _disposed) { break; }
+            _ = HandleAcceptedClient(client, stopping);
+        }
+    }
+
+    private async Task HandleAcceptedClient(TcpClient client, CancellationToken stopping)
+    {
+        using (client)
+        {
             try { await HandleClient(client, stopping); }
             catch (OperationCanceledException) when (stopping.IsCancellationRequested) { }
             catch (IOException) { }
             catch (SocketException) { }
             catch (CryptographicException) { }
-            finally { client.Dispose(); }
         }
     }
 
@@ -207,7 +216,9 @@ internal sealed class MiniProgramServer : IDisposable
     private static byte[] Combine(byte[] first, byte[] second)
     {
         var result = new byte[first.Length + second.Length];
-        first.CopyTo(result, 0); second.CopyTo(result, first.Length); return result;
+        first.CopyTo(result, 0);
+        second.CopyTo(result, first.Length);
+        return result;
     }
 
     private static async Task<string> ReadLine(NetworkStream stream, int maximumBytes, CancellationToken cancellation)
@@ -236,6 +247,7 @@ internal sealed class MiniProgramServer : IDisposable
     }
 
     private static string EncodeBase64Url(byte[] value) => Convert.ToBase64String(value).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
     private static byte[] DecodeBase64Url(string value)
     {
         if (value.Length == 0 || value.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is '-' or '_'))) return [];
@@ -247,6 +259,8 @@ internal sealed class MiniProgramServer : IDisposable
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         _stopRegistration.Dispose();
         _listener.Stop();
         CryptographicOperations.ZeroMemory(_masterKey);
@@ -274,7 +288,10 @@ internal sealed class MiniProgramServer : IDisposable
             byte[] ciphertext;
             using (var aes = Aes.Create())
             {
-                aes.Key = sendEnc; aes.IV = iv; aes.Mode = CipherMode.CBC; aes.Padding = PaddingMode.PKCS7;
+                aes.Key = sendEnc;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
                 using var encryptor = aes.CreateEncryptor();
                 ciphertext = encryptor.TransformFinalBlock(plaintext, 0, plaintext.Length);
             }
@@ -297,7 +314,7 @@ internal sealed class MiniProgramServer : IDisposable
         {
             var lengthBytes = new byte[4];
             if (!await ReadExactlyOrEof(lengthBytes, cancellation)) return [];
-            var length = BinaryPrimitives.ReadUInt32BigEndian(lengthBytes);
+            var length = checked((int)BinaryPrimitives.ReadUInt32BigEndian(lengthBytes));
             var minimum = 1 + 4 + IvBytes + 16 + TagBytes;
             var maximum = 1 + 4 + IvBytes + MaximumCipherBytes + TagBytes;
             if (length < minimum || length > maximum) throw new IOException("Invalid secure frame length.");
@@ -316,7 +333,10 @@ internal sealed class MiniProgramServer : IDisposable
             byte[] plaintext;
             using (var aes = Aes.Create())
             {
-                aes.Key = receiveEnc; aes.IV = iv; aes.Mode = CipherMode.CBC; aes.Padding = PaddingMode.PKCS7;
+                aes.Key = receiveEnc;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
                 using var decryptor = aes.CreateDecryptor();
                 plaintext = decryptor.TransformFinalBlock(ciphertext, 0, ciphertext.Length);
             }
