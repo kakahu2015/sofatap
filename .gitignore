@@ -33,3 +33,6 @@ android/local.properties
 packaging/macos-store/*.xcodeproj/
 packaging/windows-store/store-identity.json
 .workbuddy/
+wechat-miniprogram/node_modules/
+wechat-miniprogram/miniprogram_npm/
+wechat-miniprogram/miniprogram/miniprogram_npm/
