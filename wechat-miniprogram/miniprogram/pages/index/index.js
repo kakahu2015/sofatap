@@ -2,6 +2,16 @@ const { HostTapPairing } = require('../../lib/pairing')
 const store = require('../../lib/store')
 const { hostTapClient } = require('../../lib/client')
 
+function savedView(records) {
+  return records.map((item) => ({
+    id: item.id,
+    host: item.host,
+    port: item.port,
+    platform: item.platform,
+    name: item.name
+  }))
+}
+
 Page({
   data: {
     status: '未连接电脑',
@@ -22,6 +32,7 @@ Page({
 
   onLoad() {
     this.currentPairing = null
+    this.savedRecords = []
     this.touchMode = ''
     this.lastX = 0
     this.lastY = 0
@@ -54,9 +65,14 @@ Page({
     hostTapClient.setListener(null)
   },
 
+  setSavedRecords(records) {
+    this.savedRecords = records
+    this.setData({ savedComputers: savedView(records) })
+  },
+
   refreshSavedComputers() {
     try {
-      this.setData({ savedComputers: store.list() })
+      this.setSavedRecords(store.list())
     } catch (_) {
       this.setData({ operationMessage: '无法读取已保存的电脑' })
     }
@@ -115,11 +131,9 @@ Page({
       return
     }
     try {
-      const savedComputers = store.save(this.currentPairing)
-      this.setData({
-        savedComputers,
-        operationMessage: `已保存 ${this.currentPairing.displayName()}`
-      })
+      const records = store.save(this.currentPairing)
+      this.setSavedRecords(records)
+      this.setData({ operationMessage: `已保存 ${this.currentPairing.displayName()}` })
     } catch (error) {
       this.setData({ operationMessage: error instanceof Error ? error.message : '无法保存电脑' })
     }
@@ -127,7 +141,7 @@ Page({
 
   async connectSavedComputer(event) {
     const id = event.currentTarget.dataset.id
-    const saved = this.data.savedComputers.find((item) => item.id === id)
+    const saved = this.savedRecords.find((item) => item.id === id)
     if (!saved) return
     this.setData({ operationMessage: '' })
     try {
@@ -146,11 +160,12 @@ Page({
 
   removeSavedComputer(event) {
     const id = event.currentTarget.dataset.id
-    const saved = this.data.savedComputers.find((item) => item.id === id)
+    const saved = this.savedRecords.find((item) => item.id === id)
     if (!saved) return
     try {
-      const savedComputers = store.remove(id)
-      this.setData({ savedComputers, operationMessage: `已移除 ${saved.name || saved.host}` })
+      const records = store.remove(id)
+      this.setSavedRecords(records)
+      this.setData({ operationMessage: `已移除 ${saved.name || saved.host}` })
     } catch (error) {
       this.setData({ operationMessage: error instanceof Error ? error.message : '无法移除已保存的电脑' })
     }
