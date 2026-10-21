@@ -1,0 +1,9 @@
+{
+  "desc": "HostTap local controller",
+  "rules": [
+    {
+      "action": "disallow",
+      "page": "*"
+    }
+  ]
+}
