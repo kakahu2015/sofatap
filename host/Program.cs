@@ -2,7 +2,7 @@ using SofaTap;
 
 if (args.Contains("--help", StringComparer.Ordinal))
 {
-    Console.WriteLine("Sofatap receiver backend\nLaunch the native Sofatap desktop app to pair.\n  --native-ui          Private stdin/stdout bridge for the native desktop app\n  --dry-run            Validate transport without injecting input\n  --data-dir <path>    Store pairing credentials in a separate profile\n  --port <n>           TLS control endpoint (default 53319)\n  --mini-port <n>      WeChat Mini Program secure TCP endpoint (default control port + 1)");
+    Console.WriteLine("Sofatap receiver backend\nLaunch the native Sofatap desktop app to pair.\n  --native-ui          Private stdin/stdout bridge for the native desktop app\n  --dry-run            Validate transport without injecting input\n  --data-dir <path>    Store pairing credentials in a separate profile\n  --port <n>           TLS control endpoint (default 53319; Mini Program TCP uses the next port)");
     return;
 }
 try
@@ -28,10 +28,8 @@ try
     if (!OperatingSystem.IsWindows() && !OperatingSystem.IsMacOS() && !OperatingSystem.IsLinux() && !dryRun)
         throw new InvalidOperationException("Sofatap requires Windows, macOS or a supported Linux desktop.");
     var controlPort = Port("--port", Port("--control-port", 53319));
-    var defaultMiniPort = controlPort < 65535 ? controlPort + 1 : 53320;
-    var miniPort = Port("--mini-port", defaultMiniPort);
-    if (miniPort == controlPort) throw new ArgumentException("Mini Program port must differ from the TLS control port.");
-    var options = new ReceiverOptions(dryRun, ReceiverDistribution.DataDirectory(Value("--data-dir")), controlPort, miniPort);
+    if (controlPort == 53320) throw new ArgumentException("Control port 53320 is reserved as the Mini Program fallback when the control port is 65535. Choose another control port.");
+    var options = new ReceiverOptions(dryRun, ReceiverDistribution.DataDirectory(Value("--data-dir")), controlPort);
     using var credentials = Credentials.LoadOrCreate(Path.GetFullPath(options.DataDirectory));
     IInputInjector input = dryRun ? new DryRunInput() : OperatingSystem.IsMacOS() ? new MacInput()
         : OperatingSystem.IsLinux() ? new LinuxInput() : new WindowsInput();
