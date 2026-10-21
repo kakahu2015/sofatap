@@ -1,0 +1,86 @@
+<view class="page">
+  <view class="header">
+    <view>
+      <view class="title">HostTap</view>
+      <view class="subtitle">微信小程序</view>
+    </view>
+    <view class="connection-summary">
+      <view class="computer-name">{{connected ? (computerName || '电脑') : '未连接'}}</view>
+      <view class="status {{inputAvailable ? 'status-ready' : ''}}">{{status}}</view>
+    </view>
+  </view>
+
+  <view class="card pairing-card">
+    <view class="section-title">配对</view>
+    <button class="primary" disabled="{{connected || connecting || scanning}}" bindtap="scanPairingQr">
+      {{scanning ? '正在打开摄像头…' : '扫描电脑二维码'}}
+    </button>
+
+    <view wx:if="{{pairingReady}}" class="pairing-target">
+      <view class="pairing-name">{{pairingName}}</view>
+      <view class="pairing-endpoint">{{pairingEndpoint}}</view>
+    </view>
+
+    <button class="secondary" disabled="{{connecting || (!connected && !pairingReady)}}" bindtap="toggleConnection">
+      {{connecting ? '连接中…' : (connected ? '断开连接' : '连接电脑')}}
+    </button>
+
+    <view class="two-buttons">
+      <button class="secondary half" disabled="{{connected || connecting || !pairingReady}}" bindtap="saveCurrentComputer">保存电脑</button>
+      <button class="secondary half" bindtap="toggleAutoReconnect">自动重连：{{autoReconnectEnabled ? '开' : '关'}}</button>
+    </view>
+  </view>
+
+  <view wx:if="{{savedComputers.length > 0}}" class="card saved-card">
+    <view class="section-title">已保存的电脑</view>
+    <view wx:for="{{savedComputers}}" wx:key="id" class="saved-row">
+      <view class="saved-info">
+        <view class="saved-name">{{item.name || item.host}}</view>
+        <view class="saved-endpoint">{{item.host}}:{{item.port}}</view>
+      </view>
+      <button class="small-button" data-id="{{item.id}}" disabled="{{connecting}}" bindtap="connectSavedComputer">连接</button>
+      <button class="small-button danger" data-id="{{item.id}}" bindtap="removeSavedComputer">删除</button>
+    </view>
+  </view>
+
+  <view class="card controls-card">
+    <view class="section-title">触控板</view>
+    <view class="hint">单指移动 · 轻点左键 · 双指滚动</view>
+    <view class="touchpad {{inputAvailable ? '' : 'touchpad-disabled'}}"
+      bindtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+      bindtouchcancel="onTouchEnd">
+      <view class="touchpad-label">{{inputAvailable ? '在这里控制鼠标' : '连接电脑后可用'}}</view>
+    </view>
+
+    <view class="two-buttons compact-row">
+      <button class="control-button half" disabled="{{!inputAvailable}}" bindtap="leftClick">左键</button>
+      <button class="control-button half" disabled="{{!inputAvailable}}" bindtap="rightClick">右键</button>
+    </view>
+    <view class="two-buttons compact-row">
+      <button class="control-button half" disabled="{{!inputAvailable}}" bindtap="scrollUp">向上滚动</button>
+      <button class="control-button half" disabled="{{!inputAvailable}}" bindtap="scrollDown">向下滚动</button>
+    </view>
+    <view class="three-buttons compact-row">
+      <button class="control-button third" disabled="{{!inputAvailable}}" bindtap="keyEnter">Enter</button>
+      <button class="control-button third" disabled="{{!inputAvailable}}" bindtap="keyBackspace">Backspace</button>
+      <button class="control-button third" disabled="{{!inputAvailable}}" bindtap="keyEscape">Esc</button>
+    </view>
+  </view>
+
+  <view class="card text-card">
+    <view class="section-title">发送文字</view>
+    <textarea class="draft"
+      value="{{draft}}"
+      maxlength="16000"
+      disabled="{{!inputAvailable}}"
+      placeholder="在手机输入，确认后发送到电脑"
+      bindinput="onDraftInput" />
+    <view wx:if="{{protectedFocus}}" class="warning">电脑当前是安全输入框，已阻止文字发送。</view>
+    <button class="primary" disabled="{{!inputAvailable || !draft || protectedFocus}}" bindtap="sendDraft">发送到电脑</button>
+  </view>
+
+  <view wx:if="{{operationMessage}}" class="message">{{operationMessage}}</view>
+  <view class="footer">仅通过摄像头扫描 HostTap 电脑端二维码配对 · 局域网直连</view>
+</view>
