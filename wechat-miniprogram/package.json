@@ -1,0 +1,9 @@
+{
+  "name": "hosttap-wechat-miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "HostTap WeChat Mini Program controller",
+  "dependencies": {
+    "crypto-js": "4.2.0"
+  }
+}
