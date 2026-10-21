@@ -1,6 +1,6 @@
 # HostTap WeChat Mini Program
 
-HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、保存设备、前台重连和 Protocol v1 行为，但使用微信原生 TCP Socket 连接局域网内的 HostTap Receiver。
+HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、保存设备、前台重连、Live Text 和 Protocol v1 行为，但使用微信原生 TCP Socket 连接局域网内的 HostTap Receiver。
 
 ## 当前功能
 
@@ -11,6 +11,7 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 - 单指移动鼠标、轻点左键、双指滚动。
 - 左键、右键、上下滚动、Enter、Backspace、Esc。
 - 手机输入文字后明确发送到电脑；超时或连接中断时保留“结果不确定”语义，不自动重发文字。
+- Live Text 实时文字编辑：`textBegin` / `textSync` / `textEnd`，120ms 合并同步，并验证 revision 与电脑端回读结果。
 - Windows/macOS/Linux 仍复用 Receiver 的 `Protocol.Parse`、`ActionSession` 和现有输入后端。
 
 ## 局域网传输
@@ -48,12 +49,22 @@ HostTap 的微信小程序控制端。它沿用 HarmonyOS 控制端的配对、�
 2. 在小程序点击 **扫描电脑二维码**。
 3. 微信只打开摄像头扫码；扫描结果经过严格校验。
 4. 点击 **连接电脑**，或先 **保存电脑**。
-5. 建立安全 TCP 会话后，Receiver 返回现有 Protocol v1 `hello`，之后所有鼠标、按键和文字操作都继续走 Protocol v1 action/ack。
+5. 建立安全 TCP 会话后，Receiver 返回现有 Protocol v1 `hello`，之后所有鼠标、按键、普通文字和 Live Text 操作都继续走 Protocol v1 action/ack。
+
+## Live Text
+
+当 Receiver 报告 `liveText.version = 1` 且电脑当前焦点是普通可编辑文本框时，小程序会显示 **实时文字** 区域。开始后先读取电脑当前文字和选区，手机侧修改会按 120ms 合并发送；每次同步都要求 Receiver 返回相同 session、预期 revision、文字和选区。以下情况会停止实时编辑：
+
+- 电脑焦点 revision 改变；
+- 焦点变成 unknown 或 protected；
+- 电脑回读与手机内容不一致；
+- `textSync` 超时或连接中断导致结果不确定；
+- 用户执行点击、滚动、按键或普通文字发送等会改变编辑上下文的操作。
 
 ## 存储说明
 
-HarmonyOS 版把 token 放在 Asset Store；微信小程序没有等价的 HostTap 专用硬件密钥存储接口，因此当前版本把已保存电脑的配对记录放在该小程序自己的本地 storage 沙箱中。不要把 storage 内容导出或同步到其他应用。
+HarmonyOS 版把 token 放在 Asset Store；微信小程序没有等价的 HostTap 专用硬件密钥存储接口，因此当前版本把已保存电脑的配对记录放在该小程序自己的本地 storage 沙箱中。页面响应式数据只包含设备名称、地址、端口和 ID，不包含 token 或 fingerprint。
 
 ## 当前范围
 
-这一版先实现实际遥控所需的核心路径，不包含 HarmonyOS 版的 Live Text 实时文字编辑。普通 Unicode 文本发送已经支持。
+这一版覆盖 HostTap 当前主要控制链路：摄像头配对、保存电脑、自动重连、鼠标/滚动/按键、普通文字发送和 Live Text。语音、AI 等非核心扩展没有加入首版小程序。
