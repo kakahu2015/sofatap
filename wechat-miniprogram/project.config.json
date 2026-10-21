@@ -1,0 +1,14 @@
+{
+  "description": "HostTap WeChat Mini Program",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "appid": "touristappid",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false,
+    "urlCheck": false,
+    "packNpmManually": false
+  }
+}
