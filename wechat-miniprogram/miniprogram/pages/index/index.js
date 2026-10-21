@@ -217,7 +217,7 @@ Page({
       const delta = averageY - this.lastScrollY
       this.lastScrollY = averageY
       this.totalMove += Math.abs(delta)
-      hostTapClient.scroll(delta * 2.2)
+      hostTapClient.scroll(-delta * 1.4)
       return
     }
     if (touches.length === 1) {
