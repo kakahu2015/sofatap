@@ -8,7 +8,10 @@ using QRCoder;
 
 namespace SofaTap;
 
-public sealed record ReceiverOptions(bool DryRun, string DataDirectory, int ControlPort = 53319, int MiniProgramPort = 53320);
+public sealed record ReceiverOptions(bool DryRun, string DataDirectory, int ControlPort = 53319)
+{
+    public int MiniProgramPort => ControlPort < 65535 ? ControlPort + 1 : 53320;
+}
 
 public sealed class ReceiverServer(ReceiverOptions options, Credentials credentials, IInputInjector input, ITextFocusProbe? textFocus = null,
     Func<ILiveTextEditor>? textEditorFactory = null)
@@ -17,7 +20,6 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
     private static readonly JsonSerializerOptions JsonOptions = LiveTextWire.Options;
     private readonly byte[] _token = Encoding.ASCII.GetBytes(credentials.Token);
     private CancellationToken _applicationStopping;
-    private MiniProgramServer? _miniProgram;
 
     public WebApplication Build()
     {
@@ -34,9 +36,9 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         });
         var app = builder.Build();
         _applicationStopping = app.Lifetime.ApplicationStopping;
-        _miniProgram = new MiniProgramServer(options, credentials.Token, input, textFocus, textEditorFactory, _controller);
-        app.Lifetime.ApplicationStarted.Register(() => _miniProgram.Start(app.Lifetime.ApplicationStopping));
-        app.Lifetime.ApplicationStopping.Register(() => _miniProgram.Dispose());
+        var miniProgram = new MiniProgramServer(options, credentials.Token, input, textFocus, textEditorFactory, _controller);
+        app.Lifetime.ApplicationStarted.Register(() => miniProgram.Start(app.Lifetime.ApplicationStopping));
+        app.Lifetime.ApplicationStopping.Register(miniProgram.Dispose);
         app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(10) });
         app.Run(HandleRequest);
         app.Lifetime.ApplicationStopping.Register(input.ReleaseAll);
