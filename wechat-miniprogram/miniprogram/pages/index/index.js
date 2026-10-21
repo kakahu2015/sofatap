@@ -20,6 +20,13 @@ Page({
     connected: false,
     inputAvailable: false,
     protectedFocus: false,
+    liveTextSupported: false,
+    liveTextActive: false,
+    liveTextAvailable: false,
+    liveTextPaused: false,
+    liveDraft: '',
+    liveSelectionStart: 0,
+    liveSelectionEnd: 0,
     scanning: false,
     pairingReady: false,
     pairingName: '',
@@ -47,6 +54,10 @@ Page({
         connected: state.connected,
         inputAvailable: state.inputAvailable,
         protectedFocus: state.protectedFocus,
+        liveTextSupported: state.liveTextSupported,
+        liveTextActive: state.liveTextActive,
+        liveTextAvailable: state.liveTextAvailable,
+        liveTextPaused: state.liveTextPaused,
         autoReconnectEnabled: state.autoReconnectEnabled
       })
     })
@@ -247,6 +258,45 @@ Page({
   keyEnter() { hostTapClient.key('enter') },
   keyBackspace() { hostTapClient.key('backspace') },
   keyEscape() { hostTapClient.key('escape') },
+
+  async toggleLiveText() {
+    this.setData({ operationMessage: '' })
+    if (this.data.liveTextActive) {
+      await hostTapClient.endLiveText()
+      this.setData({ operationMessage: '已结束实时文字编辑' })
+      return
+    }
+    const result = await hostTapClient.beginLiveText()
+    if (!result.accepted || !result.liveText) {
+      this.setData({ operationMessage: result.error || '无法开始实时文字编辑' })
+      return
+    }
+    const snapshot = result.liveText
+    this.setData({
+      liveDraft: snapshot.text,
+      liveSelectionStart: snapshot.selectionStart,
+      liveSelectionEnd: snapshot.selectionStart + snapshot.selectionLength,
+      operationMessage: '实时文字编辑已开始'
+    })
+  },
+
+  onLiveTextInput(event) {
+    const value = event.detail.value || ''
+    const cursor = Number.isInteger(event.detail.cursor) && event.detail.cursor >= 0 ? event.detail.cursor : value.length
+    this.setData({
+      liveDraft: value,
+      liveSelectionStart: cursor,
+      liveSelectionEnd: cursor
+    })
+    hostTapClient.syncLiveText(value, cursor, 0)
+  },
+
+  onLiveTextBlur(event) {
+    if (!this.data.liveTextActive) return
+    const value = event.detail.value || this.data.liveDraft
+    const cursor = Number.isInteger(event.detail.cursor) && event.detail.cursor >= 0 ? event.detail.cursor : value.length
+    hostTapClient.syncLiveText(value, cursor, 0)
+  },
 
   onDraftInput(event) {
     this.setData({ draft: event.detail.value || '' })
