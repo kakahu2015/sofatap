@@ -24,6 +24,17 @@ function randomUuid() {
 
 function bound(value, minimum, maximum) { return Math.max(minimum, Math.min(maximum, value)) }
 
+function splitsSurrogate(value, index) {
+  if (index <= 0 || index >= value.length) return false
+  const previous = value.charCodeAt(index - 1)
+  const current = value.charCodeAt(index)
+  return previous >= 0xd800 && previous <= 0xdbff && current >= 0xdc00 && current <= 0xdfff
+}
+
+function validFocusState(value) {
+  return value === 'editable' || value === 'other' || value === 'protected' || value === 'unknown'
+}
+
 function rejectedWithoutDelivery(error) {
   return error.startsWith('input_failed:') || error.startsWith('input_busy:') ||
     error.startsWith('invalid_') || error.startsWith('unsupported_') ||
@@ -52,6 +63,18 @@ class HostTapClient {
     this.computerName = ''
     this.status = '未连接电脑'
 
+    this.textFocusState = 'unknown'
+    this.focusRevision = -1
+    this.focusMetadataSupported = false
+    this.liveTextSupported = false
+    this.liveTextPaused = false
+    this.liveTextSession = ''
+    this.liveTextRevision = 0
+    this.queuedLiveText = null
+    this.liveSyncTimer = null
+    this.liveSyncBusy = false
+    this.liveTextEnding = false
+
     this.queuedDX = 0
     this.queuedDY = 0
     this.queuedScroll = 0
@@ -74,6 +97,10 @@ class HostTapClient {
       inputAvailable: this.inputAvailable,
       protectedFocus: this.protectedFocus,
       computerName: this.computerName,
+      liveTextSupported: this.liveTextSupported,
+      liveTextActive: this.liveTextSession.length > 0,
+      liveTextAvailable: this.liveTextSupported && this.textFocusState === 'editable' && !this.protectedFocus && this.canControl(),
+      liveTextPaused: this.liveTextPaused,
       autoReconnectEnabled: this.autoReconnectEnabled
     }
   }
@@ -135,6 +162,12 @@ class HostTapClient {
     this.connected = false
     this.inputAvailable = false
     this.protectedFocus = false
+    this.textFocusState = 'unknown'
+    this.focusRevision = -1
+    this.focusMetadataSupported = false
+    this.liveTextSupported = false
+    this.liveTextPaused = false
+    this.clearLiveTextSession()
     this.status = '正在验证电脑身份…'
     this.publish()
 
@@ -173,6 +206,112 @@ class HostTapClient {
     }
   }
 
+  click(button) {
+    if (button !== 'left' && button !== 'right') return
+    this.invalidateLiveText()
+    void this.sendActionFrame({ id: randomUuid(), type: 'click', button }, false)
+  }
+
+  button(button, down) {
+    if (button !== 'left' && button !== 'right') return
+    if (down) this.invalidateLiveText()
+    void this.sendActionFrame({ id: randomUuid(), type: 'button', button, down: !!down }, false)
+  }
+
+  key(key, modifiers = []) {
+    this.invalidateLiveText()
+    void this.sendActionFrame({ id: randomUuid(), type: 'key', key, modifiers }, false)
+  }
+
+  move(dx, dy) {
+    if (!this.canControl() || !Number.isFinite(dx) || !Number.isFinite(dy)) return
+    const now = Date.now()
+    if (now - this.lastMoveAt > MOVE_STALE_MS) { this.queuedDX = 0; this.queuedDY = 0 }
+    this.queuedDX = bound(this.queuedDX + dx * 1.4, -500, 500)
+    this.queuedDY = bound(this.queuedDY + dy * 1.4, -500, 500)
+    this.lastMoveAt = now
+    this.scheduleMove(30)
+  }
+
+  scroll(dy) {
+    if (!this.canControl() || !Number.isFinite(dy)) return
+    this.invalidateLiveText()
+    this.queuedScroll = bound(this.queuedScroll + dy, -1200, 1200)
+    this.scheduleScroll(25)
+  }
+
+  async sendText(value) {
+    if (!this.canControl()) return { accepted: false, uncertain: false, error: '电脑当前无法接收输入' }
+    if (!value) return { accepted: false, uncertain: false, error: '先输入要发送的文字' }
+    if (value.length > MAX_TEXT_UNITS) return { accepted: false, uncertain: false, error: '文字超过 16,000 个 UTF-16 单元，请分段发送' }
+    if (this.protectedFocus) return { accepted: false, uncertain: false, error: '电脑当前是安全输入框，已阻止发送' }
+    this.invalidateLiveText()
+    return await this.sendActionFrame({ id: randomUuid(), type: 'text', text: value }, true)
+  }
+
+  async beginLiveText() {
+    if (!this.liveTextSupported) return { accepted: false, uncertain: false, error: '这台电脑不支持实时文字编辑' }
+    if (this.textFocusState !== 'editable' || this.protectedFocus) {
+      return { accepted: false, uncertain: false, error: '请先在电脑上选中可编辑的普通文字输入框' }
+    }
+    if (!this.canControl()) return { accepted: false, uncertain: false, error: '电脑当前无法接收输入' }
+    this.clearLiveTextSession()
+    const result = await this.sendActionFrame({ id: randomUuid(), type: 'textBegin' }, false)
+    if (!result.accepted) return result
+    const snapshot = result.liveText
+    if (!snapshot) return { accepted: false, uncertain: false, error: '电脑没有返回实时文字状态' }
+    this.liveTextSession = snapshot.session
+    this.liveTextRevision = snapshot.revision
+    this.liveTextEnding = false
+    this.liveTextPaused = false
+    this.publish()
+    return { accepted: true, uncertain: false, error: '', liveText: snapshot }
+  }
+
+  syncLiveText(value, selectionStart, selectionLength) {
+    if (!this.liveTextSession || this.liveTextEnding || !this.canControl() || this.protectedFocus ||
+      value.length > MAX_TEXT_UNITS || !Number.isInteger(selectionStart) || !Number.isInteger(selectionLength) ||
+      selectionStart < 0 || selectionLength < 0 || selectionStart + selectionLength > value.length ||
+      splitsSurrogate(value, selectionStart) || splitsSurrogate(value, selectionStart + selectionLength)) return
+    this.queuedLiveText = { text: value, selectionStart, selectionLength }
+    if (this.liveSyncTimer) clearTimeout(this.liveSyncTimer)
+    this.liveSyncTimer = setTimeout(() => {
+      this.liveSyncTimer = null
+      void this.flushLiveText()
+    }, 120)
+  }
+
+  async endLiveText() {
+    if (this.liveTextEnding) return
+    const session = this.liveTextSession
+    if (!session) {
+      this.clearLiveTextSession()
+      this.publish()
+      return
+    }
+    this.liveTextEnding = true
+    if (this.liveSyncTimer) clearTimeout(this.liveSyncTimer)
+    this.liveSyncTimer = null
+    const deadline = Date.now() + COMMAND_TIMEOUT_MS + 1000
+    while (this.liveTextSession === session && Date.now() < deadline) {
+      if (!this.liveSyncBusy && this.queuedLiveText) {
+        await this.flushLiveText()
+        continue
+      }
+      if (!this.liveSyncBusy && !this.queuedLiveText) break
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+    if (this.liveTextSession !== session) return
+    if (this.liveSyncTimer) clearTimeout(this.liveSyncTimer)
+    this.liveSyncTimer = null
+    this.queuedLiveText = null
+    this.liveTextSession = ''
+    this.publish()
+    await this.sendActionFrame({ id: randomUuid(), type: 'textEnd', session }, false)
+    this.liveTextRevision = 0
+    this.liveTextEnding = false
+  }
+
   receive(raw, current, helloResolve, helloReject) {
     if (current !== this.generation || utf8Length(raw) > MAX_WIRE_BYTES) {
       if (helloReject) helloReject(new Error('电脑返回的数据无效'))
@@ -193,10 +332,19 @@ class HostTapClient {
         this.connectionLost('电脑端协议不兼容，请更新接收器', current)
         return
       }
+      if (utf8Length(message.name) > 256) {
+        if (helloReject) helloReject(new Error('电脑名称无效'))
+        this.connectionLost('电脑名称无效', current)
+        return
+      }
       const status = typeof message.inputStatus === 'string' ? message.inputStatus : ''
       const dryRun = message.dryRun === true
       this.inputAvailable = message.inputAvailable === true && !dryRun && (!status || status === 'ready')
-      this.protectedFocus = !!(message.textFocus && message.textFocus.state === 'protected')
+      this.textFocusState = message.textFocus && validFocusState(message.textFocus.state) ? message.textFocus.state : 'unknown'
+      this.protectedFocus = this.textFocusState === 'protected'
+      this.focusMetadataSupported = !!(message.textFocus && Number.isInteger(message.textFocus.revision) && message.textFocus.revision >= 0)
+      this.focusRevision = this.focusMetadataSupported ? message.textFocus.revision : -1
+      this.liveTextSupported = !!(message.liveText && message.liveText.version === 1)
       this.computerName = message.name || (this.pairing ? this.pairing.displayName() : '电脑')
       this.connecting = false
       this.connected = true
@@ -224,55 +372,35 @@ class HostTapClient {
         this.inputAvailable = message.inputAvailable && !dryRun && (!status || status === 'ready')
         this.status = this.inputAvailable ? '已连接' : this.statusMessage(status, dryRun)
       }
-      if (message.textFocus) this.protectedFocus = message.textFocus.state === 'protected'
+      if (message.textFocus) {
+        const nextState = validFocusState(message.textFocus.state) ? message.textFocus.state : 'unknown'
+        const nextRevision = Number.isInteger(message.textFocus.revision) && message.textFocus.revision >= 0 ? message.textFocus.revision : -1
+        if (this.liveTextSession && this.focusMetadataSupported &&
+          (nextRevision < 0 || nextRevision !== this.focusRevision || nextState === 'unknown' || nextState === 'protected')) {
+          this.invalidateLiveText()
+        }
+        this.focusMetadataSupported = nextRevision >= 0
+        this.focusRevision = nextRevision
+        this.textFocusState = nextState
+        this.protectedFocus = nextState === 'protected'
+      } else if (this.focusMetadataSupported) {
+        if (this.liveTextSession) this.invalidateLiveText()
+        this.focusMetadataSupported = false
+        this.focusRevision = -1
+        this.textFocusState = 'unknown'
+        this.protectedFocus = false
+      }
       this.publish()
     }
 
     if (message.ok === true) {
-      item.resolve({ accepted: true, uncertain: false, error: '' })
+      const snapshot = this.readLiveTextSnapshot(message.liveText)
+      item.resolve({ accepted: true, uncertain: false, error: '', liveText: snapshot })
       return
     }
     const error = typeof message.error === 'string' && message.error ? message.error : '操作未完成'
-    const uncertain = (item.type === 'text') && !rejectedWithoutDelivery(error)
+    const uncertain = (item.type === 'text' || item.type === 'textSync') && !rejectedWithoutDelivery(error)
     item.resolve({ accepted: false, uncertain, error })
-  }
-
-  click(button) {
-    if (button !== 'left' && button !== 'right') return
-    void this.sendActionFrame({ id: randomUuid(), type: 'click', button }, false)
-  }
-
-  button(button, down) {
-    if (button !== 'left' && button !== 'right') return
-    void this.sendActionFrame({ id: randomUuid(), type: 'button', button, down: !!down }, false)
-  }
-
-  key(key, modifiers = []) {
-    void this.sendActionFrame({ id: randomUuid(), type: 'key', key, modifiers }, false)
-  }
-
-  move(dx, dy) {
-    if (!this.canControl() || !Number.isFinite(dx) || !Number.isFinite(dy)) return
-    const now = Date.now()
-    if (now - this.lastMoveAt > MOVE_STALE_MS) { this.queuedDX = 0; this.queuedDY = 0 }
-    this.queuedDX = bound(this.queuedDX + dx * 1.4, -500, 500)
-    this.queuedDY = bound(this.queuedDY + dy * 1.4, -500, 500)
-    this.lastMoveAt = now
-    this.scheduleMove(30)
-  }
-
-  scroll(dy) {
-    if (!this.canControl() || !Number.isFinite(dy)) return
-    this.queuedScroll = bound(this.queuedScroll + dy, -1200, 1200)
-    this.scheduleScroll(25)
-  }
-
-  async sendText(value) {
-    if (!this.canControl()) return { accepted: false, uncertain: false, error: '电脑当前无法接收输入' }
-    if (!value) return { accepted: false, uncertain: false, error: '先输入要发送的文字' }
-    if (value.length > MAX_TEXT_UNITS) return { accepted: false, uncertain: false, error: '文字超过 16,000 个 UTF-16 单元，请分段发送' }
-    if (this.protectedFocus) return { accepted: false, uncertain: false, error: '电脑当前是安全输入框，已阻止发送' }
-    return await this.sendActionFrame({ id: randomUuid(), type: 'text', text: value }, true)
   }
 
   async sendActionFrame(frame, textSensitive) {
@@ -316,8 +444,11 @@ class HostTapClient {
     if (!this.canControl()) { this.queuedDX = 0; this.queuedDY = 0; return }
     if (Date.now() - this.lastMoveAt > MOVE_STALE_MS) { this.queuedDX = 0; this.queuedDY = 0; return }
     if (this.moveBusy || Math.abs(this.queuedDX) + Math.abs(this.queuedDY) < 0.01) return
-    const dx = this.queuedDX; const dy = this.queuedDY
-    this.queuedDX = 0; this.queuedDY = 0; this.moveBusy = true
+    const dx = this.queuedDX
+    const dy = this.queuedDY
+    this.queuedDX = 0
+    this.queuedDY = 0
+    this.moveBusy = true
     await this.sendActionFrame({ id: randomUuid(), type: 'move', dx, dy }, false)
     this.moveBusy = false
     if (Math.abs(this.queuedDX) + Math.abs(this.queuedDY) > 0.01) this.scheduleMove(20)
@@ -332,18 +463,108 @@ class HostTapClient {
     if (!this.canControl()) { this.queuedScroll = 0; return }
     if (this.scrollBusy || Math.abs(this.queuedScroll) < 0.01) return
     const dy = this.queuedScroll
-    this.queuedScroll = 0; this.scrollBusy = true
+    this.queuedScroll = 0
+    this.scrollBusy = true
     await this.sendActionFrame({ id: randomUuid(), type: 'scroll', dx: 0, dy }, false)
     this.scrollBusy = false
     if (Math.abs(this.queuedScroll) > 0.01) this.scheduleScroll(20)
   }
 
+  async flushLiveText() {
+    if (this.liveSyncBusy || !this.liveTextSession || !this.canControl()) return
+    const queued = this.queuedLiveText
+    if (!queued) return
+    this.queuedLiveText = null
+    const session = this.liveTextSession
+    const revision = this.liveTextRevision + 1
+    this.liveSyncBusy = true
+    const result = await this.sendActionFrame({
+      id: randomUuid(), type: 'textSync', session, revision,
+      text: queued.text, selectionStart: queued.selectionStart, selectionLength: queued.selectionLength
+    }, true)
+    this.liveSyncBusy = false
+
+    if (this.liveTextSession !== session) {
+      if (this.queuedLiveText && this.liveTextSession && !this.liveSyncTimer) {
+        this.liveSyncTimer = setTimeout(() => { this.liveSyncTimer = null; void this.flushLiveText() }, 0)
+      }
+      return
+    }
+    if (!result.accepted) {
+      const error = result.uncertain
+        ? `${result.error}；实时编辑已停止，请检查电脑上的文字`
+        : `实时编辑已停止：${result.error}`
+      this.liveTextPaused = true
+      this.clearLiveTextSession()
+      this.sendLiveTextEnd(session)
+      this.status = error
+      this.publish()
+      return
+    }
+    const snapshot = result.liveText
+    if (!snapshot || snapshot.session !== session || snapshot.revision !== revision ||
+      snapshot.text !== queued.text || snapshot.selectionStart !== queued.selectionStart ||
+      snapshot.selectionLength !== queued.selectionLength) {
+      this.liveTextPaused = true
+      this.clearLiveTextSession()
+      this.sendLiveTextEnd(session)
+      this.status = '电脑文字回读与手机内容不一致，实时编辑已停止'
+      this.publish()
+      return
+    }
+    this.liveTextRevision = snapshot.revision
+    if (this.queuedLiveText && !this.liveSyncTimer) {
+      this.liveSyncTimer = setTimeout(() => { this.liveSyncTimer = null; void this.flushLiveText() }, 0)
+    }
+  }
+
+  readLiveTextSnapshot(value) {
+    if (!value || typeof value.session !== 'string' ||
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value.session) ||
+      !Number.isInteger(value.revision) || value.revision < 0 ||
+      typeof value.text !== 'string' || value.text.length > MAX_TEXT_UNITS ||
+      !Number.isInteger(value.selectionStart) || !Number.isInteger(value.selectionLength) ||
+      value.selectionStart < 0 || value.selectionLength < 0 ||
+      value.selectionStart + value.selectionLength > value.text.length ||
+      splitsSurrogate(value.text, value.selectionStart) ||
+      splitsSurrogate(value.text, value.selectionStart + value.selectionLength)) return undefined
+    return {
+      session: value.session, revision: value.revision, text: value.text,
+      selectionStart: value.selectionStart, selectionLength: value.selectionLength
+    }
+  }
+
+  clearLiveTextSession() {
+    if (this.liveSyncTimer) clearTimeout(this.liveSyncTimer)
+    this.liveSyncTimer = null
+    this.queuedLiveText = null
+    this.liveTextSession = ''
+    this.liveTextRevision = 0
+    this.liveTextEnding = false
+  }
+
+  invalidateLiveText() {
+    if (!this.liveTextSession) return
+    const session = this.liveTextSession
+    if (this.liveSyncBusy || this.queuedLiveText) this.liveTextPaused = true
+    this.clearLiveTextSession()
+    this.publish()
+    this.sendLiveTextEnd(session)
+  }
+
+  sendLiveTextEnd(session) {
+    if (!session) return
+    void this.sendActionFrame({ id: randomUuid(), type: 'textEnd', session }, false)
+  }
+
   startKeepAlive() {
     this.stopKeepAlive()
+    const interval = this.focusMetadataSupported ? 750 : 5000
     this.pingTimer = setInterval(() => {
       if (!this.connected) return
+      for (const item of this.pending.values()) if (item.type === 'ping') return
       void this.sendActionFrame({ id: randomUuid(), type: 'ping' }, false)
-    }, 5000)
+    }, interval)
   }
 
   stopKeepAlive() {
@@ -356,14 +577,30 @@ class HostTapClient {
     this.stopKeepAlive()
     if (this.moveTimer) clearTimeout(this.moveTimer)
     if (this.scrollTimer) clearTimeout(this.scrollTimer)
-    this.moveTimer = null; this.scrollTimer = null
-    this.queuedDX = 0; this.queuedDY = 0; this.queuedScroll = 0
+    if (this.liveSyncTimer) clearTimeout(this.liveSyncTimer)
+    this.moveTimer = null
+    this.scrollTimer = null
+    this.liveSyncTimer = null
+    this.queuedDX = 0
+    this.queuedDY = 0
+    this.queuedScroll = 0
+    this.queuedLiveText = null
+    this.liveSyncBusy = false
+    this.liveTextSession = ''
+    this.liveTextRevision = 0
+    this.liveTextEnding = false
+    this.liveTextSupported = false
+    this.liveTextPaused = false
+    this.textFocusState = 'unknown'
+    this.focusRevision = -1
+    this.focusMetadataSupported = false
     const transport = this.transport
     this.transport = null
     if (transport) transport.close()
     for (const item of this.pending.values()) {
       clearTimeout(item.timer)
-      item.resolve({ accepted: false, uncertain: item.type === 'text', error: item.type === 'text' ? '连接中断，文字发送结果未确认' : '连接中断' })
+      const uncertain = item.type === 'text' || item.type === 'textSync'
+      item.resolve({ accepted: false, uncertain, error: uncertain ? '连接中断，文字发送结果未确认' : '连接中断' })
     }
     this.pending.clear()
     this.connecting = false
@@ -377,18 +614,22 @@ class HostTapClient {
     this.closeTransport()
     this.status = message || '电脑连接已中断'
     this.publish()
-    if (this.reconnectWanted && this.autoReconnectEnabled) this.scheduleReconnect()
+    if (this.shouldRetry(this.status)) this.scheduleReconnect()
   }
 
-  scheduleReconnect(delay) {
-    if (!this.foreground || !this.reconnectWanted || !this.autoReconnectEnabled || !this.pairing || this.reconnectTimer) return
-    const wait = typeof delay === 'number' ? delay : this.retryDelayMs
+  scheduleReconnect(delayOverride) {
+    if (!this.shouldRetry(this.status) || this.reconnectTimer) return
+    const delay = typeof delayOverride === 'number' ? delayOverride : this.retryDelayMs
+    if (typeof delayOverride !== 'number') this.retryDelayMs = Math.min(this.retryDelayMs * 2, 30000)
+    if (delay > 0) {
+      this.status = `连接中断，将在 ${Math.ceil(delay / 1000)} 秒后自动重连`
+      this.publish()
+    }
+    const target = this.pairing
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null
-      if (!this.foreground || !this.reconnectWanted || !this.pairing || this.connected || this.connecting) return
-      this.connectInternal(this.pairing).catch(() => {})
-    }, wait)
-    if (typeof delay !== 'number') this.retryDelayMs = Math.min(this.retryDelayMs * 2, 15000)
+      if (target && this.shouldRetry(this.status)) this.connectInternal(target).catch(() => {})
+    }, delay)
   }
 
   clearReconnectTimer() {
@@ -397,7 +638,8 @@ class HostTapClient {
   }
 
   shouldRetry(message) {
-    return !/身份验证失败|配对密钥无效|协议不兼容|重新扫码/.test(message)
+    if (!this.reconnectWanted || !this.autoReconnectEnabled || !this.foreground || !this.pairing) return false
+    return !/身份验证失败|配对密钥无效|协议不兼容|重新扫码|安全握手失败/.test(message)
   }
 
   statusMessage(status, dryRun) {
