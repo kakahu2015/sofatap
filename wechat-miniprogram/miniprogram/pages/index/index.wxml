@@ -69,6 +69,27 @@
     </view>
   </view>
 
+  <view wx:if="{{liveTextSupported}}" class="card text-card">
+    <view class="section-title">实时文字</view>
+    <view class="hint" wx:if="{{liveTextActive}}">手机修改会同步到电脑，并校验电脑回读结果。</view>
+    <view class="hint" wx:elif="{{liveTextAvailable}}">电脑当前选中了可编辑文本框，可以开始实时编辑。</view>
+    <view class="hint" wx:else>请先在电脑上选中普通可编辑文本框。</view>
+    <view wx:if="{{liveTextPaused}}" class="warning">上一次实时编辑因状态变化或结果不确定而停止，请先检查电脑上的文字。</view>
+    <textarea wx:if="{{liveTextActive}}"
+      class="draft"
+      value="{{liveDraft}}"
+      maxlength="16000"
+      focus="{{liveTextActive}}"
+      selection-start="{{liveSelectionStart}}"
+      selection-end="{{liveSelectionEnd}}"
+      placeholder="实时编辑电脑中的文字"
+      bindinput="onLiveTextInput"
+      bindblur="onLiveTextBlur" />
+    <button class="primary" disabled="{{!liveTextActive && !liveTextAvailable}}" bindtap="toggleLiveText">
+      {{liveTextActive ? '结束实时编辑' : '开始实时编辑'}}
+    </button>
+  </view>
+
   <view class="card text-card">
     <view class="section-title">发送文字</view>
     <textarea class="draft"
