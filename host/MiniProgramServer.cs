@@ -43,7 +43,11 @@ internal sealed class MiniProgramServer : IDisposable
         if (_started) return;
         _started = true;
         try { _listener.Start(8); }
-        catch (SocketException) { throw new InvalidOperationException($"Mini Program control port {_options.MiniProgramPort} is unavailable."); }
+        catch (SocketException)
+        {
+            Console.Error.WriteLine($"Mini Program control port {_options.MiniProgramPort} is unavailable; native control remains available.");
+            return;
+        }
         _stopRegistration = stopping.Register(_listener.Stop);
         _ = Task.Run(() => AcceptLoop(stopping), CancellationToken.None);
     }
@@ -314,10 +318,12 @@ internal sealed class MiniProgramServer : IDisposable
         {
             var lengthBytes = new byte[4];
             if (!await ReadExactlyOrEof(lengthBytes, cancellation)) return [];
-            var length = checked((int)BinaryPrimitives.ReadUInt32BigEndian(lengthBytes));
+            var encodedLength = BinaryPrimitives.ReadUInt32BigEndian(lengthBytes);
             var minimum = 1 + 4 + IvBytes + 16 + TagBytes;
             var maximum = 1 + 4 + IvBytes + MaximumCipherBytes + TagBytes;
-            if (length < minimum || length > maximum) throw new IOException("Invalid secure frame length.");
+            if (encodedLength < (uint)minimum || encodedLength > (uint)maximum)
+                throw new IOException("Invalid secure frame length.");
+            var length = (int)encodedLength;
             var body = new byte[length];
             await stream.ReadExactlyAsync(body, cancellation);
             if (body[0] != 1) throw new IOException("Unsupported secure frame version.");
