@@ -28,7 +28,6 @@ try
     if (!OperatingSystem.IsWindows() && !OperatingSystem.IsMacOS() && !OperatingSystem.IsLinux() && !dryRun)
         throw new InvalidOperationException("Sofatap requires Windows, macOS or a supported Linux desktop.");
     var controlPort = Port("--port", Port("--control-port", 53319));
-    if (controlPort == 53320) throw new ArgumentException("Control port 53320 is reserved as the Mini Program fallback when the control port is 65535. Choose another control port.");
     var options = new ReceiverOptions(dryRun, ReceiverDistribution.DataDirectory(Value("--data-dir")), controlPort);
     using var credentials = Credentials.LoadOrCreate(Path.GetFullPath(options.DataDirectory));
     IInputInjector input = dryRun ? new DryRunInput() : OperatingSystem.IsMacOS() ? new MacInput()
