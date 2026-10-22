@@ -2,7 +2,7 @@ using SofaTap;
 
 if (args.Contains("--help", StringComparer.Ordinal))
 {
-    Console.WriteLine("Sofatap receiver backend\nLaunch the native Sofatap desktop app to pair.\n  --native-ui          Private stdin/stdout bridge for the native desktop app\n  --dry-run            Validate transport without injecting input\n  --data-dir <path>    Store pairing credentials in a separate profile\n  --port <n>           TLS control endpoint (default 53319; Mini Program TCP uses the next port)");
+    Console.WriteLine("Sofatap receiver backend\nLaunch the native Sofatap desktop app to pair.\n  --native-ui          Private stdin/stdout bridge for the native desktop app\n  --dry-run            Validate transport without injecting input\n  --data-dir <path>    Store pairing credentials in a separate profile\n  --port <n>           TLS control endpoint (default 53319)");
     return;
 }
 try

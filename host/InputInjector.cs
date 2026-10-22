@@ -18,8 +18,6 @@ public sealed class DryRunInput : IInputInjector
 
 public sealed class WindowsInput : IInputInjector
 {
-    // Optional diagnostic sink; unset in shipping runs.
-    internal static Action<string>? Diagnostics;
     private const uint Mouse = 0, Keyboard = 1;
     private const uint LeftDown = 0x0002, LeftUp = 0x0004, RightDown = 0x0008, RightUp = 0x0010;
     private const uint Wheel = 0x0800, HorizontalWheel = 0x1000, KeyUp = 0x0002, Unicode = 0x0004, Extended = 0x0001;
@@ -132,7 +130,6 @@ public sealed class WindowsInput : IInputInjector
         var targetY = Math.Clamp(position.Y + dy, top, bottom);
         if (Native.SetCursorPos(targetX, targetY)) return;
         var setError = Marshal.GetLastPInvokeError();
-        Diagnostics?.Invoke($"absolute move rejected (error {setError}) from ({position.X},{position.Y}) target ({targetX},{targetY}); trying relative");
         // Minimized/secure-desktop transitions and cursor confinement can reject
         // absolute positioning while relative injection still works.
         if (Native.SendInput(1, [MouseEvent(Move, dx, dy)], Marshal.SizeOf<Native.Input>()) == 1) return;
