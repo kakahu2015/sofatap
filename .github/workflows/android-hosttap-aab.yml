@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version_code:
-        description: Android versionCode; must be higher than the version already on Google Play
+        description: Whole-number Android versionCode (for example 2); higher than Play's latest. Do not enter a dotted version name here.
         required: true
-        type: number
+        type: string
       version_name:
         description: Android versionName shown to users
         required: true

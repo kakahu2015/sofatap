@@ -22,12 +22,12 @@ internal static class UpdateChecks
         Check(V("1.0.0-beta.1").CompareTo(V("1.0.0")) < 0, "Stable cannot downgrade to beta");
         Check(V("1.0.0-beta.1+abc").CompareTo(V("1.0.0-beta.1+def")) == 0, "Build metadata does not cause upgrade");
         Check(V("1.0.0--1").CompareTo(V("1.0.0-2")) > 0, "Hyphen identifier is alphanumeric, not negative number");
-        foreach (var bad in new[] { "1", "01.0.0", "1.0.0-beta.01", "v1.0.0", "android-tv-v1.0.0", "1.0.0-", "1.0.0\n", "1.0.0-beta..1" })
+        foreach (var bad in new[] { "1", "01.0.0", "1.0.0-beta.01", "v1.0.0", "not-a-version", "1.0.0-", "1.0.0\n", "1.0.0-beta..1" })
             Check(ReceiverVersion.Parse(bad) is null, "Invalid semantic version rejected");
         JsonElement Release(string tag, string? digest = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", string? url = null, long size = 50, string state = "uploaded", bool draft = false, bool prerelease = false) =>
             JsonSerializer.SerializeToElement(new { tag_name = tag, draft, prerelease, assets = new[] { new { name = UpdatePackage.AssetName, digest, size, state, browser_download_url = url ?? "https://github.com/chekusu/sofatap/releases/download/" + tag + "/" + UpdatePackage.AssetName } } });
-        var chosen = UpdatePackage.Select([Release("v0.9.0-beta.2"), Release("android-tv-v9.0.0"), Release("v0.10.0-beta.1"), Release("v2.0.0", draft: true)], V("0.8.0-beta.1"));
-        Check(chosen?.Version == "0.10.0-beta.1", "Desktop channel chooses highest eligible release, not newest API position or TV tag");
+        var chosen = UpdatePackage.Select([Release("v0.9.0-beta.2"), Release("v0.10.0-beta.1"), Release("v2.0.0", draft: true)], V("0.8.0-beta.1"));
+        Check(chosen?.Version == "0.10.0-beta.1", "Desktop channel chooses highest eligible release, not newest API position");
         Check(UpdatePackage.Select([Release("v0.8.0-beta.1"), Release("v0.7.9")], V("0.8.0-beta.1")) is null, "Equal and old releases skipped");
         foreach (var bad in new[] { Release("v1.0.0", digest: null), Release("v1.0.0", digest: "sha256:bad"), Release("v1.0.0", size: 0),
             Release("v1.0.0", size: UpdatePackage.MaximumDownload + 1), Release("v1.0.0", state: "new"),

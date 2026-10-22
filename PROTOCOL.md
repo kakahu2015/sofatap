@@ -12,13 +12,11 @@ The desktop receiver shows a QR code containing:
 
 No cloud service. Client stores the pairing in Keychain. Validate all QR fields: IP/hostname only (no URL path/userinfo), port 1..65535, token 32+ characters, fingerprint exactly 64 hex characters. IPv4 is the initial advertised host format.
 
-The unified scanner accepts exactly the four required fields `host`, `port`, `token`, `fingerprint`, plus optional `platform` and `name` in any order. Reject duplicate or unknown fields. `sofatap://pair` allows `windows`, `macos` or `linux`; `sofatap://tv` is the Android/Google TV receiver namespace and only allows `androidtv`. A platform that conflicts with its namespace is invalid. Metadata does not select another host, confer trust, alter the TLS pin or start an automation task.
+The scanner accepts exactly the four required fields `host`, `port`, `token`, `fingerprint`, plus optional `platform` and `name` in any order. Reject duplicate or unknown fields. `sofatap://pair` allows `windows`, `macos` or `linux`. A platform outside that list is invalid. Metadata does not select another host, confer trust, alter the TLS pin or start an automation task.
 
 `name` is a display hint: reject Unicode control/format characters (general categories Cc and Cf) before trimming outer Unicode whitespace. The normalized name must be nonempty, at most 80 Unicode scalar values and at most 256 UTF-8 bytes. Count scalars, not grapheme clusters or UTF-16 code units. Emit names using UTF-8 percent encoding; a literal `+` in a URI query remains `+`, not a space. Receivers trim safe OS names before emitting them and use a static platform name when the OS name is invalid; they do not truncate an unsafe name. Desktop copy-link validators apply the same field, metadata and endpoint checks. The selected native pairing endpoint must match the link's host.
 
-The new scanner remains compatible with older four-field QR codes, which simply lack a device label/platform hint. **Compatibility is one-way:** iOS 1.0 build 14 and earlier require exactly four fields and cannot scan the new metadata QR codes. Upgrade the iPhone app before using an updated receiver. The transport protocol version remains 1; the metadata extension changes QR parsing, not authentication or input capabilities.
-
-Android receivers emit `sofatap://tv?host=<private-ipv4>&port=53319&token=<bootstrap-token>&fingerprint=<sha256>&platform=androidtv&name=<percent-encoded-device-name>`. Their existing private IPv4, bootstrap expiry/rotation, TLS pin and capability rules remain unchanged. LG webOS pairing uses its own adapter and is not represented by this Android QR namespace.
+The scanner remains compatible with older four-field desktop QR codes, which simply lack a device label/platform hint. **Compatibility is one-way:** iOS 1.0 build 14 and earlier require exactly four fields and cannot scan the metadata QR codes. The transport protocol version remains 1; the metadata extension changes QR parsing, not authentication or input capabilities. LG webOS pairing uses its own manual authorization flow.
 
 ## Connection
 

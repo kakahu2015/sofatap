@@ -8,7 +8,6 @@ xcrun --sdk macosx swiftc -parse-as-library -swift-version 5 \
     -target "$(uname -m)-apple-macosx14.0" \
     "$REPO_ROOT/ios/SofaTap/Core/SavedDevice.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/Pairing.swift" \
-    "$REPO_ROOT/ios/SofaTap/Core/TV/"AndroidTV*.swift \
     "$REPO_ROOT/ios/SofaTap/Core/TV/WebOSTVProtocol.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/TV/WebOSTVPairingStore.swift" \
     "$REPO_ROOT/tests/SavedDeviceTests.swift" \

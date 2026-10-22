@@ -38,6 +38,3 @@ These checks opened no desktop windows, sent no desktop input, paired no TV and 
 2. Test visible pointer movement, click, scrolling, Back/Home, TV permission rejection/revocation, changed certificate, Wi-Fi interruption, foreground/background and reconnection on that model with the test iPhone. Record outcomes, not merely socket receipts.
 3. Add and qualify native discovery (including Apple's multicast entitlement), DHCP/address changes and consumer onboarding. The current preview requires a private IPv4 address and stores one TV pairing.
 4. Implement TV-specific IME/focus/text/dictation with explicit editor capability checks. There is no TV keyboard or speech input in this pointer preview, and no claim that PC live selection synchronization carries over.
-5. Investigate Google TV true-pointer support separately from Remote v2 direction navigation. Do not advertise a shifted focus rectangle as mouse control.
-
-The [technical plan](../research/tv-implementation-plan.md) describes these stages. Paid desktop voice automation follows the free-TV milestone, and paid TV automation follows paid desktop qualification.

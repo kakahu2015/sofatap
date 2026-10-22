@@ -1,4 +1,4 @@
-"NSCameraUsageDescription" = "Sofatap レシーバーに表示された QR コードをスキャンして、パソコンや Android TV とペアリングします。";
+"NSCameraUsageDescription" = "Sofatap レシーバーに表示された QR コードをスキャンして、パソコンとペアリングします。";
 "NSLocalNetworkUsageDescription" = "ホームネットワーク上のペアリング済みパソコンや対応テレビに接続し、手動でリモート操作します。";
 "NSMicrophoneUsageDescription" = "マイクをタップすると iPhone 上で音声を認識します。リアルタイムモードでは認識したテキストをすぐにパソコンへ送信し、下書きモードでは確認後に送信します。";
 "NSSpeechRecognitionUsageDescription" = "端末内の音声認識で録音した音声をテキストに変換します。デバイスや言語が未対応の場合はキーボードを使用してください。";

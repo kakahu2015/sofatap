@@ -2,14 +2,14 @@
 
 Updated October 16, 2026. This is the product direction, with acceptance goals rather than promised release dates.
 
-**Feature delivery order:** free manual TV control → paid voice automation on Windows/macOS/Linux → paid voice automation on TVs. Existing desktop maintenance and release acceptance continue separately. Do not integrate the paid agent runtime ahead of the free TV milestone.
+**Feature delivery order:** improve free manual control on computers and qualify the LG webOS preview → paid voice automation on Windows/macOS/Linux → evaluate TV automation after a supported manual-control path is established. Existing desktop maintenance and release acceptance continue separately.
 
 ## Free: manual control of computers and TVs
 
 The free product is an iPhone remote: the user moves, clicks, drags, scrolls and enters text. Basic voice-to-text remains part of this input experience. Dictating words into a field does not authorize an automated task.
 
 1. **Current foundation — computers.** The iPhone app and receiver support manual control of Windows, macOS and supported Linux desktops. Text editing and input compatibility vary by platform and application; the [README](../README.md#platform-status) and [verification records](ACCEPTANCE.md) describe the actual scope. Keep improving these controls and their reliability.
-2. **Next manual-control expansion — direct TVs.** Connect the iPhone to a supported TV without a separate computer. Prioritize the **Android/Google TV receiver feasibility milestone**: one native receiver codebase, native pairing UI, explicit permission setup and independently measured pointer/click/scroll/text capabilities. A receiver APK is a packaging choice, not proof of global mouse input. Keep Remote v2 direction navigation separately labeled and the LG webOS preview as another adapter; LG qualification is not a prerequisite for Android work. See the [implementation stages](research/tv-implementation-plan.md#shared-architecture-and-release-gates).
+2. **TV preview — LG webOS.** The iPhone can connect to a compatible LG TV over its local network using manual IP entry and on-TV approval. Continue physical model and firmware qualification before describing a model as supported. The implementation status is in the [webOS pointer preview record](verification/webos-pointer-preview.md).
 
 For every TV family, publish the tested model/OS/app matrix and distinguish these capabilities:
 
@@ -19,7 +19,7 @@ For every TV family, publish the tested model/OS/app matrix and distinguish thes
 | Focus navigation | Direction keys move focus and confirm/back activate navigation. Label this mode as navigation; it does not satisfy the mouse-control goal. |
 | Unsupported | Clearly report unavailable actions. A moving decoration on the phone is not evidence of a TV pointer. |
 
-Before calling a TV supported, verify discovery, explicit on-TV pairing, reconnection, disconnect, permissions and manual input on a physical TV. Document whether it needs a receiver installation. Pairing alone does not prove pointer control. The iPhone beta includes experimental direct-TV adapters. Android receiver 0.1.1 beta.1 and iPhone build 17 add automatic recovery for a selected saved TV, with native QR pairing and conditional accessibility-node input ([build guide](../android/README.md), [recovery verification](verification/android-tv-reconnect-2026-10-16.md)), alongside the LG webOS pointer preview with manual IP pairing; see the [implementation plan](research/tv-implementation-plan.md) and [software verification](verification/webos-pointer-preview.md). **Sony XRJ-85X95L field testing has begun on Android 12 with receiver 0.1.2-beta.1; it is not yet qualified. Xiaomi MiTV-MOEU0 setup has begun on Android 14; installation and user-granted accessibility are confirmed, while actual input acceptance remains pending.** Installation and accessibility permission are confirmed. The user reports working clicks and scrolling, but rapid-scroll queue delays/disconnection and failed Back require follow-up. Record per-application acceptance, firmware, physical iPhone pairing, receiver restart/reconnect and failure recovery in the [hardware checklist](ACCEPTANCE.md). Discovery and TV text input also remain open.
+Before calling an LG TV supported, verify model and firmware, explicit on-TV pairing, reconnection, disconnect and pointer actions on the physical TV. Pairing alone does not prove pointer control. Record per-application acceptance and failure recovery in the [hardware checklist](ACCEPTANCE.md). Automatic discovery and TV text input are not part of the current preview.
 
 ## Paid: speak a goal and complete multiple steps
 

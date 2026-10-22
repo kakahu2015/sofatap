@@ -16,20 +16,13 @@ struct RemoteGuideView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     deviceCard
                     if target == .television { televisionHelp }
-                    if !context.tvNavigation { mappingCard }
-                    if context.showsTVTextInputHelp {
-                        guideCard("keyboard", gesture: .text,
-                                  title: String(localized: "电视键盘与语音输入"),
-                                  detail: String(localized: "在电视设置中启用并选择 Sofatap 输入法，再选中电视上的输入框。手机键盘或本机听写生成草稿，发送后插入电视当前光标位置；不会替换整个输入框。"))
-                        Text(String(localized: "草稿清空只作用于手机。电视退格直接删除电视光标前的文字；发送完成后，回车按钮执行搜索或当前输入框操作。安全输入框及未提供标准输入接口的页面不支持。"))
-                            .font(.footnote).foregroundStyle(Palette.muted)
-                    }
-                    if !context.tvNavigation { Button { showPractice = true } label: {
+                    mappingCard
+                    Button { showPractice = true } label: {
                         Label(String(localized: "试试这些手势"), systemImage: "hand.draw")
                             .font(.headline).frame(maxWidth: .infinity, minHeight: 48)
                     }
                     .buttonStyle(.bordered)
-                    .accessibilityIdentifier("guidePractice") }
+                    .accessibilityIdentifier("guidePractice")
                     if context.showsTextInputHelp {
                         guideCard("keyboard", gesture: .text,
                                   title: String(localized: "键盘与语音输入"),
@@ -84,23 +77,14 @@ struct RemoteGuideView: View {
         case .windows: return "Windows"
         case .macos: return "macOS"
         case .linux: return "Linux"
-        case .androidTV: return "Android TV / Google TV"
         case .webOS: return "LG webOS"
         }
     }
 
     @ViewBuilder private var televisionHelp: some View {
-        if context.tvNavigation {
-            guideCard("dpad", gesture: .tvRemote,
-                      title: String(localized: "方向键与确认"),
-                      detail: String(localized: "手指碰到触控区时会出现方向提示，向左、右、上、下滑动即可移动电视的高亮项，单击确认。松手后提示会消失。右下角默认显示返回和主页，左右滑动这块小区域可切换其他操作。此模式不移动鼠标光标。"))
-            Text(String(localized: "在右下角的小区域左右滑动，找到模式按钮即可切换到光标。手势设置只影响光标模式，电脑的设置不会改变。"))
-                .font(.footnote).foregroundStyle(Palette.muted)
-        } else { guideCard("cursorarrow", gesture: .tvFocus,
+        guideCard("cursorarrow", gesture: .tvFocus,
                   title: String(localized: "点击与确认"),
-                  detail: context.kind == .androidTV
-                    ? String(localized: "电视光标是指示层。点击操作光标下的可访问控件；确认操作当前高亮项，两者不同。效果取决于电视和应用，并非系统鼠标。")
-                    : String(localized: "LG webOS 使用电视的指针接口。点击操作光标位置，确认操作当前高亮项；具体效果取决于电视和应用。")) }
+                  detail: String(localized: "LG webOS 使用电视的指针接口。点击操作光标位置，确认操作当前高亮项；具体效果取决于电视和应用。"))
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "接收器当前可用操作")).font(.headline)
             ForEach(context.televisionActions, id: \.self) { action in
@@ -110,7 +94,7 @@ struct RemoteGuideView: View {
                     availabilityLabel(context.availability(of: action))
                 }.font(.subheadline)
             }
-            Text(context.showsTVTextInputHelp ? String(localized: "电视暂不支持右键、鼠标双击或拖动。文字输入需启用 Sofatap 输入法。") : String(localized: "电视暂不支持右键、鼠标双击、拖动、键盘或语音输入。"))
+            Text(String(localized: "电视暂不支持右键、鼠标双击、拖动、键盘或语音输入。"))
                 .font(.footnote).foregroundStyle(Palette.muted)
             Text(String(localized: "轻震动表示手机已接收操作；电视是否执行请以画面为准。操作被拒绝时会显示提示并给出不同反馈。"))
                 .font(.footnote).foregroundStyle(Palette.muted)
@@ -129,7 +113,7 @@ struct RemoteGuideView: View {
             .background(Palette.background, in: RoundedRectangle(cornerRadius: 16))
             // Keep the Back / Home illustration in a consistent order across languages.
             .environment(\.layoutDirection, .leftToRight)
-            Text(context.tvNavigation ? String(localized: "首次使用系统遥控时，按提示输入电视上显示的配对码。") : String(localized: "在手势设置中可绑定确认、返回和主页。返回与主页也可使用专用按钮。"))
+            Text(String(localized: "在手势设置中可绑定确认、返回和主页。返回与主页也可使用专用按钮。"))
                 .font(.footnote).foregroundStyle(Palette.muted)
         }
         .padding(18).background(Palette.panel, in: RoundedRectangle(cornerRadius: 20))
@@ -165,7 +149,6 @@ struct RemoteGuideView: View {
     }
 
     private func actionTitle(_ action: GestureAction) -> String {
-        if context.kind == .androidTV && action == .leftClick { return String(localized: "点击光标下的可访问控件") }
         if target == .television && action == .confirm { return String(localized: "确认当前高亮项") }
         return action.title(for: target)
     }
@@ -194,7 +177,7 @@ struct RemoteGuideView: View {
     }
 }
 
-private enum GuideGesture { case move, tap, hold, scroll, text, backspace, tvFocus, tvRemote }
+private enum GuideGesture { case move, tap, hold, scroll, text, backspace, tvFocus }
 
 private struct GuideGestureDiagram: View {
     let gesture: GuideGesture
@@ -211,12 +194,7 @@ private struct GuideGestureDiagram: View {
                 }
             }
             HStack(spacing: 16) {
-                if gesture == .tvRemote {
-                    Image(systemName: "hand.draw").font(.system(size: 42, weight: .regular))
-                    Image(systemName: "arrow.right")
-                    RoundedRectangle(cornerRadius: 8).stroke(Palette.mint, lineWidth: 3)
-                        .frame(width: 70, height: 46).overlay(Image(systemName: "checkmark"))
-                } else if gesture == .tvFocus {
+                if gesture == .tvFocus {
                     RoundedRectangle(cornerRadius: 8).fill(Palette.mint.opacity(0.12))
                         .frame(width: 70, height: 46)
                         .overlay(Image(systemName: "cursorarrow"))

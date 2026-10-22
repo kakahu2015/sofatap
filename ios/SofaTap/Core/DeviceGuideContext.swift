@@ -3,11 +3,11 @@ import Foundation
 /// Presentation-only device context. Help and practice never send remote input.
 struct DeviceGuideContext: Equatable {
     enum Kind: String {
-        case computer, windows, macos, linux, androidTV, webOS
+        case computer, windows, macos, linux, webOS
 
         var target: GestureTarget {
             switch self {
-            case .androidTV, .webOS: return .television
+            case .webOS: return .television
             default: return .computer
             }
         }
@@ -29,14 +29,9 @@ struct DeviceGuideContext: Equatable {
     let connected: Bool
     /// nil means capabilities have not been reported, not that everything works.
     let availableActions: Set<GestureAction>?
-    var tvNavigation = false
-    var tvNavigationReady = false
-    var tvTextStatus: String? = nil
-
     var target: GestureTarget { kind.target }
     var showsTextInputHelp: Bool { target == .computer }
-    var televisionActions: [GestureAction] { tvNavigation ? [.confirm, .back, .home] : [.movePointer, .leftClick, .scroll, .confirm, .back, .home] }
-    var showsTVTextInputHelp: Bool { kind == .androidTV && tvTextStatus != nil }
+    var televisionActions: [GestureAction] { [.movePointer, .leftClick, .scroll, .confirm, .back, .home] }
 
     func availability(of action: GestureAction) -> Availability {
         guard action != .none else { return .disabled }
@@ -44,7 +39,6 @@ struct DeviceGuideContext: Equatable {
         // even if a future caller passes a broader capability set.
         if target == .television && !televisionActions.contains(action) { return .unsupported }
         guard connected, let availableActions else { return .unknown }
-        if tvNavigation && televisionActions.contains(action) { return tvNavigationReady ? .supported : .unsupported }
         return availableActions.contains(action) ? .supported : .unsupported
     }
 

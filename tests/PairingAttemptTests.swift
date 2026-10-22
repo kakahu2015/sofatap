@@ -42,8 +42,6 @@ struct PairingAttemptTests {
         let pinB = String(repeating: "b", count: 64)
         let pcA = "sofatap://pair?host=pc-a.local&port=53317&token=\(token)&fingerprint=\(pinA)"
         let pcB = "sofatap://pair?host=pc-b.local&port=53317&token=\(token)&fingerprint=\(pinB)&name=New%20PC"
-        let tv = "sofatap://tv?host=192.168.1.8&port=53318&token=\(token)&fingerprint=\(pinA)"
-        let reorderedTV = "SOFATAP://tv?fingerprint=\(pinA.uppercased())&name=New%20label&token=\(token)&port=053318&host=192.168.1.8"
         var attempt = PairingAttemptState()
         try check("valid desktop candidate starts", attempt.begin(pcB))
         check("desktop retry retains the candidate's exact original link", attempt.computerRetryLink == pcB)
@@ -54,33 +52,6 @@ struct PairingAttemptTests {
         attempt.markAuthenticated()
         check("successful candidate no longer owns a cancellation or retry", attempt.pendingCandidate == nil && attempt.computerRetryLink == nil)
         try check("successful duplicate does not reset naming", !attempt.begin(pcB) && attempt.authenticated)
-
-        var android = PairingAttemptState()
-        var bootstrapConnections: [PairingCode] = []
-        check("scanner validation does not consume a fresh bootstrap", android.canBegin(tv) && android.canBegin(reorderedTV) && android.candidate == nil)
-        func deliverTV(_ raw: String) throws {
-            if try android.begin(raw), let candidate = android.candidate { bootstrapConnections.append(candidate) }
-        }
-        try deliverTV(tv); try deliverTV(reorderedTV)
-        check("camera then canonical pasted/link duplicate opens one pending bootstrap", bootstrapConnections.count == 1)
-        android.markAuthenticated(); try deliverTV(reorderedTV)
-        check("duplicate while naming preserves authenticated connection", bootstrapConnections.count == 1 && android.authenticated)
-        android.resetScanner()
-        check("scanner rejects a spent code before stopping capture", !android.canBegin(reorderedTV))
-        do { try deliverTV(tv); check("reset must not replay a consumed bootstrap", false) }
-        catch { check("reset retains bootstrap attempt history", android.candidate == nil && bootstrapConnections.count == 1) }
-        do { try deliverTV(tv.replacingOccurrences(of: "192.168.1.8", with: "192.168.1.9")); check("alias must not replay same token", false) }
-        catch { check("same pin and token at another address are not replayed", bootstrapConnections.count == 1) }
-        let freshTV = tv.replacingOccurrences(of: "token=\(token)", with: "token=\(String(repeating: "z", count: 43))")
-        check("scanner stays able to accept a fresh code after rejecting a spent one", android.canBegin(freshTV))
-        try deliverTV(freshTV)
-        check("new QR token can start another attempt", bootstrapConnections.count == 2 && !android.authenticated)
-        _ = try android.begin(pcA)
-        do { try deliverTV(tv); check("switching adapters must not replay an earlier token", false) }
-        catch { check("rejected old bootstrap leaves current desktop candidate intact", android.computerRetryLink == pcA) }
-        var interrupted = PairingAttemptState(); _ = try interrupted.begin(tv); interrupted.resetScanner()
-        do { _ = try interrupted.begin(reorderedTV); check("failed bootstrap must not be retried", false) }
-        catch { check("even an unconfirmed bootstrap needs a fresh QR", interrupted.candidate == nil) }
 
         let old = try Pairing.parse(pcA), new = try Pairing.parse(pcB)
         var library = DeviceLibrary<Pairing>(); library.upsert(old)

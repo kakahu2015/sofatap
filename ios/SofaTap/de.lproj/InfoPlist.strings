@@ -1,4 +1,4 @@
-"NSCameraUsageDescription" = "QR-Code des Sofatap-Empfängers scannen, um deinen Computer oder Android TV zu koppeln.";
+"NSCameraUsageDescription" = "QR-Code des Sofatap-Empfängers scannen, um deinen Computer zu koppeln.";
 "NSLocalNetworkUsageDescription" = "Mit gekoppelten Computern oder unterstützten Fernsehern im Heimnetzwerk verbinden, um sie manuell fernzusteuern.";
 "NSMicrophoneUsageDescription" = "Wenn du auf das Mikrofon tippst, wird Sprache auf deinem iPhone erkannt. Im Live-Modus wird erkannter Text sofort an den Computer gesendet; im Entwurfsmodus prüfst du ihn vor dem Senden.";
 "NSSpeechRecognitionUsageDescription" = "Aufgenommene Sprache mit lokaler Spracherkennung in Text umwandeln. Wird dein Gerät oder deine Sprache nicht unterstützt, verwende die Tastatur.";

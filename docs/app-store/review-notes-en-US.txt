@@ -20,10 +20,8 @@ DESKTOP TEST
 4. Tap the microphone, grant Microphone/Speech access, tap again to stop. Recognition needs a supported device/language; otherwise use the keyboard. Live fields sync dictation; other fields need Send. Send, append, send again: only the suffix should arrive.
 5. Build 16/receiver 0.7.2: keep the phone app foreground, quit/reopen the receiver. The selected computer reconnects without rescanning while its address/identity remain valid; retries back off to 30 seconds. Added adapters alone preserve pairing; real address replacement/certificate renewal needs re-pairing. Existing duplicates are not merged. Manual disconnect/backgrounding stops retries. Pending input is not replayed; check uncertain text before resending.
 
-TV PREVIEWS
-No physical TV model/app is qualified. Android/Google TV needs the development receiver and enabled Accessibility. Its overlay activates exposed accessible controls; scrolling uses container actions. No general mouse injection.
-https://github.com/chekusu/sofatap/blob/main/android/README.md
-LG webOS needs manual private IP entry, explicit certificate trust, TV approval and a compatible secure pointer service; no QR. Both previews lack TV text/dictation, right-click and drag. Selecting TV suspends computer control.
+TV PREVIEW
+No physical LG webOS TV model/app is qualified. The preview needs manual private IP entry, explicit certificate trust, TV approval and a compatible secure pointer service; QR pairing is not supported. TV text/dictation, right-click and drag are unavailable. Selecting TV suspends computer control.
 
 PRIVACY/LIMITS
 Credentials stay in Keychain; input uses local pinned TLS; built-in dictation is on-device. Live editing transfers field text/selection; protected/read-only fields cannot use it. No Windows login/elevated screens, AI automation, Bluetooth or saved-PIN unlocking. Backgrounding stops capture/control.

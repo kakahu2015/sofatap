@@ -206,33 +206,8 @@
 "配对电视" = "Fernseher koppeln";
 "配对设备与连接设置" = "Geräte koppeln und Verbindung einstellen";
 "无法移除电视配对，请稍后重试。" = "TV-Kopplung konnte nicht entfernt werden. Später erneut versuchen.";
-"扫描 Android TV 接收器中的二维码。" = "QR-Code im Android-TV-Empfänger scannen.";
-"Android TV 未连接" = "Android TV nicht verbunden";
-"正在连接 Android TV…" = "Verbindung zu Android TV …";
-"Android TV · 实验性遥控" = "Android TV · Experimentelle Steuerung";
-"Android TV · 等待权限" = "Android TV · Berechtigung erforderlich";
-"Android TV 配对二维码无效，请在电视上生成新的二维码。" = "Ungültiger Android-TV-Kopplungscode. Neuen Code am Fernseher erzeugen.";
-"正在验证电视加密连接…" = "Verschlüsselte TV-Verbindung wird geprüft …";
-"电视未接受这次操作。请查看电视；此应用或控件可能不支持遥控。" = "Fernseher hat die Aktion nicht akzeptiert. Prüfe den Fernseher; die App oder das Bedienelement unterstützt Fernsteuerung möglicherweise nicht.";
-"电视连接或配对未确认。请在电视上生成新二维码后重新连接。" = "TV-Verbindung oder Kopplung nicht bestätigt. Neuen Code am Fernseher erzeugen und erneut verbinden.";
-"实验性控制：移动屏幕上的指示光标，点击可访问控件。操作结果请以电视画面为准。" = "Experimentelle Steuerung: Einen eingeblendeten Zeiger bewegen und zugängliche Bedienelemente aktivieren. Jede Aktion am Fernseher prüfen.";
-"已连接。请在电视设置中启用 Sofatap 辅助功能服务，然后返回接收器。" = "Verbunden. Sofatap-Bedienungshilfendienst in den TV-Einstellungen aktivieren und zum Empfänger zurückkehren.";
-"电视当前已锁定，请先使用电视遥控器解锁。" = "Fernseher gesperrt. Zuerst mit der Fernbedienung entsperren.";
-"电视输入当前不可用，请查看接收器中的权限与兼容性提示。" = "TV-Eingabe nicht verfügbar. Berechtigungs- und Kompatibilitätshinweise im Empfänger prüfen.";
-"电视响应过慢，已停止发送。请查看电视后手动重新连接。" = "Fernseher antwortet zu langsam. Eingabe angehalten. Fernseher prüfen und manuell erneut verbinden.";
-"电视连接中断，未确认的操作不会重发。请查看电视后手动重新连接。" = "TV-Verbindung unterbrochen. Unbestätigte Aktionen werden nicht wiederholt. Fernseher prüfen und manuell erneut verbinden.";
-"Android TV 已断开。请手动重新连接。" = "Android TV getrennt. Zum Fortfahren manuell erneut verbinden.";
-"在电视上打开 Sofatap 接收器，扫描原生界面中的二维码。手机与电视需要连接同一家庭网络。" = "Sofatap-Empfänger am Fernseher öffnen und den Code in seiner nativen Oberfläche scannen. iPhone und Fernseher mit demselben Heimnetzwerk verbinden.";
-"扫描电视二维码" = "TV-QR-Code scannen";
-"电视配对链接" = "TV-Kopplungslink";
-"重新连接 Android TV" = "Android TV erneut verbinden";
-"实验性接收端：光标是屏幕指示层，单击操作可访问控件，兼容性取决于电视与应用。暂不支持系统鼠标、右键、拖动、键盘或语音输入。" = "Experimenteller Empfänger: Der Zeiger ist eine Einblendung; Tippen aktiviert zugängliche Bedienelemente. Unterstützung hängt von Fernseher und App ab. Systemmaus, Rechtsklick, Ziehen, Tastatur und Diktat sind noch nicht verfügbar.";
-"二维码五分钟后失效，首次连接后立即作废。连接未确认时，请在电视上生成新二维码。" = "Der Code verfällt nach fünf Minuten und wird bei der ersten Verbindung verbraucht. Bei unbestätigter Kopplung einen neuen Code am Fernseher erzeugen.";
-"配对 Android TV" = "Android TV koppeln";
 "下次连接需要在电视上生成新二维码。" = "Zum erneuten Koppeln einen neuen QR-Code am Fernseher erzeugen.";
-"连接 Android TV（实验版）" = "Android TV verbinden (experimentell)";
 "将 Sofatap 配对二维码放入画面" = "Sofatap-Kopplungs-QR-Code in den Rahmen halten";
-"这不是此设备类型的有效 Sofatap 配对二维码。请扫描接收器显示的二维码。" = "Ungültiger Sofatap-Kopplungscode für diesen Gerätetyp. Den Code des Empfängers scannen.";
 "相机权限未开启。可在设置中开启，或粘贴接收器中的完整配对链接。" = "Kamerazugriff deaktiviert. In den Einstellungen erlauben oder vollständigen Kopplungslink des Empfängers einfügen.";
 "这台设备没有可用相机。请返回并粘贴接收器中的完整配对链接。" = "Keine Kamera verfügbar. Zurückgehen und vollständigen Kopplungslink des Empfängers einfügen.";
 "清空电脑当前输入框？" = "Aktuelles Eingabefeld am Computer leeren?";
@@ -273,7 +248,7 @@
 "断开连接" = "Trennen";
 "无法安全读取或保存设备，请解锁手机后重试。" = "Geräte konnten nicht sicher gelesen oder gespeichert werden. iPhone entsperren und erneut versuchen.";
 "未连接" = "Nicht verbunden";
-"添加电脑或电视，之后可在这里快速切换。" = "Füge Computer oder Fernseher hinzu und wechsle hier schnell zwischen ihnen.";
+"添加电脑或 LG 电视，之后可在这里快速切换。" = "Füge Computer oder LG-Fernseher hinzu, um hier schnell zwischen ihnen zu wechseln.";
 "添加设备" = "Gerät hinzufügen";
 "电脑" = "Computer";
 "电视遥控" = "TV-Fernbedienung";
@@ -291,10 +266,9 @@
 "预览" = "Vorschau";
 
 /* Unified QR pairing and device naming. */
-"扫描后自动识别电脑或电视，无需选择设备类型。" = "Der Scan erkennt Computer oder Fernseher automatisch. Du musst keinen Gerätetyp auswählen.";
+"扫描后自动识别电脑，无需选择设备类型。" = "Der Scan erkennt den Computer automatisch. Der Gerätetyp muss nicht ausgewählt werden.";
 "支持的设备" = "Unterstützte Geräte";
 "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。" = "Installiere zuerst den Sofatap-Empfänger auf deinem Mac-, Windows- oder Linux-Computer.";
-"Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。" = "Android TV / Google TV benötigt den TV-Empfänger. Die Modellkompatibilität wird noch geprüft.";
 "LG webOS 使用电视授权配对，暂不支持扫码。" = "LG webOS wird durch Bestätigung am Fernseher gekoppelt. QR-Scans werden noch nicht unterstützt.";
 "手动连接 LG webOS" = "LG webOS manuell verbinden";
 "粘贴配对链接" = "Kopplungslink einfügen";
@@ -323,9 +297,6 @@
 "先选中电脑输入框。实时输入时退格会同步；草稿中的未发送文字先在手机上删除。清空本地草稿后，可用键盘退格删除电脑文字。框下的电脑退格按钮直接作用于电脑，不删除手机草稿。" = "Wähle zuerst das Textfeld am Computer. Bei der Live-Bearbeitung wird die Rücktaste synchronisiert; ungesendeter Entwurfstext wird zuerst auf dem iPhone gelöscht. Nach dem Leeren des lokalen Entwurfs kann die Rücktaste Text am Computer löschen. Die Taste unter dem Editor wirkt am Computer, ohne den iPhone-Entwurf zu löschen.";
 "滑动移动光标；轻点左键；左半区连续轻点两下双击左键；右半区连续轻点两下双击右键；按住零点三秒拖动；双指滑动滚动" = "Wischen bewegt den Zeiger; einmal tippen für Linksklick; links doppelt tippen für zwei Linksklicks, rechts für zwei Rechtsklicks; 0,3 Sekunden halten zum Ziehen; mit zwei Fingern wischen zum Scrollen.";
 
-/* Android TV connection recovery. */
-"电视连接中断，正在自动重连；未确认的操作不会重发。" = "Die TV-Verbindung wurde unterbrochen. Die Verbindung wird automatisch wiederhergestellt; unbestätigte Aktionen werden nicht erneut gesendet.";
-"切回 App 会重新连接电视。" = "Kehre zur App zurück, um den Fernseher erneut zu verbinden.";
 
 /* Custom gestures and local practice. */
 "试试这些手势" = "Gesten ausprobieren";
@@ -387,7 +358,6 @@
 
 "未设置双击动作时，每次轻点仍执行单击动作。" = "Wenn dem Doppeltippen keine Aktion zugewiesen ist, führt jeder Tipp weiterhin die Aktion für einfaches Tippen aus.";
 
-/* Device-specific help and Android TV input feedback. */
 "电视操作指南" = "TV-Bedienung";
 "电脑操作指南" = "Computerbedienung";
 "连接设备后确认可用操作" = "Verbinde das Gerät, um verfügbare Aktionen zu prüfen";

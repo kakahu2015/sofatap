@@ -3,11 +3,8 @@ import SwiftUI
 struct PairingView: View {
     @ObservedObject var model: ControllerModel
     @ObservedObject var tv: WebOSTVController
-    @ObservedObject var androidTV: AndroidTVController
-    let selectAndroidTV: () -> Void
     let selectTV: () -> Void
     let selectComputer: () -> Void
-    let androidSelected: Bool
     @Binding var incomingLink: String?
     @Environment(\.dismiss) private var dismiss
     @State private var showingAddDevice = false
@@ -16,7 +13,7 @@ struct PairingView: View {
     @State private var editedName = ""
 
     private struct DeviceTarget: Identifiable {
-        enum Kind { case computer, android, webos }
+        enum Kind { case computer, webos }
         let id: UUID
         let kind: Kind
         let name: String
@@ -37,13 +34,8 @@ struct PairingView: View {
                             .accessibilityIdentifier("addDeviceScanner")
                     }
                     if let error = model.pairingError { Text(error).font(.footnote).foregroundStyle(.orange) }
-                    if let error = androidTV.managementError { Text(error).font(.footnote).foregroundStyle(.orange) }
                     if let error = tv.managementError { Text(error).font(.footnote).foregroundStyle(.orange) }
-                    if !model.desktopControlEnabled && androidSelected &&
-                        (androidTV.phase == .failed || (androidTV.phase == .ready && androidTV.status?.available != true)) {
-                        Text(androidTV.notice).font(.footnote).foregroundStyle(.orange)
-                    }
-                    if !model.desktopControlEnabled && !androidSelected && tv.phase == .failed {
+                    if !model.desktopControlEnabled && tv.phase == .failed {
                         Text(tv.notice).font(.footnote).foregroundStyle(.orange)
                     }
                     if model.desktopControlEnabled && model.pairing != nil &&
@@ -60,8 +52,7 @@ struct PairingView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(String(localized: "完成")) { dismiss() } } }
             .sheet(isPresented: $showingAddDevice) {
-                AddDeviceView(model: model, tv: tv, androidTV: androidTV,
-                              selectAndroidTV: selectAndroidTV, selectTV: selectTV, selectComputer: selectComputer,
+                AddDeviceView(model: model, tv: tv, selectTV: selectTV, selectComputer: selectComputer,
                               incomingLink: $incomingLink, finishPairing: { showingAddDevice = false; dismiss() })
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
@@ -88,11 +79,11 @@ struct PairingView: View {
     }
 
     @ViewBuilder private var savedDevices: some View {
-        if model.savedDevices.isEmpty && androidTV.savedDevices.isEmpty && tv.savedDevices.isEmpty {
+        if model.savedDevices.isEmpty && tv.savedDevices.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Image(systemName: "rectangle.stack.badge.plus").font(.system(size: 28)).foregroundStyle(Palette.mint)
                 Text(String(localized: "还没有配对设备")).font(.headline)
-                Text(String(localized: "添加电脑或电视，之后可在这里快速切换。"))
+                Text(String(localized: "添加电脑或 LG 电视，之后可在这里快速切换。"))
                     .font(.subheadline).foregroundStyle(Palette.muted)
             }.padding(.vertical, 8)
         } else {
@@ -109,20 +100,10 @@ struct PairingView: View {
                         if model.pairingError == nil && model.selectedDeviceID == device.id { dismiss() }
                     }
                 }
-                ForEach(androidTV.savedDevices) { device in
-                    deviceRow(id: device.id, name: device.displayName, detail: "Android TV · " + device.credential.host,
-                              symbol: "tv", kind: .android,
-                              selected: !model.desktopControlEnabled && androidSelected && androidTV.selectedDeviceID == device.id,
-                              connected: androidTV.phase == .ready, busy: androidTV.busy) {
-                        selectAndroidTV()
-                        androidTV.selectDevice(device.id)
-                        if androidTV.managementError == nil && androidTV.selectedDeviceID == device.id { dismiss() }
-                    }
-                }
                 ForEach(tv.savedDevices) { device in
                     deviceRow(id: device.id, name: device.displayName, detail: "LG webOS · " + device.credential.host,
                               symbol: "tv", kind: .webos,
-                              selected: !model.desktopControlEnabled && !androidSelected && tv.selectedDeviceID == device.id,
+                              selected: !model.desktopControlEnabled && tv.selectedDeviceID == device.id,
                               connected: tv.phase == .ready, busy: tv.busy) {
                         selectTV()
                         tv.selectDevice(device.id)
@@ -162,7 +143,6 @@ struct PairingView: View {
                     Button {
                         switch kind {
                         case .computer: model.disconnectDevice()
-                        case .android: androidTV.disconnect()
                         case .webos: tv.disconnect()
                         }
                     } label: { Label(String(localized: "断开连接"), systemImage: "pause.circle") }
@@ -185,7 +165,6 @@ struct PairingView: View {
         guard let target = renameTarget else { return }
         switch target.kind {
         case .computer: model.renameDevice(target.id, name: editedName)
-        case .android: androidTV.renameDevice(target.id, name: editedName)
         case .webos: tv.renameDevice(target.id, name: editedName)
         }
         renameTarget = nil
@@ -194,7 +173,6 @@ struct PairingView: View {
         guard let target = removeTarget else { return }
         switch target.kind {
         case .computer: model.removeDevice(target.id)
-        case .android: androidTV.removeDevice(target.id)
         case .webos: tv.removeDevice(target.id)
         }
         removeTarget = nil

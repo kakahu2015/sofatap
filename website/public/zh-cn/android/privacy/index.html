@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="HostTap 安卓应用（包名 org.kakahu.hosttap）的隐私政策。">
+  <meta name="theme-color" content="#e7f2ed">
+  <link rel="canonical" href="https://hosttap.kakahu.org/zh-cn/android/privacy/">
+  <link rel="alternate" hreflang="en" href="https://hosttap.kakahu.org/android/privacy/">
+  <title>HostTap 安卓版隐私政策</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body lang="zh-CN">
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/zh-cn/" aria-label="HostTap 首页"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="语言"><a href="/android/privacy/" lang="en" hreflang="en">English</a><span aria-current="page" lang="zh-CN">简体中文</span></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">Android 应用 · HostTap</p>
+        <h1>HostTap 安卓版隐私政策</h1>
+        <p class="lead">当你使用 Android 手机控制已配对的电脑时，HostTap 如何处理相关信息。</p>
+        <p class="date">生效日期：2026 年 10 月 22 日</p>
+        <nav class="policy-switcher" aria-label="隐私政策版本"><a href="/zh-cn/privacy/">Windows 版</a><span aria-current="page">Android 版</span><a href="/zh-cn/harmonyos/privacy/">鸿蒙版</a></nav>
+      </div>
+
+      <aside class="summary" aria-label="政策摘要">
+        <p><strong>HostTap 安卓版不需要登录，也没有发布者运营的服务端。</strong>已保存的配对链接会在手机上加密保存。鼠标、键盘和文字输入只发送给你选择配对的电脑。应用不含广告、分析、跟踪或崩溃上传 SDK。</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>本政策的适用范围</h2>
+          <p>本政策适用于由 <strong>GUIHUI HU</strong> 发布、包名为 <strong>org.kakahu.hosttap</strong> 的 HostTap 安卓应用，无论你是从 Google Play 还是 HostTap 官网安装。本政策只说明安卓应用的处理方式。</p>
+          <p>电脑接收器是另一个独立程序，其处理方式不在本政策范围内。Android 系统、你选择的输入法或语音识别服务，以及你控制的应用也适用各自的隐私政策。</p>
+        </section>
+
+        <section aria-labelledby="permissions">
+          <h2 id="permissions"><span class="section-number">02</span>权限与二维码扫描</h2>
+          <p><strong>网络访问。</strong>应用通过网络连接到配对链接中指定的电脑，并发送你选择的控制操作。</p>
+          <p><strong>摄像头。</strong>摄像头权限是可选的，仅在你打开二维码扫描器时请求。应用在手机本地解码配对二维码；摄像头画面不会被保存或上传，解码后的配对链接会返回应用。</p>
+          <p>应用不请求麦克风、位置、通讯录、电话状态或通用文件存储权限。如果你在 Android 输入法中使用语音输入，音频由该输入法或其语音识别服务依据各自政策处理；HostTap 只接收进入文字编辑框的文字。</p>
+        </section>
+
+        <section aria-labelledby="local-data">
+          <h2 id="local-data"><span class="section-number">03</span>手机本地保存的信息</h2>
+          <p>配对链接可能包含电脑网络地址和端口、访问凭据、TLS 证书指纹，以及可选的电脑名称和平台信息。保存配对时，HostTap 使用 AES-GCM 加密配对链接，并通过 Android Keystore 保护加密密钥。你可以在应用中移除已保存的电脑。</p>
+          <p>文字草稿和发送状态会保存在应用私有设置中，以便应用关闭后仍可使用。这些信息保留在手机上，不会同步到发布者运营的服务器。你可以删除编辑框中的草稿、清除应用数据或卸载应用。应用已关闭 Android 应用数据备份。</p>
+          <p>只有在你点击<strong>粘贴链接</strong>后，HostTap 才会读取剪贴板内容并填入配对链接输入框；应用不会在后台监控剪贴板。Android 或其他剪贴板服务可能依照各自设置保留剪贴板内容。</p>
+        </section>
+
+        <section aria-labelledby="transmission">
+          <h2 id="transmission"><span class="section-number">04</span>发送给配对电脑的信息</h2>
+          <p>使用 HostTap 时，鼠标移动、点击、按键以及你明确选择发送的文字会传输到已配对的电脑。应用通过加密的 WebSocket 连接，并在发送配对凭据前检查电脑的 TLS 证书指纹。应用也可能从电脑接收电脑名称、连接状态或输入可用状态。</p>
+          <p>HostTap 没有云中继，也不会将这些控制数据发送到发布者运营的服务器。设备通常连接在同一网络，但实际路径取决于你的网络配置，不能保证只经过局域网。电脑及你控制的应用可能根据自身行为和政策处理或保留这些输入。</p>
+          <p>在你主动发送之前，文字会留在手机的编辑框中。HostTap 不截取电脑屏幕，也不采集麦克风音频。</p>
+        </section>
+
+        <section aria-labelledby="collection">
+          <h2 id="collection"><span class="section-number">05</span>信息收集、保留与控制</h2>
+          <p>应用没有 HostTap 账户，也不含广告、分析、跟踪或崩溃报告上传 SDK。配对信息和草稿保存在 Android 应用私有存储中，直到你移除这些信息、清除应用数据或卸载 HostTap。HostTap 没有可供调取或删除的服务器端配对信息或草稿副本。</p>
+          <p>你可以选择配对哪台电脑，以及何时连接、扫描二维码、粘贴配对链接或发送文字。你可以随时断开连接，在应用中移除已保存的电脑，并删除编辑框中的文字。配对链接和二维码含有访问凭据，请妥善保管。</p>
+        </section>
+
+        <section aria-labelledby="services">
+          <h2 id="services"><span class="section-number">06</span>Google Play、官网与支持</h2>
+          <p><strong>Google Play。</strong>如果你从 Google Play 安装 HostTap，Google 可能依据其<a href="https://policies.google.com/privacy" rel="noreferrer">隐私政策</a>处理账户、安装、分发和诊断信息。这与 HostTap 在手机上的处理相互独立。</p>
+          <p><strong>本网站。</strong>Cloudflare Pages 托管本网站，Cloudflare R2 通过 HTTPS 提供直接下载。Cloudflare 可能依据其<a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">隐私政策</a>处理 IP 地址等网络及请求信息，以交付和保护网站及下载内容。我们没有在本站添加广告、跟踪脚本、分析、表单或浏览器存储。</p>
+          <p><strong>问题支持。</strong>如果你主动发送邮件至 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>，GUIHUI HU 会收到你的邮件地址和你选择提供的内容，用于回复和处理请求。请勿通过邮件发送密码、配对链接、二维码或私人文字。我们在处理请求所需的时间内保留支持邮件；你可以通过邮件申请删除。邮件服务商会依据自身政策和设置处理其副本。</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">07</span>儿童、政策更新与联系</h2>
+          <p>HostTap 是实用工具，不以儿童为目标用户。应用不会询问或收集年龄信息。</p>
+          <p>当应用或相关服务发生变化时，我们可能更新本政策。页面顶部的生效日期标识当前版本。如有隐私问题或希望处理支持邮件，请通过 <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a> 联系 GUIHUI HU。</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap 安卓版 · 发布者 GUIHUI HU</p><a href="/zh-cn/" lang="zh-CN">首页</a><a href="/zh-cn/privacy/" lang="zh-CN">Windows 隐私政策</a><a href="/zh-cn/harmonyos/privacy/" lang="zh-CN">鸿蒙版隐私政策</a><a href="/android/privacy/" lang="en" hreflang="en">English privacy policy <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

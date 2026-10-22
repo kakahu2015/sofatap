@@ -82,7 +82,7 @@ enum ReceiverProtocolTests {
                          "&name=" + String(repeating: "a", count: 80), "&name=" + encoded(String(repeating: "😀", count: 64))] {
             check(ReceiverPairingURI.valid(base + metadata, expectedHost: "192.0.2.1"), "old and metadata desktop QR links accepted")
         }
-        for invalid in [base + "&platform=androidtv", base + "&platform=unknown", base + "&platform=",
+        for invalid in [base + "&platform=webos", base + "&platform=unknown", base + "&platform=",
                         base + "&platform=macos&platform=windows", base + "&name=TV&name=TV", base + "&extra=1",
                         base + "&name=", base + "&name=%20%C2%A0", base + "&name=" + String(repeating: "a", count: 81),
                         base + "&name=" + encoded(String(repeating: "😀", count: 65)),

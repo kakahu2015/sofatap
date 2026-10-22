@@ -58,7 +58,7 @@ class UpdateChecks(unittest.TestCase):
         self.assertGreater(version_key('0.10.0-beta.1'), version_key('0.9.9'))
         self.assertGreater(version_key('1.0.0'), version_key('1.0.0-rc.9'))
         with self.assertRaises(ValueError):
-            version_key('android-tv-v1.0.0')
+            version_key('not-a-version')
 
     def test_catalog_filters_stream_architecture_digest_and_downgrade(self):
         archive, release = self.bundle()
@@ -73,7 +73,6 @@ class UpdateChecks(unittest.TestCase):
         for changed in ({'digest': None}, {'size': 0}, {'browser_download_url': 'https://evil.example/update'}, {'state': 'new'}):
             with self.assertRaises(ValueError):
                 select_release([{**row, 'assets': [{**asset, **changed}]}], '0.8.0-beta.1', 'linux-x64')
-        self.assertIsNone(select_release([{**row, 'tag_name': 'android-tv-v9.0.0'}], '0.8.0-beta.1', 'linux-x64'))
 
     def test_truncated_or_modified_download_is_rejected(self):
         archive, release = self.bundle()

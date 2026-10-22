@@ -206,33 +206,8 @@
 "配对电视" = "Pasangkan TV";
 "配对设备与连接设置" = "Pasangkan perangkat dan pengaturan koneksi";
 "无法移除电视配对，请稍后重试。" = "Pemasangan TV tidak dapat dihapus. Coba lagi nanti.";
-"扫描 Android TV 接收器中的二维码。" = "Pindai kode QR di penerima Android TV.";
-"Android TV 未连接" = "Android TV tidak terhubung";
-"正在连接 Android TV…" = "Menghubungkan ke Android TV…";
-"Android TV · 实验性遥控" = "Android TV · Kontrol eksperimental";
-"Android TV · 等待权限" = "Android TV · Izin diperlukan";
-"Android TV 配对二维码无效，请在电视上生成新的二维码。" = "Kode pemasangan Android TV ini tidak valid. Buat kode baru di TV.";
-"正在验证电视加密连接…" = "Memverifikasi koneksi TV terenkripsi…";
-"电视未接受这次操作。请查看电视；此应用或控件可能不支持遥控。" = "TV tidak menerima tindakan ini. Periksa TV; app atau kontrol ini mungkin tidak mendukung input jarak jauh.";
-"电视连接或配对未确认。请在电视上生成新二维码后重新连接。" = "Koneksi atau pemasangan TV belum dikonfirmasi. Buat kode baru di TV dan hubungkan kembali.";
-"实验性控制：移动屏幕上的指示光标，点击可访问控件。操作结果请以电视画面为准。" = "Kontrol eksperimental: gerakkan kursor lapisan layar dan aktifkan kontrol yang dapat diakses. Periksa TV untuk memastikan setiap tindakan.";
-"已连接。请在电视设置中启用 Sofatap 辅助功能服务，然后返回接收器。" = "Terhubung. Aktifkan layanan aksesibilitas Sofatap di pengaturan TV, lalu kembali ke penerima.";
-"电视当前已锁定，请先使用电视遥控器解锁。" = "TV terkunci. Buka kuncinya dengan remot TV terlebih dahulu.";
-"电视输入当前不可用，请查看接收器中的权限与兼容性提示。" = "Input TV tidak tersedia. Periksa detail izin dan kompatibilitas pada penerima.";
-"电视响应过慢，已停止发送。请查看电视后手动重新连接。" = "TV merespons terlalu lambat. Input dihentikan. Periksa TV sebelum menghubungkan kembali secara manual.";
-"电视连接中断，未确认的操作不会重发。请查看电视后手动重新连接。" = "Koneksi TV terputus. Tindakan yang belum dikonfirmasi tidak akan dikirim ulang. Periksa TV sebelum menghubungkan kembali secara manual.";
-"Android TV 已断开。请手动重新连接。" = "Android TV tidak terhubung. Hubungkan kembali secara manual untuk melanjutkan.";
-"在电视上打开 Sofatap 接收器，扫描原生界面中的二维码。手机与电视需要连接同一家庭网络。" = "Buka penerima Sofatap di TV dan pindai kode pada antarmuka aslinya. Hubungkan ponsel dan TV ke jaringan rumah yang sama.";
-"扫描电视二维码" = "Pindai QR TV";
-"电视配对链接" = "Tautan pemasangan TV";
-"重新连接 Android TV" = "Hubungkan kembali ke Android TV";
-"实验性接收端：光标是屏幕指示层，单击操作可访问控件，兼容性取决于电视与应用。暂不支持系统鼠标、右键、拖动、键盘或语音输入。" = "Penerima eksperimental: kursor berupa lapisan layar, dan ketukan mengaktifkan kontrol yang dapat diakses. Dukungan bergantung pada TV dan app. Peristiwa mouse sistem, klik kanan, seret, papan ketik, dan dikte belum tersedia.";
-"二维码五分钟后失效，首次连接后立即作废。连接未确认时，请在电视上生成新二维码。" = "Kode kedaluwarsa setelah lima menit dan tidak berlaku lagi setelah koneksi pertama. Jika pemasangan belum dikonfirmasi, buat kode baru di TV.";
-"配对 Android TV" = "Pasangkan Android TV";
 "下次连接需要在电视上生成新二维码。" = "Buat kode QR baru di TV untuk memasangkan lagi.";
-"连接 Android TV（实验版）" = "Hubungkan Android TV (eksperimental)";
 "将 Sofatap 配对二维码放入画面" = "Posisikan kode QR pemasangan Sofatap di dalam bingkai";
-"这不是此设备类型的有效 Sofatap 配对二维码。请扫描接收器显示的二维码。" = "Ini bukan kode pemasangan Sofatap yang valid untuk jenis perangkat ini. Pindai kode yang ditampilkan penerima.";
 "相机权限未开启。可在设置中开启，或粘贴接收器中的完整配对链接。" = "Akses kamera dimatikan. Aktifkan di Pengaturan, atau tempel tautan pemasangan lengkap dari penerima.";
 "这台设备没有可用相机。请返回并粘贴接收器中的完整配对链接。" = "Perangkat ini tidak memiliki kamera yang tersedia. Kembali dan tempel tautan pemasangan lengkap dari penerima.";
 "清空电脑当前输入框？" = "Hapus kolom teks saat ini di komputer?";
@@ -273,7 +248,7 @@
 "断开连接" = "Putuskan koneksi";
 "无法安全读取或保存设备，请解锁手机后重试。" = "Perangkat tidak dapat dibaca atau disimpan dengan aman. Buka kunci iPhone dan coba lagi.";
 "未连接" = "Tidak terhubung";
-"添加电脑或电视，之后可在这里快速切换。" = "Tambahkan komputer atau TV, lalu beralih di antaranya di sini.";
+"添加电脑或 LG 电视，之后可在这里快速切换。" = "Tambahkan komputer atau TV LG, lalu beralih di antaranya di sini.";
 "添加设备" = "Tambah perangkat";
 "电脑" = "Komputer";
 "电视遥控" = "Remot TV";
@@ -291,10 +266,9 @@
 "预览" = "Pratinjau";
 
 /* Unified QR pairing and device naming. */
-"扫描后自动识别电脑或电视，无需选择设备类型。" = "Pemindaian mengenali komputer atau TV secara otomatis. Tidak perlu memilih jenis perangkat.";
+"扫描后自动识别电脑，无需选择设备类型。" = "Pemindaian mengenali komputer secara otomatis. Tidak perlu memilih jenis perangkat.";
 "支持的设备" = "Perangkat yang Didukung";
 "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。" = "Instal penerima Sofatap di komputer Mac, Windows, atau Linux terlebih dahulu.";
-"Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。" = "Android TV / Google TV memerlukan penerima TV. Kompatibilitas model masih diuji.";
 "LG webOS 使用电视授权配对，暂不支持扫码。" = "LG webOS dipasangkan melalui persetujuan di TV. Pemindaian QR belum didukung.";
 "手动连接 LG webOS" = "Hubungkan LG webOS Secara Manual";
 "粘贴配对链接" = "Tempel Tautan Pemasangan";
@@ -323,9 +297,6 @@
 "先选中电脑输入框。实时输入时退格会同步；草稿中的未发送文字先在手机上删除。清空本地草稿后，可用键盘退格删除电脑文字。框下的电脑退格按钮直接作用于电脑，不删除手机草稿。" = "Pilih kolom teks di komputer terlebih dahulu. Backspace disinkronkan saat mengedit langsung; teks draf yang belum dikirim dihapus di ponsel terlebih dahulu. Setelah draf lokal dikosongkan, Backspace dapat menghapus teks di komputer. Tombol di bawah editor bekerja di komputer tanpa menghapus draf ponsel.";
 "滑动移动光标；轻点左键；左半区连续轻点两下双击左键；右半区连续轻点两下双击右键；按住零点三秒拖动；双指滑动滚动" = "Geser untuk memindahkan penunjuk; ketuk untuk klik kiri; ketuk dua kali di separuh kiri untuk dua klik kiri, atau di separuh kanan untuk dua klik kanan; tahan 0,3 detik untuk menyeret; geser dua jari untuk menggulir.";
 
-/* Android TV connection recovery. */
-"电视连接中断，正在自动重连；未确认的操作不会重发。" = "Koneksi TV terputus. Menghubungkan kembali secara otomatis; tindakan yang belum dikonfirmasi tidak akan dikirim ulang.";
-"切回 App 会重新连接电视。" = "Kembali ke app untuk menghubungkan kembali ke TV.";
 
 /* Custom gestures and local practice. */
 "试试这些手势" = "Coba Gestur Ini";
@@ -387,7 +358,6 @@
 
 "未设置双击动作时，每次轻点仍执行单击动作。" = "Jika tidak ada tindakan untuk ketuk ganda, setiap ketukan tetap menjalankan tindakan ketuk tunggal.";
 
-/* Device-specific help and Android TV input feedback. */
 "电视操作指南" = "Panduan kontrol TV";
 "电脑操作指南" = "Panduan kontrol komputer";
 "连接设备后确认可用操作" = "Hubungkan perangkat untuk memeriksa kontrol yang tersedia";

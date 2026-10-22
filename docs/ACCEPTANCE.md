@@ -1,20 +1,8 @@
 # Sofatap 实机验收
 
-## Android/Google TV：现场测试待完成（2026-10-17）
+## LG webOS：实体电视验收待完成
 
-**索尼 XRJ-85X95L 已开始现场测试，尚未完成验收；小米 MiTV-MOEU0（Android 14 / API 34）已完成现场安装和用户授权，实际输入验收仍待完成。** 索尼运行 Android 12（API 31），已通过用户授权的网络安装装入接收器 0.1.2-beta.1，并由用户启用辅助功能。用户确认单击和滚动可用，同时报告快速滚动导致后续点击延迟、连接中断，以及返回不可用；各应用覆盖和修复后的返回仍待复测。单元测试、Swift/Java TLS 联调、模拟器运行和 APK 打包均不代表实体电视已验收。参见 [输入队列修复记录](verification/tv-input-and-guide-2026-10-16.md)及 [TV 重连验证](verification/android-tv-reconnect-2026-10-16.md)。
-
-小米首次设置期间发现无障碍服务重连触发的 TLS 主线程关闭崩溃；修复及软件回归见 [2026-10-17 连接清理验证](verification/android-tv-disconnect-cleanup-2026-10-17.md)。不把安装成功或模拟器测试当作实体电视控制验收。
-
-| 现场项目 | 索尼 | 小米 |
-| --- | --- | --- |
-| 核对实际型号、系统和固件版本 | 型号和 Android 12 / API 31 已核对；完整固件版本待记录 | MiTV-MOEU0、Android 14 / API 34、固件 UKN1.240806.017.V816.0.25.12.1.ULBMIXM 已核对 |
-| 正常安装与用户通过遥控器授予辅助功能权限 | 0.1.2-beta.1 安装、辅助功能绑定和接收服务已确认 | 0.1.3-beta.1（code 4）候选包已同签名覆盖安装，配对文件保留，用户授权及两项服务已确认 |
-| 真机 iPhone 扫码、自动识别、重命名 | 待验收 | 待验收 |
-| 关闭并重启接收器，自动连回同一条设备记录 | 待验收 | 待验收 |
-| 断网恢复、手动断开、后台恢复、配对撤销 | 待验收 | 待验收 |
-| 启动器、设置及第三方应用中的实际点击与滚动 | 用户确认可单击、滚动；快速滚动与返回存在问题，逐应用验收待完成 | 待验收 |
-| 锁屏、熄屏、辅助功能权限撤销时停止控制 | 待验收 | 待验收 |
+LG webOS remains an experimental manual-pairing preview. No physical TV model is qualified yet. Before claiming support, record the model and firmware, confirm on-TV authorization and reconnection, then check pointer movement, clicks, scrolling, Back and Home in representative apps. See the [webOS preview verification record](verification/webos-pointer-preview.md).
 
 ## 历史桌面验收清单
 

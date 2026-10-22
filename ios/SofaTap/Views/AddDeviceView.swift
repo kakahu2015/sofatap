@@ -1,13 +1,10 @@
 import SwiftUI
 import AVFoundation
 
-/// A single entry point for camera scans, pasted codes and system pairing links.
-/// QR metadata chooses an adapter; authenticated handshakes establish success.
+/// A single entry point for computer scans, pasted codes and system pairing links.
 struct AddDeviceView: View {
     @ObservedObject var model: ControllerModel
     @ObservedObject var tv: WebOSTVController
-    @ObservedObject var androidTV: AndroidTVController
-    let selectAndroidTV: () -> Void
     let selectTV: () -> Void
     let selectComputer: () -> Void
     @Binding var incomingLink: String?
@@ -25,7 +22,7 @@ struct AddDeviceView: View {
     @State private var showWebOS = false
 
     private struct AddedDevice {
-        enum Kind { case computer, android, webos, demo }
+        enum Kind { case computer, webos, demo }
         let id: UUID
         let kind: Kind
         let name: String
@@ -81,7 +78,6 @@ struct AddDeviceView: View {
             }
             .onChange(of: incomingLink) { _, _ in consumeIncomingLink() }
             .onChange(of: model.connected) { _, _ in completeIfConnected() }
-            .onChange(of: androidTV.phase) { _, _ in completeIfConnected() }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active && candidate == nil && addedDevice == nil {
                     cameraError = nil; cameraID = UUID()
@@ -127,7 +123,7 @@ struct AddDeviceView: View {
             .accessibilityIdentifier("pairingCameraRegion")
             Text(String(localized: "将 Sofatap 配对二维码放入画面"))
                 .font(.subheadline.weight(.medium)).multilineTextAlignment(.center)
-            Text(String(localized: "扫描后自动识别电脑或电视，无需选择设备类型。"))
+            Text(String(localized: "扫描后自动识别电脑，无需选择设备类型。"))
                 .font(.footnote).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
         }
         if let error { Text(error).font(.footnote).foregroundStyle(.orange).accessibilityIdentifier("pairingError") }
@@ -147,15 +143,6 @@ struct AddDeviceView: View {
                 platformBadge("Linux", symbol: "terminal")
             }
             Text(String(localized: "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。"))
-                .font(.footnote).foregroundStyle(Palette.muted)
-            Divider().overlay(Palette.muted.opacity(0.12))
-            HStack {
-                Label { Text(verbatim: "Android TV / Google TV") } icon: { Image(systemName: "tv") }
-                    .font(.subheadline.weight(.medium))
-                Spacer(minLength: 4)
-                Text(String(localized: "实验版")).font(.caption).foregroundStyle(Palette.muted)
-            }
-            Text(String(localized: "Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。"))
                 .font(.footnote).foregroundStyle(Palette.muted)
             Divider().overlay(Palette.muted.opacity(0.12))
             HStack {
@@ -263,7 +250,6 @@ struct AddDeviceView: View {
         showPaste = false; pastedLink = ""; showWebOS = false
         switch code {
         case .computer: selectComputer(); model.acceptPairing(raw)
-        case .androidTV: selectAndroidTV(); androidTV.pair(raw)
         }
         completeIfConnected()
     }
@@ -283,10 +269,6 @@ struct AddDeviceView: View {
                   let id = model.selectedDeviceID else { return }
             setAdded(AddedDevice(id: id, kind: .computer, name: model.currentDisplayName,
                                 platform: candidatePlatform(candidate)))
-        case .androidTV(let pairing):
-            guard androidTV.phase == .ready, androidTV.saved?.deviceIdentity == pairing.deviceIdentity,
-                  let id = androidTV.selectedDeviceID else { return }
-            setAdded(AddedDevice(id: id, kind: .android, name: androidTV.currentDisplayName, platform: "Android TV / Google TV"))
         }
     }
     private func finishWebOS() {
@@ -302,7 +284,6 @@ struct AddDeviceView: View {
     private func saveName(_ device: AddedDevice) {
         switch device.kind {
         case .computer: model.renameDevice(device.id, name: draftName); error = model.pairingError
-        case .android: androidTV.renameDevice(device.id, name: draftName); error = androidTV.managementError
         case .webos: tv.renameDevice(device.id, name: draftName); error = tv.managementError
         case .demo: error = nil
         }
@@ -315,31 +296,22 @@ struct AddDeviceView: View {
             // Includes timeout/background and failed-save states. None should
             // reconnect this attempt (or a previous stored target) on foreground.
             model.disconnectDevice()
-        case .androidTV:
-            androidTV.disconnect()
         }
     }
     private func resetScanner() {
         cancelPending(); attempt.resetScanner(); error = nil; cameraError = nil; cameraID = UUID()
     }
     private func connectionFailed(_ code: PairingCode) -> Bool {
-        switch code {
-        case .computer: return model.pairingError != nil || (!model.connected && !model.connecting)
-        case .androidTV: return androidTV.phase == .failed || androidTV.phase == .idle
-        }
+        model.pairingError != nil || (!model.connected && !model.connecting)
     }
-    private func connectionNotice(_ code: PairingCode) -> String {
-        switch code { case .computer: return model.pairingError ?? model.notice; case .androidTV: return androidTV.managementError ?? androidTV.notice }
-    }
+    private func connectionNotice(_ code: PairingCode) -> String { model.pairingError ?? model.notice }
     private func candidateName(_ code: PairingCode) -> String {
         switch code {
         case .computer(let pairing): return pairing.name ?? pairing.host
-        case .androidTV(let pairing): return pairing.name ?? pairing.host
         }
     }
     private func candidatePlatform(_ code: PairingCode) -> String {
         switch code {
-        case .androidTV: return "Android TV / Google TV"
         case .computer(let pairing):
             let platform = model.pairing?.deviceIdentity == pairing.deviceIdentity && model.connected
                 ? model.savedDevices.first(where: { $0.id == model.selectedDeviceID })?.platform : pairing.platform

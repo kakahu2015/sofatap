@@ -206,33 +206,8 @@
 "配对电视" = "Parear TV";
 "配对设备与连接设置" = "Parear dispositivos e ajustes de conexão";
 "无法移除电视配对，请稍后重试。" = "Não foi possível remover o pareamento da TV. Tente mais tarde.";
-"扫描 Android TV 接收器中的二维码。" = "Escaneie o código QR no receptor Android TV.";
-"Android TV 未连接" = "Android TV desconectada";
-"正在连接 Android TV…" = "Conectando à Android TV…";
-"Android TV · 实验性遥控" = "Android TV · Controle experimental";
-"Android TV · 等待权限" = "Android TV · Permissão necessária";
-"Android TV 配对二维码无效，请在电视上生成新的二维码。" = "Este código de pareamento do Android TV é inválido. Gere um novo código na TV.";
-"正在验证电视加密连接…" = "Verificando a conexão criptografada com a TV…";
-"电视未接受这次操作。请查看电视；此应用或控件可能不支持遥控。" = "A TV não aceitou esta ação. Confira a TV; este app ou controle pode não aceitar entrada remota.";
-"电视连接或配对未确认。请在电视上生成新二维码后重新连接。" = "A conexão ou o pareamento com a TV não foi confirmado. Gere um novo código na TV e reconecte.";
-"实验性控制：移动屏幕上的指示光标，点击可访问控件。操作结果请以电视画面为准。" = "Controles experimentais: mova um cursor sobreposto e ative controles acessíveis. Confira a TV para confirmar cada ação.";
-"已连接。请在电视设置中启用 Sofatap 辅助功能服务，然后返回接收器。" = "Conectado. Ative o serviço de acessibilidade do Sofatap nos ajustes da TV e volte ao receptor.";
-"电视当前已锁定，请先使用电视遥控器解锁。" = "A TV está bloqueada. Desbloqueie-a com o controle da TV primeiro.";
-"电视输入当前不可用，请查看接收器中的权限与兼容性提示。" = "A entrada na TV está indisponível. Confira as informações de permissão e compatibilidade no receptor.";
-"电视响应过慢，已停止发送。请查看电视后手动重新连接。" = "A TV está respondendo muito devagar. A entrada foi interrompida. Confira a TV antes de reconectar manualmente.";
-"电视连接中断，未确认的操作不会重发。请查看电视后手动重新连接。" = "A conexão com a TV foi interrompida. Ações não confirmadas não serão reenviadas. Confira a TV antes de reconectar manualmente.";
-"Android TV 已断开。请手动重新连接。" = "Android TV desconectada. Reconecte manualmente para continuar.";
-"在电视上打开 Sofatap 接收器，扫描原生界面中的二维码。手机与电视需要连接同一家庭网络。" = "Abra o receptor Sofatap na TV e escaneie o código da interface nativa. Conecte o celular e a TV à mesma rede doméstica.";
-"扫描电视二维码" = "Escanear QR da TV";
-"电视配对链接" = "Link de pareamento da TV";
-"重新连接 Android TV" = "Reconectar à Android TV";
-"实验性接收端：光标是屏幕指示层，单击操作可访问控件，兼容性取决于电视与应用。暂不支持系统鼠标、右键、拖动、键盘或语音输入。" = "Receptor experimental: o cursor é uma camada sobreposta e os toques ativam controles acessíveis. O suporte depende da TV e do app. Eventos de mouse do sistema, clique direito, arraste, teclado e ditado ainda não estão disponíveis.";
-"二维码五分钟后失效，首次连接后立即作废。连接未确认时，请在电视上生成新二维码。" = "O código expira após cinco minutos e é invalidado na primeira conexão. Se o pareamento não for confirmado, gere um novo código na TV.";
-"配对 Android TV" = "Parear Android TV";
 "下次连接需要在电视上生成新二维码。" = "Gere um novo código QR na TV para parear novamente.";
-"连接 Android TV（实验版）" = "Conectar Android TV (experimental)";
 "将 Sofatap 配对二维码放入画面" = "Posicione o código QR de pareamento do Sofatap dentro do quadro";
-"这不是此设备类型的有效 Sofatap 配对二维码。请扫描接收器显示的二维码。" = "Este código de pareamento do Sofatap não é válido para este tipo de dispositivo. Escaneie o código exibido pelo receptor.";
 "相机权限未开启。可在设置中开启，或粘贴接收器中的完整配对链接。" = "O acesso à câmera está desativado. Ative-o nos Ajustes ou cole o link completo de pareamento do receptor.";
 "这台设备没有可用相机。请返回并粘贴接收器中的完整配对链接。" = "Este dispositivo não tem uma câmera disponível. Volte e cole o link completo de pareamento do receptor.";
 "清空电脑当前输入框？" = "Limpar o campo de texto atual do computador?";
@@ -273,7 +248,7 @@
 "断开连接" = "Desconectar";
 "无法安全读取或保存设备，请解锁手机后重试。" = "Não foi possível ler ou salvar os dispositivos com segurança. Desbloqueie o iPhone e tente novamente.";
 "未连接" = "Desconectado";
-"添加电脑或电视，之后可在这里快速切换。" = "Adicione computadores ou TVs e alterne entre eles aqui.";
+"添加电脑或 LG 电视，之后可在这里快速切换。" = "Adicione computadores ou TVs LG e alterne entre eles aqui.";
 "添加设备" = "Adicionar dispositivo";
 "电脑" = "Computador";
 "电视遥控" = "Controle de TV";
@@ -291,10 +266,9 @@
 "预览" = "Prévia";
 
 /* Unified QR pairing and device naming. */
-"扫描后自动识别电脑或电视，无需选择设备类型。" = "A leitura identifica o computador ou a TV automaticamente. Não é preciso escolher o tipo de dispositivo.";
+"扫描后自动识别电脑，无需选择设备类型。" = "A leitura identifica o computador automaticamente. Não é necessário escolher o tipo de dispositivo.";
 "支持的设备" = "Dispositivos compatíveis";
 "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。" = "Instale primeiro o receptor Sofatap no computador Mac, Windows ou Linux.";
-"Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。" = "Android TV / Google TV precisa do receptor para TV. A compatibilidade dos modelos ainda está em testes.";
 "LG webOS 使用电视授权配对，暂不支持扫码。" = "LG webOS é pareado com autorização na TV. A leitura de QR ainda não é compatível.";
 "手动连接 LG webOS" = "Conectar LG webOS manualmente";
 "粘贴配对链接" = "Colar link de pareamento";
@@ -323,9 +297,6 @@
 "先选中电脑输入框。实时输入时退格会同步；草稿中的未发送文字先在手机上删除。清空本地草稿后，可用键盘退格删除电脑文字。框下的电脑退格按钮直接作用于电脑，不删除手机草稿。" = "Selecione primeiro o campo de texto no computador. O Backspace é sincronizado na edição ao vivo; o texto não enviado do rascunho é apagado primeiro no celular. Depois de limpar o rascunho local, o Backspace pode apagar texto no computador. O botão abaixo do editor atua no computador sem apagar o rascunho do celular.";
 "滑动移动光标；轻点左键；左半区连续轻点两下双击左键；右半区连续轻点两下双击右键；按住零点三秒拖动；双指滑动滚动" = "Deslize para mover o ponteiro; toque para clicar com o botão esquerdo; toque duas vezes na metade esquerda para dois cliques esquerdos ou na direita para dois cliques direitos; segure por 0,3 segundo para arrastar; deslize dois dedos para rolar.";
 
-/* Android TV connection recovery. */
-"电视连接中断，正在自动重连；未确认的操作不会重发。" = "A conexão com a TV foi interrompida. Reconectando automaticamente; ações não confirmadas não serão reenviadas.";
-"切回 App 会重新连接电视。" = "Volte ao app para reconectar à TV.";
 
 /* Custom gestures and local practice. */
 "试试这些手势" = "Experimentar estes gestos";
@@ -387,7 +358,6 @@
 
 "未设置双击动作时，每次轻点仍执行单击动作。" = "Quando nenhuma ação é atribuída ao toque duplo, cada toque ainda executa a ação do toque simples.";
 
-/* Device-specific help and Android TV input feedback. */
 "电视操作指南" = "Controles da TV";
 "电脑操作指南" = "Controles do computador";
 "连接设备后确认可用操作" = "Conecte o dispositivo para verificar os controles disponíveis";

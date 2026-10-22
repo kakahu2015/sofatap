@@ -19,7 +19,7 @@ This is the canonical `asc metadata` directory for iPhone version **1.0**, build
 
 The 24 JSON files contain app name, subtitle, privacy URL, description, keywords, promotional text, support URL and marketing URL. They omit `whatsNew` for the initial release and contain no review contact, pricing, territory, release-mode or legal-agreement changes. Translation lengths and field formats have been checked; independent native-language editorial review remains pending.
 
-The draft describes the shipped manual desktop controls and explains conditional live editing, on-device dictation, computer requirements and experimental TV adapters. It does not advertise autonomous AI operation, universal TV mouse support or lock-screen unlocking. [Build-specific review notes](../app-store-1.0-15-review-notes.txt) give reviewers the exact pairing path and receiver version.
+The draft describes the shipped manual desktop controls and explains conditional live editing, on-device dictation, computer requirements and the experimental LG webOS preview. It does not advertise autonomous AI operation, universal TV mouse support or lock-screen unlocking. [Build-specific review notes](../app-store-1.0-15-review-notes.txt) give reviewers the exact pairing path and receiver version.
 
 Screenshots and previews are managed separately. Apple can inherit primary-language images when a localization is added; inherited English images are not localized images. Use actual build-15 device captures and inspect each resulting locale before review. [Apple localization guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/localize-app-information).
 

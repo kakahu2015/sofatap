@@ -69,7 +69,7 @@ class ProtocolChecks(unittest.TestCase):
             valid + "#fragment", valid + "#", valid + "\n", valid.replace("192.0.2.1", "%GG"),
             valid.replace("192.0.2.1", "192.0.2.1%00"), valid.replace("192.0.2.1", "%FF"),
             valid.replace("192.0.2.1", "测试"),
-            copy_uri(platform="androidtv"), copy_uri(platform="unknown"), copy_uri(platform=""),
+            copy_uri(platform="webos"), copy_uri(platform="unknown"), copy_uri(platform=""),
             valid + "&platform=linux&platform=windows", valid + "&name=TV&name=TV", valid + "&na%6De=TV",
             copy_uri(name=""), copy_uri(name=" \u00a0"), copy_uri(name="a" * 81), copy_uri(name="😀" * 65),
             copy_uri(name="e\u0301" * 41), copy_uri(name="TV\n"), copy_uri(name="TV\x00"), copy_uri(name="TV\u0085"),

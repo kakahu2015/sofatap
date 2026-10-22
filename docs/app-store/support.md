@@ -22,11 +22,11 @@ The ordinary receiver requires an unlocked, interactive desktop. A Windows Remot
 
 1. Open the receiver on the computer and choose a home-network address reachable by the phone.
 2. Connect the iPhone to the same home network. A wired computer is fine; guest Wi-Fi client isolation may prevent access.
-3. Tap the top-left device selector and choose **Scan QR Code** under **Add Device**, then scan the receiver code or paste the complete pairing link. The camera appears above the platform information; computers and Android/Google TV use the same scanner without a device-type choice.
+3. Tap the top-left device selector and choose **Scan QR Code** under **Add Device**, then scan the computer receiver code or paste the complete pairing link. The camera appears above the computer platform information.
 4. Allow Local Network access on the phone. If it was denied, enable it for Sofatap in Settings.
 5. Check the connection indicator, then look at the computer screen while controlling it.
 
-Build 15 identifies the connection type automatically and displays any platform/name supplied by the code. After the authenticated connection succeeds, keep the suggested name or save a new one. You can rename it later in My Devices; this changes only the name on your iPhone. LG webOS still requires manual IP entry and approval on the TV. Android/Google TV requires its development receiver and remains experimental, with no qualified physical TV model or third-party TV app.
+Build 15 identifies the computer platform automatically and displays any platform/name supplied by the code. After the authenticated connection succeeds, keep the suggested name or save a new one. You can rename it later in My Devices; this changes only the name on your iPhone. LG webOS requires manual IP entry and approval on the TV and remains an experimental preview.
 
 Receiver 0.7.1 beta.1 and newer include `platform` and `name` in their desktop codes. **iPhone 1.0 build 15 or newer is required**. If your phone cannot update yet, keep [receiver 0.7.0 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.0-beta.1); build 15 also accepts that older code format. Platform/name labels do not replace certificate and pairing-credential checks.
 

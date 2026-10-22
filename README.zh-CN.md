@@ -13,9 +13,9 @@ Sofatap 是 [chekusu](https://github.com/chekusu) 开发的开源遥控工具。
 [下载版本](https://github.com/chekusu/sofatap/releases) · [问题反馈](https://github.com/chekusu/sofatap/issues) · [MIT 许可](LICENSE)
 
 
-**接收器自启更新：**电脑端 0.7.3 beta.1 与 Android/Google TV 0.1.2 beta.1 新增原生自启选项，首次正常打开时默认开启。电脑端在登录后启动，关闭窗口继续接收，明确选择退出才停止；电视端仍受 Android 和厂商系统限制。参见[行为和验证范围](docs/verification/receiver-autostart-2026-10-16.md)。
+**接收器自启：**电脑接收器 0.7.3 beta.1 可在登录后启动。关闭窗口后仍会继续接收，明确选择退出才停止。参见[行为和验证范围](docs/verification/receiver-autostart-2026-10-16.md)。
 
-**接收器更新功能：**[Android/Google TV 0.2.0 beta.1](https://github.com/chekusu/sofatap/releases/tag/android-tv-v0.2.0-beta.1) 已发布，加入原生检查更新和默认自动下载；安装仍需在电视上确认。电脑端 0.8.0 beta.1 尚待发布，当前电脑下载仍为 0.7.3 beta.1。旧接收器需要先手动升级一次，才能获得更新功能。参见[更新行为与限制](docs/RECEIVER-UPDATES.md)和 [Android 发布验证](docs/verification/android-tv-release-0.2.0-2026-10-17.md)。
+**接收器更新功能：**电脑端 0.8.0 beta.1 尚待发布，当前下载仍为 0.7.3 beta.1。参见[更新行为与限制](docs/RECEIVER-UPDATES.md)。
 
 ## 宣传视频
 
@@ -34,7 +34,7 @@ Sofatap 是 [chekusu](https://github.com/chekusu) 开发的开源遥控工具。
 
 TestFlight 构建 15 已包含设备管理，并对齐官网的 12 种语言：英语、简体中文、日语、韩语、德语、法语、西班牙语、巴西葡萄牙语、俄语、阿拉伯语、印地语、印尼语。阿拉伯语采用从右到左排版，滚动条仍位于触控区物理右侧。见[语言覆盖](docs/APP-LANGUAGES.md)与[验证记录](docs/verification/device-library-2026-10-14.md)。
 
-**当前公开测试版：**iPhone **1.0 (20)** 已通过 TestFlight 外部审核，可通过[公开邀请](https://testflight.apple.com/join/e6MuKx9S)安装，测试人数上限为 10,000 人。Windows、Mac、Linux 使用[电脑接收器 0.7.3 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)，实验性的电视适配器使用 [Android/Google TV 接收器 0.2.0 beta.1](https://github.com/chekusu/sofatap/releases/tag/android-tv-v0.2.0-beta.1)。**电视自动重连需要手机构建 17 及以上和电视接收器 0.1.1 beta.1 配合；原生电视控制需要手机构建 20 或更高版本。**参见[构建 18 历史分发记录](docs/verification/testflight-1.0-18.md)和[电视软件验证](docs/verification/android-tv-reconnect-2026-10-16.md)。索尼 XRJ-85X95L 与小米 MiTV-MOEU0 已完成部分安装与设置检查；原生遥控服务配对和第三方应用输入仍待验收。参见[限定实测结果](docs/verification/tv-native-controls-2026-10-17.md)。正式 App Store 构建 15 的提交是独立流程。
+**当前公开测试版：**iPhone **1.0 (20)** 已通过 TestFlight 外部审核，可通过[公开邀请](https://testflight.apple.com/join/e6MuKx9S)安装，测试人数上限为 10,000 人。Windows、Mac、Linux 使用[电脑接收器 0.7.3 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)。LG webOS 适配器仍是实验性手动配对预览，参见[验证范围](docs/verification/webos-pointer-preview.md)。正式 App Store 构建 15 的提交是独立流程。
 
 **重连更新：**iPhone **1.0 (16)** 与接收器 **0.7.2 beta.1** 修复电脑接收器重启后的连接恢复。手机 App 在前台时，会重试当前已保存的电脑，无需重新扫码；接收器新增无关网卡时会保留原有配对。待确认的文字和鼠标操作不会自动重放。证书更换仍需重新配对，已有的重复设备不会自动合并。参见[自动重连回归检查](docs/verification/reconnect-2026-10-15.md)；真实 iPhone 到 Windows 的关闭／重开验收仍待完成。
 
@@ -42,17 +42,16 @@ TestFlight 构建 15 已包含设备管理，并对齐官网的 12 种语言：�
 
 双指滚动像拖动内容：向上滑查看页面下方，向下滑查看页面上方。点阵触控区内部右侧的滚动条采用滚动条方向：向下拉，页面向下滚动。薄荷色圆形发送按钮位于输入框右侧内部，独立留白避免遮住文字。清空和键盘切换采用更小的无底色图标，放在框下方左侧；键盘展开／收起时箭头向下／向上切换，带动画与触觉反馈，连接和发送状态提示放在同一行右侧。不显示字数或常驻实时输入能力提示；确认发送模式下，已发送草稿继续追加后只发送新增文字。[查看输入区预览](docs/images/device-library-20261014/zh-keyboard-open.png)。
 
-点击左上角的设备名称打开设备管理弹窗，可保存多台电脑／电视配对、选择当前设备、本地重命名、断开或单方面移除配对；移除本机配对不会撤销其他手机的权限。右上角问号打开独立的图解使用指南。需要输入时，编辑区才出现在触控区域下方；受支持的输入框直接实时编辑，其他输入框保留草稿检查与明确发送。[查看离线模拟器界面](docs/images/device-library-20261014/en-touchpad.png)与[点阵动效预览](docs/images/sofatap-touch-effects.mp4)。这些仅展示本地渲染，不代表真实 iPhone 输入或性能已验证。
+点击左上角的设备名称打开设备管理弹窗，可保存多台电脑／LG webOS 电视配对、选择当前设备、本地重命名、断开或单方面移除配对；移除本机配对不会撤销其他手机的权限。右上角问号打开独立的图解使用指南。需要输入时，编辑区才出现在触控区域下方；受支持的输入框直接实时编辑，其他输入框保留草稿检查与明确发送。[查看离线模拟器界面](docs/images/device-library-20261014/en-touchpad.png)与[点阵动效预览](docs/images/sofatap-touch-effects.mp4)。这些仅展示本地渲染，不代表真实 iPhone 输入或性能已验证。
 
-**构建 15 更新：**添加设备统一进入**扫描二维码**页面，上半部为相机，下方为支持的平台说明。扫描或粘贴电脑、Android/Google TV 的配对码，无需先选设备类型。App 自动选择连接适配器，显示二维码中提供的平台和名称，认证连接成功后再进入命名步骤。可保留建议名称或保存新名称，之后仍可在“我的设备”中本地重命名。LG webOS 仍需手动输入 IP 并在电视上授权。Android/Google TV 仍属实验性功能，尚无通过验收的电视型号或第三方电视应用。
+**构建 15 更新：**添加设备统一进入**扫描二维码**页面，上半部为相机，下方为电脑平台说明。扫描或粘贴电脑配对码，无需先选设备类型。认证连接成功后可保留建议名称或保存新名称，之后仍可在“我的设备”中本地重命名。LG webOS 使用单独的手动 IP 输入和电视授权流程。
 
 接收器自 0.7.1 beta.1 起，电脑配对码包含 `platform` 和 `name`，手机可自动识别 Windows、Mac 或 Linux。新码要求 **iPhone 1.0 构建 15 或更新版本**，旧手机构建无法读取。构建 15 同时兼容[接收器 0.7.0 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.0-beta.1) 的旧格式。二维码中的标签用于识别候选设备；实际连接仍须通过证书和配对凭据校验。
 
-**路线图：**免费提供手动鼠标／触控遥控，当前支持电脑，下一步扩展直连电视；电视的真实光标能力需要单独验证，方向键导航不等同于鼠标。基础语音转文字仍是免费输入。付费的语音目标自动化先面向 Windows、macOS、Linux 的多步任务，之后再扩展电视。本次 beta 的电视遥控仍是实验性预览；自动化与订阅尚未启用。参见[路线图与验收目标](docs/ROADMAP.md)和[自动化研究](docs/research/natural-language-pro.md)。
+**路线图：**免费提供手动鼠标／触控遥控，支持电脑，并提供实验性的 LG webOS 指针预览。电视的真实光标能力需要单独验证，方向键导航不等同于鼠标。基础语音转文字仍是免费输入。付费的语音目标自动化先面向 Windows、macOS、Linux 的多步任务。本次 beta 的电视遥控仍是实验性预览；自动化与订阅尚未启用。参见[路线图与验收目标](docs/ROADMAP.md)和[自动化研究](docs/research/natural-language-pro.md)。
 
-**电视开发预览：**源码现已加入 LG webOS 的原生 IP 配对，以及移动、单击、滚动、返回和主页适配器。已通过本地协议与 TLS 测试，尚无通过真机验收的电视型号；自动发现、电视打字与听写仍待实现。参见[详细技术方案](docs/research/tv-implementation-plan.zh-CN.md)和[验证范围](docs/verification/webos-pointer-preview.md)。
+**电视开发预览：**源码包含 LG webOS 的原生 IP 配对，以及移动、单击、滚动、返回和主页适配器。尚无通过真机验收的电视型号；自动发现、电视打字与听写仍待实现。参见[验证范围](docs/verification/webos-pointer-preview.md)。
 
-**Android/Google TV 测试版：**[接收器 0.2.0 beta.1](https://github.com/chekusu/sofatap/releases/tag/android-tv-v0.2.0-beta.1) 提供开发签名 APK。配合 iPhone 构建 17 或更高版本，App 在前台时会自动重连当前保存的电视；重启接收器和无关网卡变化会保留有效配对。原生接收器提供无障碍叠加光标，以及依赖目标控件的点击与滚动。独立的原生方向键、确认、返回和主页操作需要使用电视验证码与 Android TV Remote Service 配对。可选的打字和听写需要用户启用并选中 Sofatap 输入法，且目标应用提供普通 Android 输入框；拖动和右键仍未支持。**索尼 XRJ-85X95L 与小米 MiTV-MOEU0 已完成部分安装与设置检查。小米的同签名更新保留了配对和无障碍授权，并已确认启用、选中 Sofatap 输入法。两台电视的原生遥控配对，以及 YouTube、Netflix 和浏览器的实际输入仍待验收。**参见[安装指南](android/README.md)、[限定实测结果](docs/verification/tv-native-controls-2026-10-17.md)与[待完成的硬件验收](docs/ACCEPTANCE.md)。
 
 兼容接收端识别到提供辅助功能元数据的新可编辑输入框时，手机会自动弹出键盘。后台检测不读取框内内容；随后打开实时编辑会话时，会把受支持字段的完整文字和选区传到配对手机，因此退格、全选后删除也能修改电脑上的已有文字。焦点检测与实时编辑的支持范围不同：Windows 实时编辑当前限原生 Edit/RichEdit 控件；Mac 要求辅助功能提供可写的选中文字及选区。缺少相应能力的浏览器、自绘控件、Linux 及旧接收端采用检查草稿后发送。密码和只读字段不能开启实时编辑。参见[焦点检测、数据处理及平台限制](docs/TEXT-FOCUS.md)。
 
@@ -93,7 +92,7 @@ TestFlight 构建 15 已包含设备管理，并对齐官网的 12 种语言：�
 
 1. [加入 TestFlight 公测](https://testflight.apple.com/join/e6MuKx9S)，安装 **iPhone 1.0 (18)** 和**接收器 0.7.3 beta.1**，获取重连修复。接收器二维码最低要求 iPhone 构建 15。自行构建时，在 Xcode 中打开 `ios/SofaTap.xcodeproj`，选择自己的开发团队和已连接的 iPhone 后运行；这条安装路径需要有效开发签名、设备配对和开发者模式。见 [iOS 构建说明](ios/README.md)。
 2. 将 iPhone 与电脑接入可互通的家庭网络。访客 Wi-Fi 的设备隔离可能阻止连接。
-3. 点击左上角设备选择入口，在**添加设备**下选择**扫描二维码**。电脑与 Android/Google TV 共用扫码页，认证成功后进入命名步骤。扫描接收端原生窗口里的二维码，或粘贴完整配对链接。
+3. 点击左上角设备选择入口，在**添加设备**下选择**扫描二维码**。扫描电脑接收器的二维码，或粘贴完整配对链接。LG webOS 通过单独的手动 IP 配对流程连接。
 4. 在电脑上选中输入框，再打开手机键盘或麦克风。受支持的字段自动同步打字、删除和识别文字；其他字段显示**发送**按钮，供检查草稿后发送。焦点冲突或断线导致实时输入暂停时，先检查电脑，再明确重新打开编辑器；不确定的编辑不会自动重放。
 
 配对链接含有控制凭据，应只保留在自己的设备上。如果从最早使用 **Tiltro** 名称的版本升级，请阅读[升级说明](docs/WINDOWS-START.md#从旧名称版本升级)：这些版本的标识和存储位置不同，其配对和草稿不会自动迁移。本次 Sofatap 品牌拼写统一会保留现有 Sofatap 配对。

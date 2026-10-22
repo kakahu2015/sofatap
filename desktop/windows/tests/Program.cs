@@ -58,7 +58,7 @@ foreach (var malformed in new[]
     link.Replace(token, new string('D', 31)), link.Replace(token, new string('D', 257)), link.Replace(token, token + "+"),
     link.Replace(fingerprint, new string('a', 63)), link.Replace(fingerprint, new string('g', 64)), link + "\n", " " + link,
     new string('x', NativeProtocol.MaximumPairingUriLength + 1),
-    link + "&platform=androidtv", link + "&platform=unknown", link + "&platform=", link + "&platform=windows&platform=macos",
+    link + "&platform=webos", link + "&platform=unknown", link + "&platform=", link + "&platform=windows&platform=macos",
     link + "&name=TV&name=TV", link + "&name=", link + "&name=%20%C2%A0", link + "&name=" + new string('a', 81),
     link + "&name=" + Uri.EscapeDataString(string.Concat(Enumerable.Repeat("😀", 65))),
     link + "&name=" + Uri.EscapeDataString(string.Concat(Enumerable.Repeat("e\u0301", 41))),

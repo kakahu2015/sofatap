@@ -1,6 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application>
-        <activity android:name=".InputFixtureActivity" android:exported="false" android:screenOrientation="landscape" />
-        <activity android:name=".ImeFixtureActivity" android:exported="false" android:screenOrientation="landscape" />
-    </application>
-</manifest>

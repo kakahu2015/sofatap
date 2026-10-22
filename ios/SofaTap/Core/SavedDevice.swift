@@ -66,7 +66,7 @@ struct DeviceLibrary<Credential: SavedDeviceCredential>: Codable, Equatable {
     mutating func updateMetadata(_ id: UUID, name: String?, platform: String?) throws {
         guard let index = devices.firstIndex(where: { $0.id == id }) else { throw DeviceLibraryError.missingDevice }
         if let name { devices[index].reportedName = try Self.cleanName(name) }
-        if let platform, ["windows", "macos", "linux", "unknown", "androidtv", "webos"].contains(platform) {
+        if let platform, ["windows", "macos", "linux", "unknown", "webos"].contains(platform) {
             devices[index].platform = platform
         }
     }

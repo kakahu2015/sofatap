@@ -106,8 +106,6 @@ jobs:
           "$RUNNER_TEMP/sofatap-tv-protocol-tests"
       - name: TV pairing and input lifecycle with injected transport
         run: bash ios/scripts/test-tv-controller.sh
-      - name: Android TV QR pairing and acknowledged input lifecycle
-        run: bash ios/scripts/test-android-tv.sh
       - name: TV auxiliary paging and control placement without device input
         run: bash ios/scripts/test-tv-auxiliary-controls.sh
       - name: TV TLS and WebSocket transport on loopback only
@@ -270,30 +268,4 @@ jobs:
         with:
           name: mint-calm-linux
           path: artifacts/mint-calm/linux-*.png
-          if-no-files-found: error
-
-  android-tv:
-    name: Android TV · native receiver, protocol and APK
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Select JDK 17 and verify the runner Android SDK
-        run: |
-          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
-          echo "$JAVA_HOME_17_X64/bin" >> "$GITHUB_PATH"
-          "$JAVA_HOME_17_X64/bin/java" -version
-          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
-          test -x "$ANDROID_HOME/build-tools/35.0.0/aapt2"
-      - name: Compile APK and device tests; run JVM checks and lint
-        working-directory: android
-        run: ./gradlew --no-daemon --max-workers=2 :receiver:assembleDebug :receiver:assembleDebugAndroidTest :receiver:testDebugUnitTest :receiver:lintDebug
-      - name: Save development APK and software reports
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: android-tv-development-probe
-          path: |
-            android/receiver/build/outputs/apk/debug/receiver-debug.apk
-            android/receiver/build/reports/tests/testDebugUnitTest/
-            android/receiver/build/reports/lint-results-debug.html
           if-no-files-found: error

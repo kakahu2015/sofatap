@@ -181,7 +181,7 @@ final class ControllerModel: ObservableObject {
 
     init(demo: Bool = ProcessInfo.processInfo.arguments.contains("--demo")) {
         self.demo = demo
-        self.desktopControlEnabled = demo || !["webos", "androidtv"].contains(UserDefaults.standard.string(forKey: "manualRemoteTarget") ?? "computer")
+        self.desktopControlEnabled = demo || UserDefaults.standard.string(forKey: "manualRemoteTarget") != "webos"
         self.pairing = nil
         self.draft = demo ? String(localized: "你好，帮我播放今晚想看的电影。") : UserDefaults.standard.string(forKey: "localTextDraft") ?? ""
         if demo {
@@ -469,23 +469,23 @@ final class ControllerModel: ObservableObject {
         if reconnectID == nil { connectAutomatically() }
     }
 
-    func setDesktopControlEnabled(_ enabled: Bool, televisionTarget: String = "webos", reconnect: Bool = true) {
+    func setDesktopControlEnabled(_ enabled: Bool, reconnect: Bool = true) {
         guard enabled != desktopControlEnabled else {
-            if !enabled { rememberManualTarget(televisionTarget: televisionTarget) }
+            if !enabled { rememberManualTarget() }
             return
         }
         if !enabled { disconnect(message: String(localized: "电脑遥控已暂停，当前选择电视。")) }
         desktopControlEnabled = enabled
-        rememberManualTarget(televisionTarget: televisionTarget)
+        rememberManualTarget()
         if enabled && reconnect { becameActive() }
     }
 
-    private func rememberManualTarget(televisionTarget: String = "webos") {
+    private func rememberManualTarget() {
         guard !demo else { return }
 #if SOFATAP_CONTROLLER_TESTING
         guard testSend == nil && testLiveSend == nil && testPairingWrite == nil else { return }
 #endif
-        UserDefaults.standard.set(desktopControlEnabled ? "computer" : (televisionTarget == "androidtv" ? "androidtv" : "webos"), forKey: "manualRemoteTarget")
+        UserDefaults.standard.set(desktopControlEnabled ? "computer" : "webos", forKey: "manualRemoteTarget")
     }
 
     func becameInactive() {

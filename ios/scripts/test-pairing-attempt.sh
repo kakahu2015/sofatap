@@ -16,9 +16,6 @@ xcrun --sdk macosx swiftc -parse-as-library -swift-version 5 \
     "$REPO_ROOT/ios/SofaTap/Core/Pairing.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/PairingCode.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/PairingAttemptState.swift" \
-    "$REPO_ROOT/ios/SofaTap/Core/TV/AndroidTVControls.swift" \
-    "$REPO_ROOT/ios/SofaTap/Core/TV/AndroidTVProtocol.swift" \
-    "$REPO_ROOT/ios/SofaTap/Core/TV/AndroidTVPairingStore.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/ReceiverState.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/ComputerUnlockController.swift" \
     "$REPO_ROOT/ios/SofaTap/Core/UnlockCredentialVault.swift" \

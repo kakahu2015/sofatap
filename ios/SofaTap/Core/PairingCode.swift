@@ -4,7 +4,6 @@ import Foundation
 /// its strict fields, private-network policy, bearer token and certificate pin.
 enum PairingCode: Equatable {
     case computer(Pairing)
-    case androidTV(AndroidTVPairing)
 
     static func parse(_ raw: String) throws -> Self {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -13,7 +12,6 @@ enum PairingCode: Equatable {
         do {
             switch url.host {
             case "pair": return .computer(try Pairing.parse(text))
-            case "tv": return .androidTV(try AndroidTVPairing.parse(text))
             default: throw PairingCodeError.invalid
             }
         } catch { throw PairingCodeError.invalid }

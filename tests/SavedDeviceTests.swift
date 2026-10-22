@@ -15,45 +15,6 @@ private final class MemoryDataStore: DeviceLibraryDataStorage {
     func remove(account: String) { values.removeValue(forKey: account) }
 }
 
-private final class TVLibraryStore: AndroidTVPairingStorage {
-    var value = DeviceLibrary<AndroidTVPairing>()
-    var failReadAfterSelection = false
-    func read() -> AndroidTVPairing? { value.selected?.credential }
-    func write(_ pairing: AndroidTVPairing) throws { value.upsert(pairing) }
-    func delete() throws { if let id = value.selectedID { value.remove(id) } }
-    func library() throws -> DeviceLibrary<AndroidTVPairing> {
-        if failReadAfterSelection { throw DeviceLibraryError.unavailable }
-        return value
-    }
-    func select(_ id: UUID) throws { try value.select(id) }
-    func rename(_ id: UUID, name: String) throws { try value.rename(id, name: name) }
-    func metadata(_ id: UUID, name: String?, platform: String) throws { try value.updateMetadata(id, name: name, platform: platform) }
-    func remove(_ id: UUID) throws { value.remove(id) }
-}
-
-@MainActor private final class TVRecordingSocket: AndroidTVSocket {
-    var onText: ((String) -> Void)?
-    var onFailure: ((AndroidTVSocketFailure) -> Void)?
-    var opened: AndroidTVPairing?
-    var frames: [[String: Any]] = []
-    var closes = 0
-    func open(_ pairing: AndroidTVPairing) { opened = pairing }
-    func send(_ text: String, completion: @escaping (Bool) -> Void) {
-        frames.append(try! JSONSerialization.jsonObject(with: Data(text.utf8)) as! [String: Any])
-        completion(true)
-    }
-    func close() { closes += 1 }
-    func hello(_ name: String) {
-        reply(["type": "hello", "version": 1, "platform": "androidtv", "name": name,
-               "inputAvailable": true, "inputStatus": "ready",
-               "capabilities": ["overlayCursor": true, "nodeClick": true, "scroll": true, "back": true, "home": true,
-                                "directionalFocus": true, "text": false, "rawMouse": false, "rightClick": false, "drag": false]])
-    }
-    func reply(_ value: [String: Any]) {
-        onText?(String(data: try! JSONSerialization.data(withJSONObject: value), encoding: .utf8)!)
-    }
-}
-
 @main struct SavedDeviceTests {
     @MainActor static func main() throws {
         var count = 0
@@ -128,48 +89,10 @@ private final class TVLibraryStore: AndroidTVPairingStorage {
         rejects("corrupt collection does not silently replace legacy") { _ = try store.read() }
         check("corrupt collection remains available for recovery", storage.values["paired-devices-v2"] == Data("corrupt".utf8))
 
-        let tv = AndroidTVPairing(host: "192.168.1.2", port: 53319, token: a.token, fingerprint: a.fingerprint)
-        let androidID = SavedDevice(credential: tv).id
-        check("computer and Android TV identities cannot collide", androidID != idA)
-        check("Android TV renewed token retains identity", androidID == SavedDevice(credential: tv.replacingToken(b.token)).id)
         let webA = WebOSTVPairing(host: "192.168.1.2", fingerprint: a.fingerprint, clientKey: "fixture-client-key")
         let webB = WebOSTVPairing(host: "192.168.1.3", fingerprint: a.fingerprint, clientKey: "fixture-other-key")
         check("webOS shared certificates do not merge different TV endpoints", SavedDevice(credential: webA).id != SavedDevice(credential: webB).id)
-        try tv.validateForStorage(); try webA.validateForStorage()
-
-        let tvB = AndroidTVPairing(host: "192.168.1.3", port: 53319, token: b.token, fingerprint: b.fingerprint)
-        let tvStore = TVLibraryStore()
-        tvStore.value.upsert(tv); tvStore.value.upsert(tvB)
-        let tvBID = SavedDevice(credential: tvB).id
-        var sockets: [TVRecordingSocket] = []
-        let controller = AndroidTVController(storage: tvStore, makeSocket: {
-            let socket = TVRecordingSocket(); sockets.append(socket); return socket
-        })
-        controller.selectDevice(tvBID)
-        let socketB = sockets.last!
-        check("saved selection opens only exact selected TV credential", socketB.opened == tvB && sockets.count == 1)
-        socketB.hello("Bedroom TV")
-        controller.move(dx: 5, dy: 3); controller.click()
-        check("old target has one outstanding input and queued click", socketB.frames.count == 1)
-        controller.selectDevice(androidID)
-        let socketA = sockets.last!
-        socketB.reply(["type": "ack", "id": socketB.frames[0]["id"]!, "ok": true])
-        socketA.hello("Living room TV")
-        check("switch closes prior TV and cannot replay queued click to new TV", socketB.closes == 1 && socketA.opened == tv && socketA.frames.isEmpty && controller.canControl)
-        controller.renameDevice(tvBID, name: "Guest room")
-        check("rename inactive TV does not change active transport", controller.selectedDeviceID == androidID && controller.currentDisplayName == "Living room TV" && sockets.count == 2)
-        controller.renameDevice(androidID, name: "  Cinema  ")
-        check("active rename updates display immediately with same credential", controller.currentDisplayName == "Cinema" && controller.saved == tv)
-        controller.renameDevice(androidID, name: "invalid\nname")
-        check("name failure exposes error without interrupting valid session", controller.managementError != nil && controller.canControl && controller.currentDisplayName == "Cinema")
-        controller.removeDevice(androidID)
-        check("active TV removal disconnects without falling back to saved TV", controller.saved == nil && controller.selectedDeviceID == nil && controller.savedDevices.count == 1 && !controller.canControl)
-        controller.reconnect()
-        check("reconnect with no selected device cannot pick another TV", sockets.count == 2)
-        controller.selectDevice(tvBID); sockets.last!.hello("Bedroom TV")
-        tvStore.failReadAfterSelection = true
-        controller.selectDevice(tvBID)
-        check("collection read failure after selecting never reconnects cached old target", !controller.canControl && controller.managementError != nil && sockets.count == 3)
+        try webA.validateForStorage()
         print("PASS \(count) saved-device migration, selection, privacy and persistence checks; no Keychain, network or input access")
     }
 }

@@ -208,35 +208,9 @@
 "配对电视" = "Pair TV";
 "配对设备与连接设置" = "Pair devices and connection settings";
 
-/* Android TV receiver feasibility preview. */
 "无法移除电视配对，请稍后重试。" = "The TV pairing could not be removed. Try again later.";
-"扫描 Android TV 接收器中的二维码。" = "Scan the QR code in the Android TV receiver.";
-"Android TV 未连接" = "Android TV is disconnected";
-"正在连接 Android TV…" = "Connecting to Android TV…";
-"Android TV · 实验性遥控" = "Android TV · Experimental remote";
-"Android TV · 等待权限" = "Android TV · Permission required";
-"Android TV 配对二维码无效，请在电视上生成新的二维码。" = "This Android TV pairing code is invalid. Generate a new code on the TV.";
-"正在验证电视加密连接…" = "Verifying the encrypted TV connection…";
-"电视未接受这次操作。请查看电视；此应用或控件可能不支持遥控。" = "The TV did not accept this action. Check the TV; this app or control may not support remote input.";
-"电视连接或配对未确认。请在电视上生成新二维码后重新连接。" = "The TV connection or pairing was not confirmed. Generate a new code on the TV and reconnect.";
-"实验性控制：移动屏幕上的指示光标，点击可访问控件。操作结果请以电视画面为准。" = "Experimental controls: move an overlay cursor and activate accessible controls. Check the TV to confirm each action.";
-"已连接。请在电视设置中启用 Sofatap 辅助功能服务，然后返回接收器。" = "Connected. Enable the Sofatap accessibility service in TV settings, then return to the receiver.";
-"电视当前已锁定，请先使用电视遥控器解锁。" = "The TV is locked. Unlock it with the TV remote first.";
-"电视输入当前不可用，请查看接收器中的权限与兼容性提示。" = "TV input is unavailable. Check the receiver for permission and compatibility details.";
-"电视响应过慢，已停止发送。请查看电视后手动重新连接。" = "The TV is responding too slowly. Input has stopped. Check the TV before reconnecting manually.";
-"电视连接中断，未确认的操作不会重发。请查看电视后手动重新连接。" = "The TV connection was interrupted. Unconfirmed actions will not be resent. Check the TV before reconnecting manually.";
-"Android TV 已断开。请手动重新连接。" = "Android TV is disconnected. Reconnect manually to continue.";
-"在电视上打开 Sofatap 接收器，扫描原生界面中的二维码。手机与电视需要连接同一家庭网络。" = "Open the Sofatap receiver on your TV and scan the code in its native interface. Connect your phone and TV to the same home network.";
-"扫描电视二维码" = "Scan TV QR code";
-"电视配对链接" = "TV pairing link";
-"重新连接 Android TV" = "Reconnect to Android TV";
-"实验性接收端：光标是屏幕指示层，单击操作可访问控件，兼容性取决于电视与应用。暂不支持系统鼠标、右键、拖动、键盘或语音输入。" = "Experimental receiver: the cursor is an overlay, and taps activate accessible controls. Support depends on the TV and app. System mouse events, right-click, drag, keyboard and dictation are not available yet.";
-"二维码五分钟后失效，首次连接后立即作废。连接未确认时，请在电视上生成新二维码。" = "The code expires after five minutes and is consumed on first connection. If pairing is not confirmed, generate a new code on the TV.";
-"配对 Android TV" = "Pair Android TV";
 "下次连接需要在电视上生成新二维码。" = "Generate a new QR code on the TV to pair again.";
-"连接 Android TV（实验版）" = "Connect Android TV (experimental)";
 "将 Sofatap 配对二维码放入画面" = "Place the Sofatap pairing QR code in the frame";
-"这不是此设备类型的有效 Sofatap 配对二维码。请扫描接收器显示的二维码。" = "This is not a valid Sofatap pairing code for this device type. Scan the code displayed by the receiver.";
 "相机权限未开启。可在设置中开启，或粘贴接收器中的完整配对链接。" = "Camera access is off. Enable it in Settings, or paste the complete pairing link from the receiver.";
 "这台设备没有可用相机。请返回并粘贴接收器中的完整配对链接。" = "This device has no available camera. Go back and paste the complete pairing link from the receiver.";
 "清空电脑当前输入框？" = "Clear the current computer text field?";
@@ -277,7 +251,7 @@
 "断开连接" = "Disconnect";
 "无法安全读取或保存设备，请解锁手机后重试。" = "Could not securely read or save devices. Unlock your iPhone and try again.";
 "未连接" = "Not connected";
-"添加电脑或电视，之后可在这里快速切换。" = "Add computers or TVs, then switch between them here.";
+"添加电脑或 LG 电视，之后可在这里快速切换。" = "Add computers or LG TVs, then switch between them here.";
 "添加设备" = "Add Device";
 "电脑" = "Computer";
 "电视遥控" = "TV Remote";
@@ -295,10 +269,9 @@
 "预览" = "Preview";
 
 /* Unified QR pairing and device naming. */
-"扫描后自动识别电脑或电视，无需选择设备类型。" = "Scanning identifies the computer or TV automatically. No device type selection is needed.";
+"扫描后自动识别电脑，无需选择设备类型。" = "Scanning identifies the computer automatically. No device type selection is needed.";
 "支持的设备" = "Supported Devices";
 "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。" = "Install the Sofatap receiver on your Mac, Windows or Linux computer first.";
-"Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。" = "Android TV / Google TV requires the TV receiver. Model compatibility is still being tested.";
 "LG webOS 使用电视授权配对，暂不支持扫码。" = "LG webOS pairs through approval on the TV. QR scanning is not supported yet.";
 "手动连接 LG webOS" = "Connect LG webOS Manually";
 "粘贴配对链接" = "Paste Pairing Link";
@@ -327,9 +300,6 @@
 "先选中电脑输入框。实时输入时退格会同步；草稿中的未发送文字先在手机上删除。清空本地草稿后，可用键盘退格删除电脑文字。框下的电脑退格按钮直接作用于电脑，不删除手机草稿。" = "Focus the computer’s text field first. Backspace syncs during live editing; unsent draft text is deleted on the phone first. After clearing the local draft, keyboard Backspace can delete computer text. The computer Backspace button below the editor acts on the computer without deleting the phone draft.";
 "滑动移动光标；轻点左键；左半区连续轻点两下双击左键；右半区连续轻点两下双击右键；按住零点三秒拖动；双指滑动滚动" = "Slide to move the pointer; tap for a left click; double-tap the left half for two left clicks, or the right half for two right clicks; hold for 0.3 seconds to drag; slide two fingers to scroll.";
 
-/* Android TV connection recovery. */
-"电视连接中断，正在自动重连；未确认的操作不会重发。" = "The TV connection was interrupted. Reconnecting automatically; unconfirmed actions will not be replayed.";
-"切回 App 会重新连接电视。" = "Return to the app to reconnect to the TV.";
 
 /* Custom gestures and local practice. */
 "试试这些手势" = "Try These Gestures";
@@ -391,7 +361,6 @@
 
 "未设置双击动作时，每次轻点仍执行单击动作。" = "When no double-tap action is assigned, each tap still performs the single-tap action.";
 
-/* Device-specific help and Android TV input feedback. */
 "电视操作指南" = "TV controls";
 "电脑操作指南" = "Computer controls";
 "连接设备后确认可用操作" = "Connect to check available controls";

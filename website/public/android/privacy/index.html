@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for HostTap for Android, package org.kakahu.hosttap.">
+  <meta name="theme-color" content="#e7f2ed">
+  <link rel="canonical" href="https://hosttap.kakahu.org/android/privacy/">
+  <link rel="alternate" hreflang="zh-CN" href="https://hosttap.kakahu.org/zh-cn/android/privacy/">
+  <title>HostTap for Android Privacy Policy</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="HostTap home"><span class="brand-mark" aria-hidden="true">H</span>HostTap</a>
+      <nav class="languages" aria-label="Language"><span aria-current="page" lang="en">English</span><a href="/zh-cn/android/privacy/" lang="zh-CN" hreflang="zh-CN">简体中文</a></nav>
+    </header>
+
+    <main id="main">
+      <div class="intro">
+        <p class="eyebrow">Android app · HostTap</p>
+        <h1>Privacy policy for Android</h1>
+        <p class="lead">How HostTap handles information when you use your Android phone to control a computer you have paired.</p>
+        <p class="date">Effective October 22, 2026</p>
+        <nav class="policy-switcher" aria-label="Privacy policy version"><a href="/privacy/">Windows</a><span aria-current="page">Android</span><a href="/harmonyos/privacy/">HarmonyOS</a></nav>
+      </div>
+
+      <aside class="summary" aria-label="Policy at a glance">
+        <p><strong>HostTap for Android has no sign-in or publisher-operated service.</strong> Saved pairing links are encrypted on your phone. Mouse, keyboard, and text input go to the computer you choose to pair. The app includes no advertising, analytics, tracking, or crash-upload SDK.</p>
+      </aside>
+
+      <div class="policy">
+        <section aria-labelledby="scope">
+          <h2 id="scope"><span class="section-number">01</span>What this policy covers</h2>
+          <p>This policy covers HostTap for Android, published by <strong>GUIHUI HU</strong> with package name <strong>org.kakahu.hosttap</strong>, whether installed from Google Play or from the HostTap website. It describes the Android app only.</p>
+          <p>The computer receiver is a separate program. This policy does not cover its practices, the Android system, the keyboard or speech-recognition service you choose, or the applications you control.</p>
+        </section>
+
+        <section aria-labelledby="permissions">
+          <h2 id="permissions"><span class="section-number">02</span>Permissions and the QR scanner</h2>
+          <p><strong>Internet.</strong> The app uses network access to connect to the computer in your pairing link and send the control actions you choose.</p>
+          <p><strong>Camera.</strong> Camera access is optional and requested only when you open the QR scanner. The app decodes the pairing QR code on your phone. Camera frames are not saved or uploaded; the decoded pairing link is returned to the app.</p>
+          <p>The app does not request microphone, location, contacts, phone-state, or general file-storage permission. If you use voice typing in your Android keyboard, that keyboard or its speech-recognition provider handles the audio under its own policies; HostTap receives only text entered into its composer.</p>
+        </section>
+
+        <section aria-labelledby="local-data">
+          <h2 id="local-data"><span class="section-number">03</span>Information stored on your phone</h2>
+          <p>A pairing link can contain the computer's network address and port, an access credential, a TLS certificate fingerprint, and optional computer name and platform information. When you save a pairing, HostTap encrypts the pairing link with AES-GCM and protects its key with Android Keystore. You can remove saved computers in the app.</p>
+          <p>Your text draft and delivery status are stored in the app's private preferences so they can remain available if the app closes. This data stays on your phone; HostTap does not sync it to a publisher-operated server. You can delete the draft in the composer, clear the app's data, or uninstall the app. Android app-data backup is disabled by the app.</p>
+          <p>HostTap reads clipboard content only after you tap <strong>Paste link</strong>, to fill the pairing-link field. It does not monitor the clipboard in the background. Android or other clipboard services may retain clipboard content according to their own settings.</p>
+        </section>
+
+        <section aria-labelledby="transmission">
+          <h2 id="transmission"><span class="section-number">04</span>Information sent to your computer</h2>
+          <p>When you use HostTap, mouse movement, clicks, key presses, and text you explicitly send are transmitted to the paired computer. The app connects over an encrypted WebSocket connection and checks the computer's TLS certificate fingerprint before sending the pairing credential. It may receive the computer name and connection or input-availability status from that computer.</p>
+          <p>HostTap has no cloud relay and does not send this control data to a publisher-operated server. Devices often connect on the same network, but the route depends on your network setup and is not guaranteed to stay within a local network. The computer and the applications you control may process or retain the input under their own behavior and policies.</p>
+          <p>Text stays in the phone's composer until you choose to send it. HostTap does not capture the computer screen or microphone audio.</p>
+        </section>
+
+        <section aria-labelledby="collection">
+          <h2 id="collection"><span class="section-number">05</span>Collection, retention, and your choices</h2>
+          <p>The app has no HostTap account and includes no advertising, analytics, tracking, or crash-reporting upload SDK. Pairings and drafts remain in Android app-private storage until you remove them, clear the app's data, or uninstall HostTap. HostTap has no server-side copy of your pairings or drafts to retrieve or delete.</p>
+          <p>You choose which computer to pair and when to connect, scan a QR code, paste a pairing link, or send text. Disconnect whenever you want, remove saved computers in the app, and delete text from the composer. Treat pairing links and QR codes as private because they contain an access credential.</p>
+        </section>
+
+        <section aria-labelledby="services">
+          <h2 id="services"><span class="section-number">06</span>Google Play, this website, and support</h2>
+          <p><strong>Google Play.</strong> If you install HostTap from Google Play, Google may process account, installation, distribution, and diagnostic information under the <a href="https://policies.google.com/privacy" rel="noreferrer">Google Privacy Policy</a>. This is separate from information HostTap processes on your phone.</p>
+          <p><strong>This website.</strong> Cloudflare Pages hosts this site, and Cloudflare R2 serves direct downloads over HTTPS. Cloudflare may process network and request information, such as IP addresses, to deliver and protect the site and downloads under the <a href="https://www.cloudflare.com/privacypolicy/" rel="noreferrer">Cloudflare Privacy Policy</a>. We add no advertising, tracking scripts, analytics, forms, or browser storage to this site.</p>
+          <p><strong>Support.</strong> If you email <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>, GUIHUI HU receives your email address and the content you choose to provide to reply and handle your request. Do not email passwords, pairing links, QR codes, or private text. We keep support correspondence as long as needed to handle your request; you can email us to request deletion. Your email provider handles its own copies under its policies and settings.</p>
+        </section>
+
+        <section aria-labelledby="children">
+          <h2 id="children"><span class="section-number">07</span>Children, changes, and contact</h2>
+          <p>HostTap is a utility app and is not directed at children. The app does not ask for or collect age information.</p>
+          <p>We may update this policy when the app or its services change. The effective date above identifies the current version. For privacy questions or requests about support correspondence, contact GUIHUI HU at <a href="mailto:kakahu@kakahu.org">kakahu@kakahu.org</a>.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"><p>HostTap for Android · Published by GUIHUI HU</p><a href="/" lang="en">Home</a><a href="/privacy/" lang="en">Windows privacy policy</a><a href="/harmonyos/privacy/" lang="en">HarmonyOS privacy policy</a><a href="/zh-cn/android/privacy/" lang="zh-CN" hreflang="zh-CN">中文隐私政策 <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

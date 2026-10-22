@@ -259,7 +259,7 @@ h2 { display: flex; align-items: baseline; gap: 14px; margin: 0 0 18px; font-siz
 @media (max-width: 700px) {
   .landing-page .page { padding: 0 22px; }
   .landing-header { min-height: 78px; flex-wrap: wrap; padding: 12px 0; }
-  .landing-header .top-links { order: 3; width: 100%; justify-content: center; margin: 1px 0 0; padding-bottom: 5px; }
+  .landing-header .top-links { order: 3; width: 100%; flex-wrap: wrap; justify-content: center; row-gap: 8px; margin: 1px 0 0; padding-bottom: 5px; }
   .landing-header .languages { margin-left: auto; }
   .hero { grid-template-columns: 1fr; gap: 4px; padding: 55px 0 40px; }
   .hero-copy { max-width: 550px; }

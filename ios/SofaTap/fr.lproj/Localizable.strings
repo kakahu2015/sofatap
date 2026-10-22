@@ -206,33 +206,8 @@
 "配对电视" = "Jumeler un téléviseur";
 "配对设备与连接设置" = "Jumeler des appareils et régler les connexions";
 "无法移除电视配对，请稍后重试。" = "Impossible de supprimer le jumelage TV. Réessayez plus tard.";
-"扫描 Android TV 接收器中的二维码。" = "Scannez le code QR du récepteur Android TV.";
-"Android TV 未连接" = "Android TV non connecté";
-"正在连接 Android TV…" = "Connexion à Android TV…";
-"Android TV · 实验性遥控" = "Android TV · Commandes expérimentales";
-"Android TV · 等待权限" = "Android TV · Autorisation requise";
-"Android TV 配对二维码无效，请在电视上生成新的二维码。" = "Code de jumelage Android TV invalide. Générez un nouveau code sur le téléviseur.";
-"正在验证电视加密连接…" = "Vérification de la connexion TV chiffrée…";
-"电视未接受这次操作。请查看电视；此应用或控件可能不支持遥控。" = "Le téléviseur a refusé l’action. Vérifiez son écran ; l’app ou l’élément ne permet peut-être pas le contrôle distant.";
-"电视连接或配对未确认。请在电视上生成新二维码后重新连接。" = "Connexion ou jumelage TV non confirmé. Générez un nouveau code sur le téléviseur et reconnectez-le.";
-"实验性控制：移动屏幕上的指示光标，点击可访问控件。操作结果请以电视画面为准。" = "Commandes expérimentales : déplacez un curseur superposé et activez les éléments accessibles. Vérifiez chaque résultat sur le téléviseur.";
-"已连接。请在电视设置中启用 Sofatap 辅助功能服务，然后返回接收器。" = "Connecté. Activez le service d’accessibilité Sofatap dans les paramètres TV, puis revenez au récepteur.";
-"电视当前已锁定，请先使用电视遥控器解锁。" = "Téléviseur verrouillé. Déverrouillez-le d’abord avec sa télécommande.";
-"电视输入当前不可用，请查看接收器中的权限与兼容性提示。" = "Saisie TV indisponible. Consultez les autorisations et la compatibilité dans le récepteur.";
-"电视响应过慢，已停止发送。请查看电视后手动重新连接。" = "Le téléviseur répond trop lentement. Saisie arrêtée. Vérifiez le téléviseur avant de reconnecter manuellement.";
-"电视连接中断，未确认的操作不会重发。请查看电视后手动重新连接。" = "Connexion TV interrompue. Les actions non confirmées ne seront pas répétées. Vérifiez le téléviseur avant de reconnecter manuellement.";
-"Android TV 已断开。请手动重新连接。" = "Android TV déconnecté. Reconnectez manuellement pour continuer.";
-"在电视上打开 Sofatap 接收器，扫描原生界面中的二维码。手机与电视需要连接同一家庭网络。" = "Ouvrez le récepteur Sofatap sur le téléviseur et scannez le code de son interface native. Connectez l’iPhone et le téléviseur au même réseau domestique.";
-"扫描电视二维码" = "Scanner le code QR TV";
-"电视配对链接" = "Lien de jumelage TV";
-"重新连接 Android TV" = "Reconnecter Android TV";
-"实验性接收端：光标是屏幕指示层，单击操作可访问控件，兼容性取决于电视与应用。暂不支持系统鼠标、右键、拖动、键盘或语音输入。" = "Récepteur expérimental : le curseur est une superposition et les touches activent les éléments accessibles. La compatibilité dépend du téléviseur et de l’app. Souris système, clic droit, glissement, clavier et dictée sont indisponibles.";
-"二维码五分钟后失效，首次连接后立即作废。连接未确认时，请在电视上生成新二维码。" = "Le code expire après cinq minutes et devient inutilisable dès la première connexion. Si le jumelage n’est pas confirmé, générez un nouveau code sur le téléviseur.";
-"配对 Android TV" = "Jumeler Android TV";
 "下次连接需要在电视上生成新二维码。" = "Générez un nouveau code QR sur le téléviseur pour le jumeler à nouveau.";
-"连接 Android TV（实验版）" = "Connecter Android TV (expérimental)";
 "将 Sofatap 配对二维码放入画面" = "Placez le code QR de jumelage Sofatap dans le cadre";
-"这不是此设备类型的有效 Sofatap 配对二维码。请扫描接收器显示的二维码。" = "Code de jumelage Sofatap invalide pour ce type d’appareil. Scannez le code affiché par le récepteur.";
 "相机权限未开启。可在设置中开启，或粘贴接收器中的完整配对链接。" = "Accès caméra désactivé. Autorisez-le dans Réglages ou collez le lien de jumelage complet du récepteur.";
 "这台设备没有可用相机。请返回并粘贴接收器中的完整配对链接。" = "Aucune caméra disponible. Revenez et collez le lien de jumelage complet du récepteur.";
 "清空电脑当前输入框？" = "Effacer le champ actuel sur l’ordinateur ?";
@@ -273,7 +248,7 @@
 "断开连接" = "Déconnecter";
 "无法安全读取或保存设备，请解锁手机后重试。" = "Impossible de lire ou d’enregistrer les appareils de façon sécurisée. Déverrouillez l’iPhone et réessayez.";
 "未连接" = "Non connecté";
-"添加电脑或电视，之后可在这里快速切换。" = "Ajoutez des ordinateurs ou téléviseurs, puis passez de l’un à l’autre ici.";
+"添加电脑或 LG 电视，之后可在这里快速切换。" = "Ajoutez des ordinateurs ou des téléviseurs LG, puis passez de l’un à l’autre ici.";
 "添加设备" = "Ajouter un appareil";
 "电脑" = "Ordinateur";
 "电视遥控" = "Télécommande TV";
@@ -291,10 +266,9 @@
 "预览" = "Aperçu";
 
 /* Unified QR pairing and device naming. */
-"扫描后自动识别电脑或电视，无需选择设备类型。" = "Le scan identifie automatiquement l’ordinateur ou le téléviseur. Aucun type d’appareil à choisir.";
+"扫描后自动识别电脑，无需选择设备类型。" = "Le scan identifie automatiquement l’ordinateur. Aucun type d’appareil à choisir.";
 "支持的设备" = "Appareils compatibles";
 "Mac、Windows 和 Linux 需先安装 Sofatap 接收器。" = "Installez d’abord le récepteur Sofatap sur votre ordinateur Mac, Windows ou Linux.";
-"Android TV / Google TV 需安装电视接收器；机型兼容性仍在验证。" = "Android TV / Google TV nécessite le récepteur TV. La compatibilité des modèles reste en cours de test.";
 "LG webOS 使用电视授权配对，暂不支持扫码。" = "LG webOS se jumelle par autorisation sur le téléviseur. Le scan QR n’est pas encore pris en charge.";
 "手动连接 LG webOS" = "Connecter LG webOS manuellement";
 "粘贴配对链接" = "Coller le lien de jumelage";
@@ -323,9 +297,6 @@
 "先选中电脑输入框。实时输入时退格会同步；草稿中的未发送文字先在手机上删除。清空本地草稿后，可用键盘退格删除电脑文字。框下的电脑退格按钮直接作用于电脑，不删除手机草稿。" = "Sélectionnez d’abord le champ de texte sur l’ordinateur. Le retour arrière est synchronisé en saisie directe ; le texte non envoyé du brouillon est d’abord effacé sur le téléphone. Après avoir vidé le brouillon local, la touche peut effacer du texte sur l’ordinateur. Le bouton sous l’éditeur agit sur l’ordinateur sans effacer le brouillon du téléphone.";
 "滑动移动光标；轻点左键；左半区连续轻点两下双击左键；右半区连续轻点两下双击右键；按住零点三秒拖动；双指滑动滚动" = "Glissez pour déplacer le pointeur ; touchez pour un clic gauche ; touchez deux fois la moitié gauche pour deux clics gauches, ou la droite pour deux clics droits ; maintenez 0,3 seconde pour faire glisser ; glissez avec deux doigts pour faire défiler.";
 
-/* Android TV connection recovery. */
-"电视连接中断，正在自动重连；未确认的操作不会重发。" = "La connexion au téléviseur a été interrompue. Reconnexion automatique en cours ; les actions non confirmées ne seront pas renvoyées.";
-"切回 App 会重新连接电视。" = "Revenez dans l’app pour reconnecter le téléviseur.";
 
 /* Custom gestures and local practice. */
 "试试这些手势" = "Essayer ces gestes";
@@ -387,7 +358,6 @@
 
 "未设置双击动作时，每次轻点仍执行单击动作。" = "Si aucune action n’est attribuée au double toucher, chaque toucher exécute tout de même l’action du toucher simple.";
 
-/* Device-specific help and Android TV input feedback. */
 "电视操作指南" = "Commandes du téléviseur";
 "电脑操作指南" = "Commandes de l’ordinateur";
 "连接设备后确认可用操作" = "Connectez l’appareil pour vérifier les commandes disponibles";
