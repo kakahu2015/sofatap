@@ -12,6 +12,18 @@ From `android/`, build the APK with:
 
 The APK is written to `hosttap/build/outputs/apk/debug/hosttap-debug.apk`.
 
+## Google Play release bundle
+
+Run **Android HostTap Google Play AAB** from the repository's Actions tab. Enter a `versionCode` higher than the latest version uploaded to Google Play and the desired `versionName`. The workflow uploads a signed `.aab` artifact; it does not publish to Play Console.
+
+Configure these repository Actions secrets before running the workflow:
+
+- `ANDROID_HOSTTAP_UPLOAD_KEYSTORE_BASE64`: base64-encoded Google Play upload keystore.
+- `ANDROID_HOSTTAP_STORE_PASSWORD`: keystore password.
+- `ANDROID_HOSTTAP_KEY_PASSWORD`: password for the signing key.
+
+The upload key alias is `play`. The Google Play application ID is `org.kakahu.hosttap`; it must match the app created in Play Console.
+
 ## Pair and control
 
 Open the computer's HostTap receiver and scan its pairing QR code, or paste its pairing link. Camera access is requested only when scanning. The link is encrypted with Android Keystore before it is saved. The WSS client checks the paired leaf certificate fingerprint, normal certificate validity dates and the certificate's host name before sending the bearer token.

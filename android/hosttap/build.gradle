@@ -1,16 +1,45 @@
 plugins { id 'com.android.application' }
 
+def releaseSigning = [
+    storeFile: System.getenv('ANDROID_KEYSTORE_PATH'),
+    storePassword: System.getenv('ANDROID_KEYSTORE_PASSWORD'),
+    keyAlias: System.getenv('ANDROID_KEY_ALIAS'),
+    keyPassword: System.getenv('ANDROID_KEY_PASSWORD')
+]
+def releaseSigningConfigured = releaseSigning.values().every { value -> value != null && !value.isBlank() }
+def hostTapVersionCode = (project.findProperty('hosttapVersionCode') ?: '1').toString().toInteger()
+def hostTapVersionName = (project.findProperty('hosttapVersionName') ?: '1.0.0').toString()
+
 android {
     namespace 'com.chekusu.hosttap'
     compileSdk 36
 
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            release {
+                storeFile file(releaseSigning.storeFile)
+                storePassword releaseSigning.storePassword
+                keyAlias releaseSigning.keyAlias
+                keyPassword releaseSigning.keyPassword
+            }
+        }
+    }
+
     defaultConfig {
-        // Preserve the installed package so this HostTap-only build can update existing pairings in place.
-        applicationId 'com.chekusu.keytrans'
+        // Google Play package identity for this distribution.
+        applicationId 'org.kakahu.hosttap'
         minSdk 26
         targetSdk 36
-        versionCode 1
-        versionName '1.0.0'
+        versionCode hostTapVersionCode
+        versionName hostTapVersionName
+    }
+
+    buildTypes {
+        release {
+            if (releaseSigningConfigured) {
+                signingConfig signingConfigs.release
+            }
+        }
     }
 
     compileOptions {
