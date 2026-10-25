@@ -43,7 +43,8 @@ public final class ReceiverService extends Service {
             manager.createNotificationChannel(new NotificationChannel("receiver", getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW));
             notification = new Notification.Builder(this, "receiver");
         } else {
-            notification = new Notification.Builder(this);
+            notification = new Notification.Builder(this)
+                .setPriority(Notification.PRIORITY_LOW);
         }
         Intent open = new Intent(this, MainActivity.class);
         PendingIntent pending = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
