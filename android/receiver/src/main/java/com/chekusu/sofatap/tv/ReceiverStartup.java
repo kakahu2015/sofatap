@@ -3,6 +3,7 @@ package com.chekusu.sofatap.tv;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 /** Boot preference and current-run intent are deliberately separate. No pairing data lives here. */
 final class ReceiverStartup {
@@ -38,7 +39,9 @@ final class ReceiverStartup {
         ReceiverStartup settings = new ReceiverStartup(context);
         settings.setRunRequested(true);
         try {
-            context.startForegroundService(new Intent(context, ReceiverService.class));
+            Intent service = new Intent(context, ReceiverService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(service);
+            else context.startService(service);
             settings.setBlocked(false);
             return true;
         } catch (IllegalStateException | SecurityException denied) {
