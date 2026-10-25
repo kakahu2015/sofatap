@@ -1,17 +1,18 @@
-# HostTap Android TV / Google TV receiver (test build)
+# HostTap Android TV / AOSP TV receiver (test build)
 
-This module restores the retired Android TV receiver as a **development and device-qualification target**. It is not currently a Google Play release target.
+This module restores the retired TV receiver as a **development and device-qualification target**. It is not currently a Google Play release target.
 
 ## Compatibility target
 
-The receiver targets the standard Android TV Leanback environment rather than a Google-TV-only API:
+The test build is intentionally broader than standard Google TV / Android TV:
 
-- `android.software.leanback` is required.
-- The launcher entry uses `LEANBACK_LAUNCHER`.
+- `android.software.leanback` is optional, not required.
+- The app exposes both `LEANBACK_LAUNCHER` and ordinary `LAUNCHER` entries.
 - A touchscreen is not required.
-- Minimum Android API level: 26.
+- Minimum Android API level: 23 (Android 6.0).
+- Google Play services are not required by the receiver.
 
-This includes Google TV devices and other Android TV televisions/boxes that expose the Leanback TV framework. Vendor firmware may still differ in AccessibilityService behavior and in whether third-party applications accept synthesized actions.
+The goal is to allow side-loading on Google TV, standard Android TV, and China-market Android/AOSP televisions or boxes whose vendor firmware does not advertise the Leanback feature flag. Installation/startup compatibility does **not** guarantee that every vendor firmware allows the same AccessibilityService behavior or that every third-party TV application accepts accessibility-driven actions.
 
 ## Build
 
@@ -45,23 +46,40 @@ Enable Android developer options and network/USB ADB for the test device, then:
 adb install -r receiver/build/outputs/apk/debug/receiver-debug.apk
 ```
 
-Open **HostTap/Sofatap** from the TV launcher.
+Open **HostTap/Sofatap** from the TV launcher. Standard Android TV launchers should see the Leanback entry; vendor/AOSP launchers can use the normal launcher entry.
+
+If a vendor launcher hides side-loaded applications, launch the test build directly with ADB:
+
+```sh
+adb shell am start -n com.chekusu.sofatap.tv/.MainActivity
+```
+
+That launcher limitation is separate from whether the receiver itself can run on the device.
 
 ## Required device setup
 
-The receiver can pair and start its network service without Accessibility permission, but native pointer/navigation control requires the user to enable the app's AccessibilityService in Android TV settings. The app does not bypass that system approval.
+The receiver can pair and start its network service without Accessibility permission, but native pointer/navigation control requires the user to enable the app's AccessibilityService in the TV settings. The app does not bypass that system approval.
 
-If IME-based text testing is needed, enable/select the bundled HostTap/Sofatap input method through Android TV settings or ADB only on a test device.
+On heavily customized China-market firmware the Accessibility settings page may be renamed, hidden, or guarded by an additional vendor permission. Record that as a device-specific compatibility result rather than weakening the receiver permission model.
+
+If IME-based text testing is needed, enable/select the bundled HostTap/Sofatap input method through TV settings or ADB only on a test device.
 
 ## Test flow
 
-1. Install and launch the receiver on an Android TV / Google TV device.
+1. Install and launch the receiver on the TV / box.
 2. Confirm that the pairing QR screen appears.
 3. Enable the AccessibilityService when native control testing is required.
 4. Pair a compatible HostTap controller using the TV pairing QR code.
 5. Verify connect/disconnect, pointer movement, click, scrolling/navigation and protected-screen behavior.
-6. Test several third-party TV applications separately; successful launcher/settings control does **not** prove that every vendor/player app accepts accessibility-driven input.
+6. Test launcher, system settings and several third-party TV applications separately.
+7. Record the TV brand/model, Android version/API level, whether the launcher entry is visible, whether Accessibility can be enabled, and which applications accept control.
+
+## Practical compatibility tiers
+
+- **Tier A:** Google TV / certified Android TV — expected baseline.
+- **Tier B:** Android/AOSP TV with Leanback omitted — install and launch through the ordinary launcher path.
+- **Tier C:** heavily customized vendor firmware — side-load/ADB launch may work, while Accessibility or background-service policy can still block full control.
 
 ## Scope
 
-Restoring this module does not re-enable it as a production/store-supported platform. The purpose of this branch is to make generic Android TV hardware testable again and to collect compatibility evidence before deciding whether TV support should return as a product feature.
+Restoring this module does not re-enable it as a production/store-supported platform. The purpose of this branch is to make a broad range of Android-based TV hardware testable again and to collect compatibility evidence before deciding whether TV support should return as a product feature.
