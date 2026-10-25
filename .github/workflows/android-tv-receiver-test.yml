@@ -42,7 +42,22 @@ jobs:
 
       - name: Build receiver and tests
         working-directory: android
-        run: ./gradlew --no-daemon --stacktrace :receiver:assembleDebug :receiver:assembleDebugAndroidTest :receiver:testDebugUnitTest :receiver:lintDebug
+        run: ./gradlew --no-daemon --stacktrace :receiver:assembleDebug :receiver:assembleDebugAndroidTest :receiver:testDebugUnitTest
+
+      - name: Run lint
+        id: lint
+        continue-on-error: true
+        working-directory: android
+        run: ./gradlew --no-daemon --stacktrace :receiver:lintDebug
+
+      - name: Print lint report
+        if: always()
+        working-directory: android
+        run: |
+          REPORT="receiver/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt"
+          if [ -f "$REPORT" ]; then
+            cat "$REPORT"
+          fi
 
       - name: Inspect APK manifest compatibility
         working-directory: android
@@ -57,6 +72,7 @@ jobs:
           fi
 
       - name: Upload test APK and reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-tv-development-probe
@@ -65,5 +81,10 @@ jobs:
             android/receiver/build/outputs/apk/androidTest/debug/receiver-debug-androidTest.apk
             android/receiver/build/reports/tests/testDebugUnitTest/
             android/receiver/build/reports/lint-results-debug.html
-          if-no-files-found: error
+            android/receiver/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+          if-no-files-found: warn
           retention-days: 14
+
+      - name: Fail on lint errors
+        if: steps.lint.outcome == 'failure'
+        run: exit 1
