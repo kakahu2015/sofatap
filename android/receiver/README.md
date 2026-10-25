@@ -14,6 +14,8 @@ The test build is intentionally broader than standard Google TV / Android TV:
 
 The goal is to allow side-loading on Google TV, standard Android TV, and China-market Android/AOSP televisions or boxes whose vendor firmware does not advertise the Leanback feature flag. Installation/startup compatibility does **not** guarantee that every vendor firmware allows the same AccessibilityService behavior or that every third-party TV application accepts accessibility-driven actions.
 
+Android 6/7 support uses the pre-Android-8 service start path and a notification without channels; Android 8+ keeps the foreground-service and notification-channel path. CI lint is expected to reject any remaining unguarded API-level assumptions.
+
 ## Build
 
 From `android/`:
