@@ -38,12 +38,18 @@ public final class ReceiverService extends Service {
     @Override public void onCreate() {
         super.onCreate(); instance = this;
         NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.createNotificationChannel(new NotificationChannel("receiver", getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW));
+        Notification.Builder notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(new NotificationChannel("receiver", getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW));
+            notification = new Notification.Builder(this, "receiver");
+        } else {
+            notification = new Notification.Builder(this);
+        }
         Intent open = new Intent(this, MainActivity.class);
         PendingIntent pending = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Intent stop = new Intent(this, ReceiverService.class).setAction("stop");
         PendingIntent stopPending = PendingIntent.getService(this, 1, stop, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification note = new Notification.Builder(this, "receiver").setSmallIcon(R.drawable.notification_icon)
+        Notification note = notification.setSmallIcon(R.drawable.notification_icon)
             .setContentTitle("Sofatap").setContentText(getString(R.string.notification_active)).setContentIntent(pending)
             .setOngoing(true).addAction(new Notification.Action.Builder(null, getString(R.string.stop), stopPending).build()).build();
         try { startForeground(41, note); }
@@ -60,13 +66,15 @@ public final class ReceiverService extends Service {
             @Override public void onLost(Network network) { scheduleRefresh(); }
             @Override public void onLinkPropertiesChanged(Network network, LinkProperties properties) { scheduleRefresh(); }
         };
-        // Remove the builder's defaults explicitly for Android 8.0/API 26 support.
-        // Local-only LANs and VPN adapter changes must also refresh the SAN address set.
+        // Remove the builder's defaults explicitly. Local-only LANs and VPN adapter changes
+        // must also refresh the SAN address set. Older vendor Android builds do not expose
+        // the Handler overload, so dispatch back to main from the callback methods instead.
         NetworkRequest networks = new NetworkRequest.Builder()
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN).build();
-        connectivity.registerNetworkCallback(networks, networkCallback, main);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) connectivity.registerNetworkCallback(networks, networkCallback, main);
+        else connectivity.registerNetworkCallback(networks, networkCallback);
         networkRegistered = true;
     }
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
@@ -234,7 +242,7 @@ public final class ReceiverService extends Service {
         setup.shutdownNow(); RemoteV2Client controller = remote; if (controller != null) controller.close();
         SofatapInputMethodService.disconnected(); InputBridge.setInterruptionListener(null); InputBridge.disconnect();
         if (instance == this) instance = null;
-        stopForeground(STOP_FOREGROUND_REMOVE); super.onDestroy();
+        stopForeground(true); super.onDestroy();
     }
     @Override public IBinder onBind(Intent intent) { return null; }
 }
