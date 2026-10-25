@@ -9,7 +9,6 @@ import android.provider.Settings;
 import com.chekusu.sofatap.tv.update.*;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
@@ -102,7 +101,7 @@ public final class ReceiverUpdates {
                 }
                 status = "downloading"; api.download(newest, part); requireCurrent(token);
                 verifyArchive(part, newest); requireCurrent(token);
-                Files.move(part.toPath(), apk.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                replaceFile(part, apk);
                 prefs.edit().putString("candidate", newest.json().toString()).apply(); candidate = newest; status = "ready";
             } catch (GitHubUpdates.RateLimited limited) {
                 prefs.edit().putLong("retry_after", limited.retryAt).apply(); status = "rate_limited";
@@ -124,7 +123,10 @@ public final class ReceiverUpdates {
             return;
         }
         if (sessionId() >= 0) return;
-        if (!context.getPackageManager().canRequestPackageInstalls()) {
+        // Android 8+ moved unknown-source approval to a per-app setting. Android 6/7
+        // use the older system-level policy, so proceed to PackageInstaller and let the
+        // platform's visible confirmation flow accept or reject the install.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !context.getPackageManager().canRequestPackageInstalls()) {
             status = "permission";
             try { activity.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + context.getPackageName()))); }
             catch (ActivityNotFoundException denied) { status = "permission_missing"; }
@@ -204,5 +206,16 @@ public final class ReceiverUpdates {
         Set<String> signers = new HashSet<>();
         if (certificates != null) for (Signature cert : certificates) signers.add(UpdatePolicy.hex(MessageDigest.getInstance("SHA-256").digest(cert.toByteArray())));
         return new UpdatePolicy.Apk(info.packageName, info.versionName, Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode, signers);
+    }
+    private static void replaceFile(File source, File target) throws IOException {
+        if (target.exists() && !target.delete()) throw new IOException("replace_failed");
+        if (source.renameTo(target)) return;
+        try (InputStream in = new FileInputStream(source); OutputStream out = new FileOutputStream(target)) {
+            byte[] buffer = new byte[16_384];
+            int count;
+            while ((count = in.read(buffer)) != -1) out.write(buffer, 0, count);
+            out.flush();
+        }
+        if (!source.delete()) source.deleteOnExit();
     }
 }
