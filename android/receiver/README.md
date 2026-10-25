@@ -79,6 +79,8 @@ If IME-based text testing is needed, enable/select the bundled HostTap/Sofatap i
 6. Test launcher, system settings and several third-party TV applications separately.
 7. Record the TV brand/model, Android version/API level, whether the launcher entry is visible, whether Accessibility can be enabled, and which applications accept control.
 
+Suggested China-market qualification matrix: Xiaomi/Redmi TV or Mi Box, TCL, Hisense, Skyworth/Coocaa, Konka and at least one generic AOSP box. Treat each firmware version as a separate result because vendor restrictions can change independently of Android API level.
+
 ## Practical compatibility tiers
 
 - **Tier A:** Google TV / certified Android TV — expected baseline.
