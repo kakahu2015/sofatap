@@ -7,9 +7,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- Keep Android TV / Google TV launcher integration when present, but do not
-         reject AOSP/vendor TV firmware that omits the Leanback feature flag. -->
+    <!-- Keep standard Android TV / Google TV integration when present, but do not
+         reject AOSP/vendor TV firmware that omits the official feature flags. -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.type.television" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application android:label="Sofatap" android:theme="@style/AppTheme"
