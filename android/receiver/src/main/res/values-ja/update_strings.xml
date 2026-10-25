@@ -1,0 +1,22 @@
+<resources>
+    <string name="update_automatic">アップデートを自動ダウンロード</string>
+    <string name="update_check">アップデートを確認</string>
+    <string name="update_install">アップデートをインストール</string>
+    <string name="update_continue">インストールを続ける</string>
+    <string name="update_help">レシーバーの動作中に毎日確認し、更新をダウンロードします。検証の後、テレビでインストールの確認が必要です。</string>
+    <string name="update_current">レシーバー %1$s</string>
+    <string name="update_checking">アップデートを確認中…</string>
+    <string name="update_downloading">ダウンロードして検証中…</string>
+    <string name="update_ready">%1$s をインストールできます。</string>
+    <string name="update_latest">%1$s は最新です。</string>
+    <string name="update_recent">確認したばかりです。1分後にお試しください。</string>
+    <string name="update_rate_limited">更新サービスが混み合っています。後ほど再試行します。</string>
+    <string name="update_permission">テレビの設定で Sofatap のインストールを許可し、もう一度インストールを選択してください。</string>
+    <string name="update_preparing">検証済みのアップデートを準備中…</string>
+    <string name="update_confirmation">準備ができました。Android のインストール確認に進んでください。</string>
+    <string name="update_pending">インストール待機中です。Android の確認を完了するか、ここでキャンセルして再試行してください。</string>
+    <string name="update_installed">アップデートをインストールしました。</string>
+    <string name="update_cancelled">更新をキャンセルしました。現在のレシーバーは変更されていません。</string>
+    <string name="update_failed">更新を検証またはインストールできませんでした。現在のレシーバーは変更されていません。後ほど再度確認してください。</string>
+    <string name="update_store">更新は Google Play が管理します。Play ストアでアップデートを確認してください。</string>
+</resources>

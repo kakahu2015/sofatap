@@ -1,0 +1,5 @@
+<resources>
+    <string name="ime_name">Sofatap キーボード</string>
+    <string name="ime_phone_hint">ペアリング済みの iPhone で文字や音声を入力できます。</string>
+    <string name="ime_switch_keyboard">キーボードを切り替える</string>
+</resources>

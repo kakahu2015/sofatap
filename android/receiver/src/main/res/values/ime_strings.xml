@@ -1,0 +1,5 @@
+<resources>
+    <string name="ime_name">Sofatap keyboard</string>
+    <string name="ime_phone_hint">Type or dictate on your paired iPhone.</string>
+    <string name="ime_switch_keyboard">Change keyboard</string>
+</resources>

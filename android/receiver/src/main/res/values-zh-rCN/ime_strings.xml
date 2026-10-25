@@ -1,0 +1,5 @@
+<resources>
+    <string name="ime_name">Sofatap 键盘</string>
+    <string name="ime_phone_hint">在已配对的 iPhone 上打字或语音输入。</string>
+    <string name="ime_switch_keyboard">切换键盘</string>
+</resources>

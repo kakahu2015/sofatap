@@ -1,0 +1,26 @@
+<resources>
+    <item type="id" name="auto_update" />
+    <item type="id" name="update_check" />
+    <item type="id" name="update_install" />
+    <item type="id" name="update_cancel" />
+    <string name="update_automatic">Download updates automatically</string>
+    <string name="update_check">Check for updates</string>
+    <string name="update_install">Install update</string>
+    <string name="update_continue">Continue installation</string>
+    <string name="update_help">Checks daily and downloads verified updates while the receiver runs. Installation always needs your confirmation on the TV.</string>
+    <string name="update_current">Receiver %1$s</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_downloading">Downloading and verifying update…</string>
+    <string name="update_ready">%1$s is ready to install.</string>
+    <string name="update_latest">%1$s is up to date.</string>
+    <string name="update_recent">Checked recently. Please try again in a minute.</string>
+    <string name="update_rate_limited">Update service is busy. The receiver will try again later.</string>
+    <string name="update_permission">Allow Sofatap to install updates in TV settings, then choose Install update again.</string>
+    <string name="update_preparing">Preparing the verified update…</string>
+    <string name="update_confirmation">Update prepared. Continue to Android’s installation confirmation.</string>
+    <string name="update_pending">Installation pending. Complete Android’s confirmation, or cancel here to retry.</string>
+    <string name="update_installed">Update installed.</string>
+    <string name="update_cancelled">Update cancelled. The current receiver is unchanged.</string>
+    <string name="update_failed">Could not verify or install the update. The current receiver is unchanged. Check again later.</string>
+    <string name="update_store">Updates are managed by Google Play. Open the Play Store to check for updates.</string>
+</resources>

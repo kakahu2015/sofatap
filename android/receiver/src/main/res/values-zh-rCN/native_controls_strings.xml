@@ -1,0 +1,10 @@
+<resources>
+    <string name="ime_enable">启用 Sofatap 键盘</string>
+    <string name="ime_select">选择 Sofatap 键盘</string>
+    <string name="ime_disclosure">Sofatap 键盘仅在普通输入框激活时接收已配对手机的文字与删除操作，不接收密码输入。请先在系统设置启用，再选为当前键盘，随时可以切回原键盘。</string>
+    <string name="ime_setup_help">可选文字输入：启用并选择 Sofatap 键盘。</string>
+    <string name="ime_selected_help">已选择 Sofatap 键盘。打开电视应用的输入框，再在手机上打字或听写。</string>
+    <string name="native_remote_ready">电视遥控已就绪：方向、确认、返回和主页。</string>
+    <string name="native_remote_pairing">请在手机 Sofatap 中输入电视显示的配对码。</string>
+    <string name="native_remote_setup">请在已配对手机中选择“设置电视遥控”，以使用原生遥控按键。</string>
+</resources>

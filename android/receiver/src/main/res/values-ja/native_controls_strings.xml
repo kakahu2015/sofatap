@@ -1,0 +1,10 @@
+<resources>
+    <string name="ime_enable">Sofatap キーボードを有効にする</string>
+    <string name="ime_select">Sofatap キーボードを選択</string>
+    <string name="ime_disclosure">Sofatap キーボードは通常の入力欄が有効な間だけ、ペアリング済みのスマートフォンから文字や削除を受信します。パスワード欄には入力できません。システム設定で有効にし、現在のキーボードとして選択してください。いつでも元のキーボードに戻せます。</string>
+    <string name="ime_setup_help">文字入力を使うには Sofatap キーボードを有効にして選択します。</string>
+    <string name="ime_selected_help">Sofatap キーボード選択済み。テレビで入力欄を開き、スマートフォンで入力または音声入力してください。</string>
+    <string name="native_remote_ready">テレビリモコン準備完了：方向・決定・戻る・ホーム。</string>
+    <string name="native_remote_pairing">テレビに表示されたコードをスマートフォンの Sofatap に入力してください。</string>
+    <string name="native_remote_setup">ペアリング済みのスマートフォンで「テレビリモコンを設定」を選択してください。</string>
+</resources>

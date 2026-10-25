@@ -1,0 +1,5 @@
+RemoteV2Codec and RemoteV2Client implement a limited interoperable wire protocol informed by androidtvremote2, Apache License 2.0.
+Source: https://github.com/tronikos/androidtvremote2/tree/e664a8e1f14ee458b14c646bfb3ea46f10367051
+Reference files: src/androidtvremote2/pairing.py, remote.py, polo.proto, remotemessage.proto.
+The original polo.proto credits Copyright 2009 Google Inc. All Rights Reserved.
+Sofatap implements only explicit local pairing and seven short remote keys; its certificate pinning, credential storage, lifecycle and text input are independent implementations.

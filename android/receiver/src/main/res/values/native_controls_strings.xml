@@ -1,0 +1,10 @@
+<resources>
+    <string name="ime_enable">Enable Sofatap keyboard</string>
+    <string name="ime_select">Select Sofatap keyboard</string>
+    <string name="ime_disclosure">Sofatap keyboard accepts text and deletion from your paired phone only while an ordinary text field is active. Password fields are excluded. Enable it in system settings, then select it. You can switch back to your usual keyboard at any time.</string>
+    <string name="ime_setup_help">Optional text input: enable and select Sofatap keyboard.</string>
+    <string name="ime_selected_help">Sofatap keyboard selected. Open a text field in the TV app, then type or dictate on your phone.</string>
+    <string name="native_remote_ready">TV remote ready: directions, OK, Back and Home.</string>
+    <string name="native_remote_pairing">Enter the code shown by the TV in Sofatap on your phone.</string>
+    <string name="native_remote_setup">For native TV remote keys, select “Set up TV remote” on your paired phone.</string>
+</resources>
