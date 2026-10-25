@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build and test generic Android TV receiver
+    name: Build and test generic Android TV / AOSP receiver
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -38,11 +38,23 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: 'platforms;android-36 build-tools;36.0.0'
+          packages: 'platforms;android-36 platforms;android-23 build-tools;36.0.0'
 
       - name: Build receiver and tests
         working-directory: android
         run: ./gradlew --no-daemon --stacktrace :receiver:assembleDebug :receiver:assembleDebugAndroidTest :receiver:testDebugUnitTest :receiver:lintDebug
+
+      - name: Inspect APK manifest compatibility
+        working-directory: android
+        run: |
+          AAPT="$ANDROID_HOME/build-tools/36.0.0/aapt"
+          APK="receiver/build/outputs/apk/debug/receiver-debug.apk"
+          "$AAPT" dump badging "$APK" | tee "$RUNNER_TEMP/receiver-badging.txt"
+          grep -q "sdkVersion:'23'" "$RUNNER_TEMP/receiver-badging.txt"
+          if grep -q "uses-feature:.*android.software.leanback.*required='true'" "$RUNNER_TEMP/receiver-badging.txt"; then
+            echo 'Leanback must remain optional for vendor/AOSP TV compatibility.' >&2
+            exit 1
+          fi
 
       - name: Upload test APK and reports
         uses: actions/upload-artifact@v4
