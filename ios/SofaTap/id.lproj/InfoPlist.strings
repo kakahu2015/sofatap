@@ -1,5 +1,0 @@
-"NSCameraUsageDescription" = "Pindai kode QR yang ditampilkan Penerima Sofatap untuk memasangkan komputer.";
-"NSLocalNetworkUsageDescription" = "Hubungkan ke komputer yang dipasangkan atau TV yang didukung di jaringan rumah untuk kontrol jarak jauh manual.";
-"NSMicrophoneUsageDescription" = "Saat Anda mengetuk mikrofon, ucapan dikenali di iPhone. Dalam mode langsung, teks yang dikenali segera dikirim ke komputer; dalam mode draf, Anda memeriksanya sebelum mengirim.";
-"NSSpeechRecognitionUsageDescription" = "Ubah ucapan yang Anda rekam menjadi teks menggunakan pengenalan di perangkat. Jika perangkat atau bahasa tidak didukung, gunakan papan ketik.";
-"NSMotionUsageDescription" = "Gunakan gerakan iPhone untuk mengendalikan penunjuk saat input gerakan aktif.";

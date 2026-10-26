@@ -12,6 +12,8 @@ Sofatap 是 [chekusu](https://github.com/chekusu) 开发的开源遥控工具。
 
 [下载版本](https://github.com/chekusu/sofatap/releases) · [问题反馈](https://github.com/chekusu/sofatap/issues) · [MIT 许可](LICENSE)
 
+> **iOS 版本暂不开源。** 请从 App Store 下载 [KeyTrans](https://apps.apple.com/app/id6739558003)。
+
 
 **接收器自启：**电脑接收器 0.7.3 beta.1 可在登录后启动。关闭窗口后仍会继续接收，明确选择退出才停止。参见[行为和验证范围](docs/verification/receiver-autostart-2026-10-16.md)。
 
@@ -34,7 +36,7 @@ Sofatap 是 [chekusu](https://github.com/chekusu) 开发的开源遥控工具。
 
 TestFlight 构建 15 已包含设备管理，并对齐官网的 12 种语言：英语、简体中文、日语、韩语、德语、法语、西班牙语、巴西葡萄牙语、俄语、阿拉伯语、印地语、印尼语。阿拉伯语采用从右到左排版，滚动条仍位于触控区物理右侧。见[语言覆盖](docs/APP-LANGUAGES.md)与[验证记录](docs/verification/device-library-2026-10-14.md)。
 
-**当前公开测试版：**iPhone **1.0 (20)** 已通过 TestFlight 外部审核，可通过[公开邀请](https://testflight.apple.com/join/e6MuKx9S)安装，测试人数上限为 10,000 人。Windows、Mac、Linux 使用[电脑接收器 0.7.3 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)。LG webOS 适配器仍是实验性手动配对预览，参见[验证范围](docs/verification/webos-pointer-preview.md)。正式 App Store 构建 15 的提交是独立流程。
+**原独立 iOS 版本（历史信息）：**此前 Sofatap iPhone 1.0 (20) 曾通过 TestFlight 外部审核。当前 iOS 版本暂不开源，请从 App Store 下载 [KeyTrans](https://apps.apple.com/app/id6739558003)。电脑接收器 0.7.3 beta.1 仍可下载。
 
 **重连更新：**iPhone **1.0 (16)** 与接收器 **0.7.2 beta.1** 修复电脑接收器重启后的连接恢复。手机 App 在前台时，会重试当前已保存的电脑，无需重新扫码；接收器新增无关网卡时会保留原有配对。待确认的文字和鼠标操作不会自动重放。证书更换仍需重新配对，已有的重复设备不会自动合并。参见[自动重连回归检查](docs/verification/reconnect-2026-10-15.md)；真实 iPhone 到 Windows 的关闭／重开验收仍待完成。
 
@@ -88,14 +90,9 @@ TestFlight 构建 15 已包含设备管理，并对齐官网的 12 种语言：�
 
 以上均为 [0.7.3 beta.1，附对应 SHA256 文件与发布说明](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)。电脑端包已包含 .NET 运行时，Linux 仍需安装列出的系统依赖。`--dry-run` 可演练连接流程，不产生桌面输入。此前验收记录保留实际测试时的版本标签。
 
-### 安装 iPhone App 并配对
+### iPhone 应用
 
-1. [加入 TestFlight 公测](https://testflight.apple.com/join/e6MuKx9S)，安装 **iPhone 1.0 (18)** 和**接收器 0.7.3 beta.1**，获取重连修复。接收器二维码最低要求 iPhone 构建 15。自行构建时，在 Xcode 中打开 `ios/SofaTap.xcodeproj`，选择自己的开发团队和已连接的 iPhone 后运行；这条安装路径需要有效开发签名、设备配对和开发者模式。见 [iOS 构建说明](ios/README.md)。
-2. 将 iPhone 与电脑接入可互通的家庭网络。访客 Wi-Fi 的设备隔离可能阻止连接。
-3. 点击左上角设备选择入口，在**添加设备**下选择**扫描二维码**。扫描电脑接收器的二维码，或粘贴完整配对链接。LG webOS 通过单独的手动 IP 配对流程连接。
-4. 在电脑上选中输入框，再打开手机键盘或麦克风。受支持的字段自动同步打字、删除和识别文字；其他字段显示**发送**按钮，供检查草稿后发送。焦点冲突或断线导致实时输入暂停时，先检查电脑，再明确重新打开编辑器；不确定的编辑不会自动重放。
-
-配对链接含有控制凭据，应只保留在自己的设备上。如果从最早使用 **Tiltro** 名称的版本升级，请阅读[升级说明](docs/WINDOWS-START.md#从旧名称版本升级)：这些版本的标识和存储位置不同，其配对和草稿不会自动迁移。本次 Sofatap 品牌拼写统一会保留现有 Sofatap 配对。
+iOS 版本暂不开源。请从 App Store 下载 [KeyTrans](https://apps.apple.com/app/id6739558003)。
 
 ## 隐私与权限
 
@@ -134,36 +131,24 @@ dotnet publish host/SofaTap.Host.csproj -c Release -r win-x64 --self-contained t
 
 分发构建产物时需附上 `LICENSE`、`THIRD-PARTY-NOTICES.md` 和对应依赖许可。打包脚本会收集实际解析到的运行时及 NuGet 版本的许可。
 
-iPhone 使用仓库中的 Xcode 工程。修改 `ios/project.yml` 后，运行 `xcodegen generate --spec ios/project.yml` 重新生成工程。[iOS 说明](ios/README.md)也介绍了直接编译方式；设备编译成功不等于签名和安装已完成。
+**iOS 版本暂不开源。** 请从 App Store 下载 [KeyTrans](https://apps.apple.com/app/id6739558003)。
 
 ## 开发验证
 
-在装有 .NET 10、Python 3 和 Xcode 的 Mac 上运行：
+以下命令用于电脑接收端：
 
 ```sh
 python3 -m pip install websockets==16.0
 dotnet run --project tests/host/SofaTap.Host.Tests.csproj -c Release
 dotnet run --project desktop/windows-login/Tests/Sofatap.Login.Tests.csproj -c Release
 SOFATAP_DOTNET="$(command -v dotnet)" python3 tests/smoke.py
-swiftc ios/SofaTap/Core/Pairing.swift tests/PairingTests.swift -o /tmp/sofatap-pairing-tests
-/tmp/sofatap-pairing-tests
-swiftc ios/SofaTap/Core/ReceiverState.swift tests/ReceiverStateTests.swift -o /tmp/sofatap-receiver-tests
-/tmp/sofatap-receiver-tests
-swiftc ios/SofaTap/Core/GestureConfiguration.swift ios/SofaTap/Core/TouchGestureState.swift tests/TouchGestureTests.swift -o /tmp/sofatap-gesture-tests
-/tmp/sofatap-gesture-tests
 python3 tests/text_focus_linux.py
-bash ios/scripts/build-manual.sh device
 ```
-
-Host runner 使用模拟输入器。TLS/WebSocket 检查以 `--dry-run` 启动临时接收端，不向系统注入输入。最后一项编译未配置签名的 ARM64 iOS App，不安装到手机。CI 还执行各平台构建和隔离 Linux 桌面检查；相关命令见 [Linux 说明](desktop/linux/README.md#lifecycle-and-checks)。
-
-构建、协议、虚拟桌面和物理设备检查分别证明不同层面的行为。[0.7.0 真机记录](docs/verification/realtime-input-0.7.0.md)确认 RichEdit 导入、追加、删除和选区同步。实时语音、普通 Edit、文字中段替换、冲突、重连、Mac 实时编辑、Typeless 及更多应用尚不在已完成范围内。
 
 ## 源码目录
 
 | 路径 | 内容 |
 | --- | --- |
-| `ios/` | 原生 iPhone App、Xcode 工程和工程生成配置 |
 | `host/` | 共用接收协议、Windows/Mac 输入后端和 Linux worker 桥接 |
 | `desktop/` | 原生配对窗口和 Linux 输入 worker |
 | `tests/` | 协议、认证和输入边界检查 |

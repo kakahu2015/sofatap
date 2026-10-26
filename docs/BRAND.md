@@ -25,27 +25,21 @@ Keep implementation and verification claims distinct. Concept illustrations are 
 
 - [English README](../README.md) is the default; [简体中文](../README.zh-CN.md) and [日本語](../README.ja.md) provide equivalent versions.
 - [Living-room hero](images/sofatap-living-room.png): generated with the built-in imagegen tool, visually reviewed, and shared by all three READMEs. [Exact generation prompt](brand/living-room-image-prompt.txt).
-- The iOS SofaTap surface and app icon use [the phone-on-sofa mark](../output/imagegen/sofatap-icons-2026-10-11/06-phone-sofa.png), created by combining the first sofa and second phone/cursor concepts at the user's request. `BrandMark.imageset/BrandMark.png` is an unchanged copy of the 1254-pixel source; `AppIcon.appiconset/AppIcon.png` is the same full composition resized to an opaque 1024-pixel square with `sips`. Its cursor belongs inside the logo; the touch surface does not display a separate pointer graphic. Android HostTap uses the dark rounded-square mint H in `android/hosttap/src/main/res/drawable/hosttap_mark.xml`; macOS and Windows HostTap Remote use the same H mark in their respective `desktop/*/Assets/AppIcon.png` files. Windows embeds its ICO in both the executable and the native pairing window. Linux keeps using the iOS AppIcon PNG for its native window and desktop launcher. Previously signed/published binaries retain their original icon and must be upgraded using a newly built package.
+- Every non-iOS application core icon uses the dark rounded-square mint H from `android/hosttap/src/main/res/drawable/hosttap_mark.xml`. The Android receiver carries the same vector as `android/receiver/src/main/res/drawable/brand_mark.xml`; macOS and Windows use `desktop/*/Assets/AppIcon.png`, Windows embeds its generated ICO, HarmonyOS uses the matching foreground/background SVG layers, and Linux and Mac App Store packaging use the desktop H PNG. The website favicon uses the same mark. The former iOS project has been removed; iOS integration is maintained in KeyTrans. Previously signed/published binaries retain their original icon and must be upgraded using a newly built package.
 - No promotional video is currently tracked in this repository. Future video work must follow the spelling above.
 
 Keep stable code and compatibility identifiers such as existing `SofaTap` project/executable names, archive filenames, bundle IDs and credential paths. Literal filenames in immutable published archives and verbatim historical generation prompts retain their original spelling and must be labeled as historical. They are evidence and compatibility references, not reusable marketing copy. Never alter a signed release archive to change branding in place.
 
 ### Reproduce the current icon assets
 
-Copy `output/imagegen/sofatap-icons-2026-10-11/06-phone-sofa.png` unchanged to `ios/SofaTap/Assets.xcassets/BrandMark.imageset/BrandMark.png`. Resize only the complete square for the iOS App Store icon:
+The Android HostTap vector is the source of truth for H. Keep its two colors and geometry aligned across the Android receiver vector, macOS/Windows PNGs, Windows ICO, HarmonyOS SVGs and the website favicon.
 
-```sh
-sips -z 1024 1024 output/imagegen/sofatap-icons-2026-10-11/06-phone-sofa.png --out ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png
-```
-
-The Android vector above is the source for the committed macOS and Windows HostTap H-mark PNGs. macOS packaging converts its PNG to ICNS on each build. Regenerate the committed Windows ICO from the Windows H-mark PNG on macOS whenever it changes; this converts the complete mark into 16–256 pixel PNG frames. Windows builds use the committed ICO and do not require Swift or an image converter:
+macOS packaging converts its PNG to ICNS on each build. Regenerate the committed Windows ICO from the Windows H-mark PNG on macOS whenever it changes; this converts the complete mark into 16–256 pixel PNG frames. Windows builds use the committed ICO and do not require Swift or an image converter:
 
 ```sh
 xcrun swift scripts/generate-windows-icon.swift desktop/windows/Assets/AppIcon.png desktop/windows/Assets/SofaTap.ico
 ```
 
-macOS packaging generates `SofaTap.icns` from `desktop/macos/Assets/AppIcon.png` on every build; Linux packaging continues to copy the iOS AppIcon to `sofatap.png`.
-
-The source and BrandMark share SHA-256 `bab56f458fe7b76832788c4926b04a3574b3c09249372282a86922c8cfa9df05`. The historical `ios/tools/GenerateIcon.swift` generates the superseded sofa-only symbol and requires an explicit legacy flag plus output path; it is not the source for current branding.
+macOS packaging generates `SofaTap.icns` from `desktop/macos/Assets/AppIcon.png` on every build. Linux packaging uses that same H PNG for its native window and desktop launcher. The former iOS app was moved into KeyTrans and is not maintained or built from this repository.
 
 Windows lock-screen PIN input is under feasibility validation. The target includes manual iPhone control and optional Face ID-authorized saved PIN entry, without a Microsoft account password. The earlier password pilot is retired. Do not claim lock-screen input, PIN acceptance or Face ID unlock from pairing, compilation or pointer-only diagnostics. See [PIN control scope](FACE-ID-UNLOCK.md).

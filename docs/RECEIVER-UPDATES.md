@@ -7,7 +7,7 @@ Packaged desktop receivers include native update controls. Installing an iPhone 
 | Windows | Right-click the Sofatap tray icon → Check for updates | Enabled by default; checks daily and downloads a verified package | Applies before the next receiver launch, or choose Install and Restart. Explicit restart asks before disconnecting the phone. Closing the window still hides to the tray. |
 | macOS website app | Sofatap menu → Check for updates | Enabled by default; Sparkle checks daily and downloads signed updates | Installs through Sparkle on normal quit. Explicit Install and Relaunch waits until the phone disconnects. |
 | Linux portable package | Native window → Check for updates | Enabled by default; checks daily and downloads a verified package | Applies before the next receiver launch, or choose Update and Restart while disconnected. A user-owned writable installation directory is required; system-managed installations need a manual update. |
-| iPhone / iPad | TestFlight or App Store | Managed by Apple's app and the user's system settings | Install updates in TestFlight/App Store. Sofatap cannot silently replace its own iOS binary. |
+| iOS | KeyTrans in the App Store | Managed by Apple and the user's system settings | iOS version is temporarily not open source. Download [KeyTrans](https://apps.apple.com/app/id6739558003). |
 | Mac App Store basic build | Native menu opens App Store Updates | Managed by the App Store | The store build excludes Sparkle. Its store listing is a separate release process. |
 
 The automatic option can be turned off and the choice persists across launches and upgrades. Manual checks remain available. Desktop stable releases do not move users onto a prerelease channel; the current public beta can take newer beta or stable releases.
@@ -26,6 +26,6 @@ Update checks send ordinary requests to GitHub (or the signed GitHub-hosted Mac 
 
 ## Website and publishing
 
-The website should resolve the latest complete desktop release and keep the last known good links on lookup failures. Publish only complete, verified assets and validate every localized download page. The iOS public invitation remains [Join TestFlight](https://testflight.apple.com/join/e6MuKx9S).
+The website should resolve the latest complete desktop release and keep the last known good links on lookup failures. Publish only complete, verified assets and validate every localized download page. The iOS version is temporarily not open source. Download [KeyTrans](https://apps.apple.com/app/id6739558003).
 
 For each receiver release, update package versions, run regression/build checks, publish the verified artifacts, and then publish matching signed Mac feeds. Confirm anonymous downloads and production website links. Existing active phone connections must not be used as upgrade test targets without a scoped acceptance session.

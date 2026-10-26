@@ -48,7 +48,7 @@ cp desktop/linux/sofatap.py desktop/linux/autostart.py desktop/linux/receiver_up
   desktop/linux/wayland_input.py desktop/linux/x11_input.py desktop/linux/text_focus_worker.py "$release_dir/lib/linux/"
 cp scripts/linux/sofatap "$release_dir/sofatap"
 cp scripts/linux/sofatap.desktop "$release_dir/sofatap.desktop"
-cp ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png "$release_dir/sofatap.png"
+cp desktop/macos/Assets/AppIcon.png "$release_dir/sofatap.png"
 chmod 755 "$release_dir/sofatap" "$release_dir/lib/SofaTapHost"
 chmod 644 "$release_dir/lib/linux/"*.py "$release_dir/sofatap.desktop" "$release_dir/sofatap.png"
 cp desktop/linux/README.md "$release_dir/README.md"

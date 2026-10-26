@@ -63,7 +63,7 @@ cp LICENSE THIRD-PARTY-NOTICES.md "$inputs/Resources/"
 cp packaging/macos-store/PrivacyInfo.xcprivacy "$inputs/Resources/"
 iconset="$build_dir/SofaTap.iconset"
 mkdir -p "$iconset"
-icon_source="$repo_dir/ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+icon_source="$repo_dir/desktop/macos/Assets/AppIcon.png"
 for points in 16 32 128 256 512; do
   sips -z "$points" "$points" "$icon_source" --out "$iconset/icon_${points}x${points}.png" >/dev/null
   pixels=$((points * 2))

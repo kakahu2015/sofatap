@@ -1,5 +1,7 @@
 # Native app languages
 
+> iOS 版本暂不开源。请从 App Store 下载 [KeyTrans](https://apps.apple.com/app/id6739558003)。
+
 Sofatap follows the language selected for the app in iOS. English is the development language and fallback. The interface and all five system permission descriptions are localized in the same twelve languages as the official website.
 
 | Website locale | iOS resources | Language |
@@ -23,4 +25,4 @@ The expanded resources contain 309 interface strings per language, including the
 
 Interface translation does not promise on-device speech recognition for every language/device combination. Sofatap still checks `SFSpeechRecognizer.supportsOnDeviceRecognition`, shows a localized explanation when unavailable, and offers keyboard or third-party input. It does not send audio to a new translation service.
 
-Run `python3 ios/scripts/check-localizations.py` after changing localized text. It verifies the website-matched locale set, exact key coverage, duplicate/empty entries, format-argument positions and multiplicity, brand spelling, untranslated Han outside Chinese/Japanese, and non-interpolated Swift localized literals. On macOS it also runs Apple's `.strings` parser. Native speakers have not independently reviewed every translation; text correctness and layout should continue to receive localized QA.
+The former localization checker was removed with the iOS project.

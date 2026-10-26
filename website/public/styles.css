@@ -244,6 +244,19 @@ h2 { display: flex; align-items: baseline; gap: 14px; margin: 0 0 18px; font-siz
 .landing-footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
 .landing-footer nav a { font-size: 11px; }
 
+.guide-page .intro { padding: 68px 0 34px; }
+.guide-page .intro h1 { max-width: 900px; font-size: clamp(36px, 5.4vw, 56px); line-height: 1.12; letter-spacing: -1.8px; }
+.guide-page .intro .lead { max-width: 760px; }
+.guide-content { padding-bottom: 35px; }
+.guide-content section { padding: 30px 0; }
+.guide-content h2 { display: block; margin-bottom: 14px; font-size: 22px; }
+.guide-content p, .guide-content li { color: #506259; font-size: 15px; line-height: 1.85; }
+.guide-content p { margin: 0 0 15px; }
+.guide-content ul, .guide-content ol { margin: 0 0 18px; padding-left: 25px; }
+.guide-content li { margin-bottom: 9px; padding-left: 3px; }
+.guide-content strong { color: #344e3e; font-weight: 650; }
+:lang(zh-CN) .guide-content p, :lang(zh-CN) .guide-content li { line-height: 2; }
+
 :lang(zh-CN).landing-page .hero h1 { letter-spacing: -1.3px; }
 :lang(zh-CN).landing-page .section-heading h2,
 :lang(zh-CN).landing-page .pairing-note h2 { letter-spacing: -0.5px; }
@@ -261,6 +274,12 @@ h2 { display: flex; align-items: baseline; gap: 14px; margin: 0 0 18px; font-siz
   .landing-header { min-height: 78px; flex-wrap: wrap; padding: 12px 0; }
   .landing-header .top-links { order: 3; width: 100%; flex-wrap: wrap; justify-content: center; row-gap: 8px; margin: 1px 0 0; padding-bottom: 5px; }
   .landing-header .languages { margin-left: auto; }
+  .guide-page .site-header { min-height: 78px; flex-wrap: wrap; padding: 12px 0; }
+  .guide-page .top-links { order: 3; width: 100%; flex-wrap: wrap; justify-content: center; row-gap: 8px; margin: 1px 0 0; padding-bottom: 5px; }
+  .guide-page .languages { margin-left: auto; }
+  .guide-page .intro { padding-top: 47px; }
+  .guide-page .intro h1 { font-size: clamp(34px, 8vw, 48px); letter-spacing: -1px; }
+  .guide-content h2 { font-size: 19px; }
   .hero { grid-template-columns: 1fr; gap: 4px; padding: 55px 0 40px; }
   .hero-copy { max-width: 550px; }
   .hero h1 { max-width: 480px; font-size: clamp(46px, 12vw, 62px); letter-spacing: -2.4px; }

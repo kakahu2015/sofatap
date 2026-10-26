@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   native-and-transport:
-    name: macOS · protocol, TLS and iOS compile
+    name: macOS · protocol, TLS and desktop builds
     runs-on: macos-15
     timeout-minutes: 20
     steps:
@@ -37,21 +37,6 @@ jobs:
           -p:SofatapMacAppStore=true
       - name: Windows login broker state and credential lifetime checks
         run: dotnet run --project desktop/windows-login/Tests/Sofatap.Login.Tests.csproj -c Release
-      - name: iPhone unlock identity and challenge checks
-        shell: bash
-        run: |
-          xcrun swiftc -swift-version 5 ios/SofaTap/Core/SavedDevice.swift ios/SofaTap/Core/Pairing.swift \
-            ios/SofaTap/Core/UnlockCredentialVault.swift ios/SofaTap/Core/UnlockProtocol.swift \
-            ios/tests/UnlockProtocolTests.swift -o "$RUNNER_TEMP/sofatap-unlock-tests"
-          "$RUNNER_TEMP/sofatap-unlock-tests"
-      - name: Retired password flow cannot enroll or send requests
-        shell: bash
-        run: |
-          xcrun swiftc -swift-version 5 ios/SofaTap/Core/SavedDevice.swift ios/SofaTap/Core/Pairing.swift \
-            ios/SofaTap/Core/UnlockCredentialVault.swift ios/SofaTap/Core/UnlockProtocol.swift \
-            ios/SofaTap/Core/ComputerUnlockController.swift ios/tests/UnlockRetirementTests.swift \
-            -o "$RUNNER_TEMP/sofatap-unlock-retirement-tests"
-          "$RUNNER_TEMP/sofatap-unlock-retirement-tests"
       - name: TLS and WebSocket integration in dry-run mode
         shell: bash
         run: SOFATAP_DOTNET="$(command -v dotnet)" python3 tests/smoke.py
@@ -73,53 +58,6 @@ jobs:
           "$RUNNER_TEMP/sofatap-store-login-tests"
           swiftc -parse-as-library -swift-version 5 desktop/macos/ReceiverStoreEnvironment.swift desktop/macos/tests/ReceiverStoreEnvironmentTests.swift -o "$RUNNER_TEMP/sofatap-store-container-tests"
           "$RUNNER_TEMP/sofatap-store-container-tests"
-      - name: Native pairing parser checks
-        shell: bash
-        run: |
-          swiftc ios/SofaTap/Core/SavedDevice.swift ios/SofaTap/Core/Pairing.swift tests/PairingTests.swift -o "$RUNNER_TEMP/sofatap-pairing-tests"
-          "$RUNNER_TEMP/sofatap-pairing-tests"
-      - name: Saved device migration and target selection without Keychain access
-        run: bash ios/scripts/test-saved-devices.sh
-      - name: Unified QR routing and metadata without device access
-        run: bash ios/scripts/test-pairing-code.sh
-      - name: Pairing cancellation, retry and duplicate bootstrap checks
-        run: bash ios/scripts/test-pairing-attempt.sh
-      - name: Native interface and permission localization coverage
-        run: python3 ios/scripts/check-localizations.py
-      - name: Receiver platform and permission-state checks
-        shell: bash
-        run: |
-          swiftc ios/SofaTap/Core/ReceiverState.swift tests/ReceiverStateTests.swift -o "$RUNNER_TEMP/sofatap-receiver-tests"
-          "$RUNNER_TEMP/sofatap-receiver-tests"
-      - name: Single-screen touch gestures without desktop input
-        shell: bash
-        run: |
-          swiftc ios/SofaTap/Core/GestureConfiguration.swift ios/SofaTap/Core/TouchGestureState.swift tests/TouchGestureTests.swift -o "$RUNNER_TEMP/sofatap-touch-tests"
-          "$RUNNER_TEMP/sofatap-touch-tests"
-      - name: Custom gesture profiles and persistence without device input
-        run: bash ios/scripts/test-custom-gestures.sh
-      - name: Edge scroll gestures and native view without desktop input
-        run: bash ios/scripts/test-edge-scroll.sh
-      - name: TV protocol boundaries without devices
-        run: |
-          swiftc ios/SofaTap/Core/TV/WebOSTVProtocol.swift tests/WebOSTVProtocolTests.swift -o "$RUNNER_TEMP/sofatap-tv-protocol-tests"
-          "$RUNNER_TEMP/sofatap-tv-protocol-tests"
-      - name: TV pairing and input lifecycle with injected transport
-        run: bash ios/scripts/test-tv-controller.sh
-      - name: TV auxiliary paging and control placement without device input
-        run: bash ios/scripts/test-tv-auxiliary-controls.sh
-      - name: TV TLS and WebSocket transport on loopback only
-        run: bash ios/scripts/test-tv-transport.sh
-      - name: Native iPhone draft composition with TV gesture profiles
-        run: bash ios/scripts/test-draft-editor.sh
-      - name: Preserve dictation results without microphone access
-        run: bash ios/scripts/test-dictation-transcript.sh
-      - name: Finish drag motion before releasing the mouse
-        run: bash ios/scripts/test-drag-release.sh
-      - name: Synchronize live text and selection without desktop input
-        run: bash ios/scripts/test-live-text.sh
-      - name: Preserve appended explicit drafts across focus and delivery changes
-        run: bash ios/scripts/test-explicit-text.sh
       - name: Guard live phone gestures without connecting to a device
         run: python3 -m unittest discover -s tests/device-harness -p test_live_phone_gesture.py -v
       - name: Mac native-window protocol checks without launching a UI
@@ -158,8 +96,6 @@ jobs:
           if-no-files-found: error
       - name: Windows native-window protocol and owned-process checks without launching a UI
         run: dotnet run --project desktop/windows/tests/ProtocolChecks.csproj -c Release
-      - name: Compile unprovisioned iPhone app without installation
-        run: bash ios/scripts/build-manual.sh device
       - name: Build Mac distributions and verify signatures
         run: |
           bash scripts/build-macos.sh arm64

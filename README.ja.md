@@ -12,6 +12,8 @@ Sofatap は [chekusu](https://github.com/chekusu) が開発するオープンソ
 
 [リリース](https://github.com/chekusu/sofatap/releases) · [Issue](https://github.com/chekusu/sofatap/issues) · [MIT ライセンス](LICENSE)
 
+> **iOS 版は現在オープンソースではありません。** [KeyTrans を App Store からダウンロード](https://apps.apple.com/app/id6739558003)。
+
 
 **レシーバーの自動起動：**デスクトップ 0.7.3 beta.1 はログイン後に起動します。ウィンドウを閉じても受信を続け、明示的に終了すると停止します。[動作と検証範囲](docs/verification/receiver-autostart-2026-10-16.md)をご覧ください。
 
@@ -34,7 +36,7 @@ Sofatap は [chekusu](https://github.com/chekusu) が開発するオープンソ
 
 TestFlight ビルド 15 はデバイス管理と、公式サイトと同じ 12 言語（英語、簡体字中国語、日本語、韓国語、ドイツ語、フランス語、スペイン語、ブラジルポルトガル語、ロシア語、アラビア語、ヒンディー語、インドネシア語）に対応しています。アラビア語は右から左へ表示し、スクロール領域は画面の物理的な右端に保ちます。[対応言語](docs/APP-LANGUAGES.md)と[検証記録](docs/verification/device-library-2026-10-14.md)をご覧ください。
 
-**現在の公開ベータ版：** iPhone **1.0 (20)** は TestFlight の外部審査を通過し、[公開招待](https://testflight.apple.com/join/e6MuKx9S)からインストールできます。上限は 10,000 人です。Windows・Mac・Linux には[受信アプリ 0.7.3 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)をお使いください。LG webOS アダプターは手動ペアリングを使う実験的プレビューです。[検証範囲](docs/verification/webos-pointer-preview.md)をご覧ください。正式 App Store ビルド 15 の提出は別の手続きです。
+**旧スタンドアロン iOS 版（履歴）:** 旧 Sofatap iPhone 1.0 (20) は TestFlight の外部審査を通過しました。現在の iOS 版はオープンソースではありません。[KeyTrans を App Store からダウンロード](https://apps.apple.com/app/id6739558003)。パソコン用レシーバー 0.7.3 beta.1 は引き続きダウンロードできます。
 
 **再接続の更新：** iPhone **1.0 (16)** と受信アプリ **0.7.2 beta.1** で、パソコン側の受信アプリを再起動した後の再接続を修正しました。iPhone アプリが前面にある間は、保存済みの選択中のパソコンへの接続を再試行し、再スキャンは不要です。無関係なネットワークアダプターが追加されてもペアリングを維持します。未確認の文章やマウス操作は自動再送しません。証明書の交換時は再ペアリングが必要で、既存の重複デバイスは自動統合しません。[自動再接続テスト](docs/verification/reconnect-2026-10-15.md)をご覧ください。実機 iPhone と Windows 間の終了・再起動検証は未完了です。
 
@@ -88,14 +90,9 @@ TestFlight ビルド 15 はデバイス管理と、公式サイトと同じ 12 �
 
 上記はすべて [0.7.3 beta.1 で、対応する SHA256 ファイルとリリースノート](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1)を公開しています。.NET ランタイムを同梱し、Linux では記載のシステム依存パッケージが別途必要です。`--dry-run` はデスクトップへの入力なしで接続を試せます。過去の検証記録には、実際に試したバージョンを残しています。
 
-### iPhone アプリをインストールしてペアリング
+### iPhone アプリ
 
-1. [TestFlight の公開ベータに参加](https://testflight.apple.com/join/e6MuKx9S)し、**iPhone 1.0 (18)** と**受信アプリ 0.7.3 beta.1**をインストールして再接続の修正を適用してください。受信アプリの QR コードには最低でも iPhone ビルド 15 が必要です。自分でビルドする場合は、Xcode で `ios/SofaTap.xcodeproj` を開き、自分の開発チームと接続した iPhone を選んで実行します。この方法には開発署名、デバイスのペアリング、デベロッパモードが必要です。[iOS ビルドガイド](ios/README.md)を参照してください。
-2. iPhone とパソコンを、互いに通信できる家庭内ネットワークにつなぎます。ゲスト Wi-Fi の端末分離設定によっては接続できません。
-3. 左上のデバイス選択をタップし、**デバイスを追加**から**QR コードをスキャン**を選びます。パソコン受信アプリの QR コードを読み取るか、完全なペアリングリンクを貼り付けてください。LG webOS は別の手動 IP ペアリングを使います。
-4. パソコンで入力欄を選び、iPhone のキーボードまたはマイクを開きます。対応する欄では文字、削除、音声認識の結果を自動同期します。未対応の欄では下書きを確認して**送信**します。フォーカスの競合や切断で一時停止した場合は、パソコン側を確認してから明示的に編集を再開してください。不明な編集は自動再送しません。
-
-ペアリングリンクには操作用の認証情報が含まれます。自分のデバイス内で管理してください。最初期の **Tiltro** という名称のバージョンから更新する場合は、[アップグレードガイド](docs/WINDOWS-START.md#从旧名称版本升级)をご確認ください。当時の識別子と保存場所は異なるため、そのペアリングと下書きは自動移行されません。今回の Sofatap の表記統一では、既存の Sofatap のペアリングは維持されます。
+iOS 版は現在オープンソースではありません。[KeyTrans を App Store からダウンロード](https://apps.apple.com/app/id6739558003)。
 
 ## プライバシーと権限
 
@@ -134,36 +131,24 @@ dotnet publish host/SofaTap.Host.csproj -c Release -r win-x64 --self-contained t
 
 再配布する際は `LICENSE`、`THIRD-PARTY-NOTICES.md`、該当する依存関係のライセンスを同梱してください。パッケージ作成スクリプトは、実際に解決されたランタイムと NuGet のバージョンに対応するライセンスを収集します。
 
-iPhone はリポジトリ内の Xcode プロジェクトを開いてください。`ios/project.yml` を変更した場合は `xcodegen generate --spec ios/project.yml` で再生成します。[iOS ガイド](ios/README.md)には直接コンパイルする方法も記載しています。デバイス向けビルドの成功と、署名・インストールの完了は別の確認項目です。
+**iOS 版は現在オープンソースではありません。** [KeyTrans を App Store からダウンロード](https://apps.apple.com/app/id6739558003)。
 
 ## 開発時の確認
 
-.NET 10、Python 3、Xcode をインストールした Mac で実行します。
+以下のコマンドはパソコン側の受信アプリ用です。
 
 ```sh
 python3 -m pip install websockets==16.0
 dotnet run --project tests/host/SofaTap.Host.Tests.csproj -c Release
 dotnet run --project desktop/windows-login/Tests/Sofatap.Login.Tests.csproj -c Release
 SOFATAP_DOTNET="$(command -v dotnet)" python3 tests/smoke.py
-swiftc ios/SofaTap/Core/Pairing.swift tests/PairingTests.swift -o /tmp/sofatap-pairing-tests
-/tmp/sofatap-pairing-tests
-swiftc ios/SofaTap/Core/ReceiverState.swift tests/ReceiverStateTests.swift -o /tmp/sofatap-receiver-tests
-/tmp/sofatap-receiver-tests
-swiftc ios/SofaTap/Core/GestureConfiguration.swift ios/SofaTap/Core/TouchGestureState.swift tests/TouchGestureTests.swift -o /tmp/sofatap-gesture-tests
-/tmp/sofatap-gesture-tests
 python3 tests/text_focus_linux.py
-bash ios/scripts/build-manual.sh device
 ```
-
-Host runner は模擬入力を使います。TLS/WebSocket の確認は一時的な受信アプリを `--dry-run` で起動し、システムに入力を送りません。最後のコマンドはプロビジョニング未設定の ARM64 iOS アプリをコンパイルするだけで、iPhone にはインストールしません。CI では各プラットフォームのビルドと隔離 Linux デスクトップの確認も行います。関連コマンドは [Linux ガイド](desktop/linux/README.md#lifecycle-and-checks)をご覧ください。
-
-ビルド、プロトコル、仮想デスクトップ、実機の確認は検証範囲が異なります。[0.7.0 の実機記録](docs/verification/realtime-input-0.7.0.md)は RichEdit の読み込み、追記、削除、選択を確認しています。リアルタイム音声、通常の Edit、文章途中の置換、競合、再接続、Mac のリアルタイム編集、Typeless、追加アプリは確認済みの範囲に含みません。
 
 ## リポジトリ構成
 
 | パス | 内容 |
 | --- | --- |
-| `ios/` | ネイティブ iPhone アプリ、Xcode プロジェクト、プロジェクト生成設定 |
 | `host/` | 共通受信プロトコル、Windows/Mac 入力バックエンド、Linux worker へのブリッジ |
 | `desktop/` | ネイティブのペアリングウインドウと Linux 入力 worker |
 | `tests/` | プロトコル、認証、入力境界の確認 |

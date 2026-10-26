@@ -12,6 +12,8 @@ Sofatap is an open-source remote by [chekusu](https://github.com/chekusu). Turn 
 
 [Releases](https://github.com/chekusu/sofatap/releases) · [Issues](https://github.com/chekusu/sofatap/issues) · [MIT license](LICENSE)
 
+> **iOS:** The iOS version is temporarily not open source. Download [KeyTrans from the App Store](https://apps.apple.com/app/id6739558003).
+
 
 **Receiver startup update:** desktop 0.7.3 beta.1 starts after desktop login. Closing its window keeps receiving; explicit Quit stops it. See [behavior and verification](docs/verification/receiver-autostart-2026-10-16.md).
 
@@ -34,7 +36,7 @@ A one-minute tour of pointer gestures, typing on the phone keyboard and voice di
 
 TestFlight build 15 includes device management and native localization matching the website: English, Simplified Chinese, Japanese, Korean, German, French, Spanish, Brazilian Portuguese, Russian, Arabic, Hindi and Indonesian. Arabic text follows right-to-left layout while the scroll strip stays physically on the right. See the [language coverage](docs/APP-LANGUAGES.md) and [verification record](docs/verification/device-library-2026-10-14.md).
 
-**Current public beta:** iPhone **1.0 (20)** has passed TestFlight external review and is available through the [public invitation](https://testflight.apple.com/join/e6MuKx9S), with a limit of 10,000 testers. Use [desktop receiver 0.7.3 beta.1](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1) for Windows, Mac and Linux. The LG webOS adapter remains an experimental manual-pairing preview; see its [verification scope](docs/verification/webos-pointer-preview.md). The formal App Store build 15 submission is a separate process.
+**Former standalone iOS beta (historical):** iPhone 1.0 (20) passed TestFlight external review. The former invitation and version details are historical. The iOS version is temporarily not open source; download [KeyTrans](https://apps.apple.com/app/id6739558003). Desktop receiver 0.7.3 beta.1 remains available.
 
 **Reconnection update:** iPhone **1.0 (16)** and receiver **0.7.2 beta.1** add recovery after a desktop receiver restart. While the phone app is active, it retries the selected saved computer without rescanning; the receiver preserves its pairing when an unrelated network adapter is added. Pending text and mouse actions are never replayed. Certificate replacement still requires pairing, and existing duplicate devices are not merged automatically. See the [automated reconnection checks](docs/verification/reconnect-2026-10-15.md); physical iPhone-to-Windows restart acceptance remains pending.
 
@@ -88,14 +90,9 @@ Pointer, shortcut and fallback text input use Win32 `SendInput` on Windows and Q
 
 All downloads above are [0.7.3 beta.1, with matching SHA256 files and release notes](https://github.com/chekusu/sofatap/releases/tag/v0.7.3-beta.1). The packages include the .NET runtime; Linux still requires its listed system dependencies. `--dry-run` previews connectivity without generating desktop input. Older acceptance records remain labeled with the versions actually tested.
 
-### Install the iPhone app and pair
+### iPhone app and pairing
 
-1. [Join the public TestFlight beta](https://testflight.apple.com/join/e6MuKx9S) and install **iPhone 1.0 (18)** with **receiver 0.7.3 beta.1** for the reconnection fix. Receiver QR codes require at least iPhone build 15. To build it yourself, open `ios/SofaTap.xcodeproj` in Xcode, select your development team and connected iPhone, and run the app; this requires development signing, device pairing and Developer Mode. See the [iOS build guide](ios/README.md).
-2. Connect the iPhone and computer to the same reachable home network. Guest Wi-Fi device isolation may prevent a connection.
-3. Tap the top-left device selector and choose **Scan QR Code** under **Add Device**. Scan the computer receiver’s QR code or paste its complete pairing link. LG webOS pairing is available separately through manual IP entry.
-4. Select a field on the computer and open the phone keyboard or microphone. A supported field synchronizes typing, deletion and recognized speech automatically; an unsupported field shows **Send** for a reviewed draft. If live input pauses after a focus conflict or disconnect, inspect the computer and explicitly reopen the editor. Uncertain edits are never replayed automatically.
-
-Pairing links contain control credentials: keep them on your own devices. If upgrading from the earliest **Tiltro** releases, follow the [upgrade guide](docs/WINDOWS-START.md#从旧名称版本升级): those releases used different identifiers and storage, and their pairings and drafts do not migrate automatically. The current Sofatap spelling update preserves existing Sofatap pairings.
+The iOS version is temporarily not open source. Download [KeyTrans from the App Store](https://apps.apple.com/app/id6739558003).
 
 ## Privacy and permissions
 
@@ -134,36 +131,25 @@ dotnet publish host/SofaTap.Host.csproj -c Release -r win-x64 --self-contained t
 
 Redistributed builds must include `LICENSE`, `THIRD-PARTY-NOTICES.md` and the relevant dependency licenses. The packaging scripts collect the licenses for the resolved runtime/NuGet versions.
 
-For iPhone, open the checked-in Xcode project. After changing `ios/project.yml`, regenerate it with `xcodegen generate --spec ios/project.yml`. The [iOS guide](ios/README.md) also describes direct compilation; a successful device build is separate from signing and installation.
-
 ## Development checks
 
-On macOS with .NET 10, Python 3 and Xcode installed:
+The checks below cover desktop receivers.
 
 ```sh
 python3 -m pip install websockets==16.0
 dotnet run --project tests/host/SofaTap.Host.Tests.csproj -c Release
 dotnet run --project desktop/windows-login/Tests/Sofatap.Login.Tests.csproj -c Release
 SOFATAP_DOTNET="$(command -v dotnet)" python3 tests/smoke.py
-swiftc ios/SofaTap/Core/Pairing.swift tests/PairingTests.swift -o /tmp/sofatap-pairing-tests
-/tmp/sofatap-pairing-tests
-swiftc ios/SofaTap/Core/ReceiverState.swift tests/ReceiverStateTests.swift -o /tmp/sofatap-receiver-tests
-/tmp/sofatap-receiver-tests
-swiftc ios/SofaTap/Core/GestureConfiguration.swift ios/SofaTap/Core/TouchGestureState.swift tests/TouchGestureTests.swift -o /tmp/sofatap-gesture-tests
-/tmp/sofatap-gesture-tests
 python3 tests/text_focus_linux.py
-bash ios/scripts/build-manual.sh device
 ```
-
-The host runner uses fake input. TLS/WebSocket checks launch a temporary receiver with `--dry-run` and inject no system input. The last command compiles an unprovisioned ARM64 iOS app without installing it. CI also runs platform builds and isolated Linux desktop checks; see [the Linux guide](desktop/linux/README.md#lifecycle-and-checks) for the relevant commands.
-
-Build, protocol, virtual-desktop and physical-device checks establish different things. The [0.7.0 physical record](docs/verification/realtime-input-0.7.0.md) confirms RichEdit import, append, deletion and selection. Live speech, plain Edit, middle-of-text replacement, conflicts, reconnects, Mac live editing, Typeless and additional applications remain outside that completed scope.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `ios/` | Native iPhone app, Xcode project and project-generation configuration |
+| `android/` | Android phone and TV apps |
+| `harmony/` | HarmonyOS phone and TV apps |
+| `harmony/` | HarmonyOS phone and TV apps |
 | `host/` | Shared receiver protocol, Windows/Mac input backends and Linux worker bridge |
 | `desktop/` | Native pairing windows and Linux input workers |
 | `tests/` | Protocol, authentication and input-boundary checks |

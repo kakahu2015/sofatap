@@ -333,7 +333,7 @@ def create_window(Gtk, Gdk, GdkPixbuf, GLib, backend_factory, autostart=None, st
             root = Path(__file__).resolve().parents[2]
             icon = root / "sofatap.png"
             if not icon.is_file():
-                icon = root / "ios/SofaTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+                icon = root / "desktop/macos/Assets/AppIcon.png"
             if icon.is_file():
                 self.set_icon_from_file(str(icon))
             Gtk.StyleContext.add_provider_for_screen(self.get_screen(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
