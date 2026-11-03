@@ -102,7 +102,7 @@ public sealed class MacInput : IInputInjector
                         break;
                     case "text":
                         ResetClicks();
-                        CheckKeyboardOwnership(0);
+                        CheckKeyboardOwnership(null);
                         foreach (var item in TextEvents(action.Text!)) Submit(item);
                         break;
                     default:
@@ -133,11 +133,11 @@ public sealed class MacInput : IInputInjector
     private static InputInjectionException Unavailable() => new(
         "input_unavailable: Sign in and unlock the Mac, then allow Sofatap in Privacy & Security > Accessibility.");
 
-    private void CheckKeyboardOwnership(ushort key)
+    private void CheckKeyboardOwnership(ushort? key)
     {
         // Include right-hand modifier keys and Fn. Never release a physical key that we do not own.
         ushort[] modifiers = [54, 55, 56, 58, 59, 60, 61, 62, 63];
-        if (_sink.KeyIsDown(key) || modifiers.Any(_sink.KeyIsDown))
+        if ((key is { } code && _sink.KeyIsDown(code)) || modifiers.Any(_sink.KeyIsDown))
             throw new InputInjectionException("input_busy: Release the physical keyboard keys before sending text or a shortcut.");
     }
     private void CheckMouseOwnership()
