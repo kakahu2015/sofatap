@@ -24,6 +24,7 @@ public sealed class WindowsInput : IInputInjector
     private const uint Move = 0x0001;
     private const int VirtualScreenLeft = 76, VirtualScreenTop = 77, VirtualScreenWidth = 78, VirtualScreenHeight = 79;
     private readonly HashSet<string> _held = [];
+    private readonly List<string> _heldModifiers = [];
     private double _fractionX, _fractionY, _scrollX, _scrollY;
     private readonly object _gate = new();
     private static readonly Dictionary<string, ushort> VirtualKeys = new()
@@ -35,6 +36,7 @@ public sealed class WindowsInput : IInputInjector
         ["ctrl"] = 0x11, ["alt"] = 0x12, ["shift"] = 0x10, ["win"] = 0x5B
     };
     private static readonly HashSet<string> ExtendedKeys = ["delete", "up", "down", "left", "right", "home", "end", "pageup", "pagedown", "win"];
+    private static readonly ushort[] PhysicalModifierKeys = [0x10, 0x11, 0x12, 0x5B, 0x5C];
 
     public bool Available
     {
@@ -79,20 +81,24 @@ public sealed class WindowsInput : IInputInjector
                     if (action.Down) _held.Add(action.Button!); else _held.Remove(action.Button!);
                     break;
                 case "key":
-                    if (action.Modifiers!.Append(action.Key!).Any(key => (Native.GetAsyncKeyState(VirtualKeys[key]) & 0x8000) != 0))
+                    var temporaryModifiers = action.Modifiers!.Where(modifier => !_heldModifiers.Contains(modifier)).ToArray();
+                    if (HasUnownedPhysicalModifier() || temporaryModifiers.Append(action.Key!).Any(KeyIsDown))
                         throw new InputInjectionException("input_busy: Release the physical keyboard keys used by this shortcut, then try again.");
                     var keyEvents = new List<Native.Input>();
-                    foreach (var modifier in action.Modifiers!) keyEvents.Add(KeyEvent(modifier, false));
+                    foreach (var modifier in temporaryModifiers) keyEvents.Add(KeyEvent(modifier, false));
                     keyEvents.Add(KeyEvent(action.Key!, false)); keyEvents.Add(KeyEvent(action.Key!, true));
-                    foreach (var modifier in action.Modifiers.Reverse()) keyEvents.Add(KeyEvent(modifier, true));
+                    foreach (var modifier in temporaryModifiers.Reverse()) keyEvents.Add(KeyEvent(modifier, true));
                     Submit(keyEvents.ToArray());
+                    break;
+                case "modifier":
+                    HoldModifier(action.Key!, action.Down);
                     break;
                 case "text":
                     // An embedded newline is a real Return key. Do not combine it with a held
                     // physical modifier or release a Return key that belongs to the user.
-                    if (action.Text!.IndexOfAny(['\r', '\n']) >= 0 &&
-                        new[] { 0x0D, 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(key => (Native.GetAsyncKeyState(key) & 0x8000) != 0))
-                        throw new InputInjectionException("input_busy: Release Enter and the physical modifier keys, then try again.");
+                    if (_heldModifiers.Count > 0 || action.Text!.IndexOfAny(['\r', '\n']) >= 0 &&
+                        (KeyIsDown("enter") || HasUnownedPhysicalModifier()))
+                        throw new InputInjectionException("input_busy: Release Enter and the held modifier keys before sending text.");
                     Submit(BuildTextEvents(action.Text));
                     break;
             }
@@ -104,12 +110,41 @@ public sealed class WindowsInput : IInputInjector
         {
             if (OperatingSystem.IsWindows())
             {
-                var events = _held.Select(button => MouseEvent(ButtonFlag(button, false))).ToArray();
-                if (events.Length > 0) Native.SendInput((uint)events.Length, events, Marshal.SizeOf<Native.Input>());
+                var events = _held.Select(button => MouseEvent(ButtonFlag(button, false)))
+                    .Concat(_heldModifiers.AsEnumerable().Reverse().Select(modifier => KeyEvent(modifier, true))).ToArray();
+                if (events.Length > 0)
+                {
+                    var accepted = Native.SendInput((uint)events.Length, events, Marshal.SizeOf<Native.Input>());
+                    var acceptedCount = Math.Min(checked((int)accepted), events.Length);
+                    for (var index = acceptedCount; index < events.Length; index++)
+                        Native.SendInput(1, [events[index]], Marshal.SizeOf<Native.Input>());
+                }
             }
-            _held.Clear(); _fractionX = 0; _fractionY = 0; _scrollX = 0; _scrollY = 0;
+            _held.Clear(); _heldModifiers.Clear(); _fractionX = 0; _fractionY = 0; _scrollX = 0; _scrollY = 0;
         }
     }
+    private void HoldModifier(string key, bool down)
+    {
+        if (!Protocol.ModifierKeys.Contains(key)) throw new InputInjectionException("unsupported_key: Unsupported Windows modifier.");
+        if (down)
+        {
+            if (_heldModifiers.Contains(key)) return;
+            if (HasUnownedPhysicalModifier() || KeyIsDown(key))
+                throw new InputInjectionException("input_busy: Release the physical modifier keys before using the remote keyboard.");
+            Submit([KeyEvent(key, false)]);
+            _heldModifiers.Add(key);
+            return;
+        }
+        if (!_heldModifiers.Contains(key)) return;
+        Submit([KeyEvent(key, true)]);
+        _heldModifiers.Remove(key);
+    }
+    private bool HasUnownedPhysicalModifier()
+    {
+        var owned = _heldModifiers.Select(modifier => VirtualKeys[modifier]).ToHashSet();
+        return PhysicalModifierKeys.Any(key => !owned.Contains(key) && (Native.GetAsyncKeyState(key) & 0x8000) != 0);
+    }
+    private static bool KeyIsDown(string key) => (Native.GetAsyncKeyState(VirtualKeys[key]) & 0x8000) != 0;
     private static void MoveCursor(int dx, int dy)
     {
         if (!Native.GetCursorPos(out var position))
@@ -143,9 +178,11 @@ public sealed class WindowsInput : IInputInjector
         if (accepted == events.Length) return;
         var error = Marshal.GetLastPInvokeError();
         // A short write can leave injected keys or a button down. Always attempt release.
-        var releases = BuildFailureReleases(events, checked((int)accepted), _held);
+        var releases = BuildFailureReleases(events, checked((int)accepted), _held)
+            .Concat(_heldModifiers.AsEnumerable().Reverse().Select(modifier => KeyEvent(modifier, true))).ToArray();
         if (releases.Length > 0) Native.SendInput((uint)releases.Length, releases, Marshal.SizeOf<Native.Input>());
         _held.Clear();
+        _heldModifiers.Clear();
         throw new InputInjectionException($"{(accepted > 0 ? "input_partial" : "input_failed")}: Windows accepted {accepted} of {events.Length} input events (error {error}). {(accepted > 0 ? "Delivery is partial." : "No input events were accepted.")} Focus a normal desktop app; administrator apps and secure desktop may reject input (UIPI). Do not resend text automatically.");
     }
     internal static Native.Input[] BuildFailureReleases(Native.Input[] attempted, int accepted, IEnumerable<string> held)

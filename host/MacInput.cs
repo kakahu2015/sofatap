@@ -98,10 +98,16 @@ public sealed class MacInput : IInputInjector
                     case "key":
                         ResetClicks();
                         CheckKeyboardOwnership(KeyCode(action.Key!));
-                        foreach (var item in ShortcutEvents(action.Key!, action.Modifiers!)) Submit(item);
+                        foreach (var item in ShortcutEvents(action.Key!, action.Modifiers!, _keys.Keys.ToHashSet())) Submit(item);
+                        break;
+                    case "modifier":
+                        ResetClicks();
+                        HoldModifier(action.Key!, action.Down);
                         break;
                     case "text":
                         ResetClicks();
+                        if (_keys.Keys.Any(key => ModifierFlag(key) != 0))
+                            throw new InputInjectionException("input_busy: Release held modifiers before sending text.");
                         CheckKeyboardOwnership(null);
                         foreach (var item in TextEvents(action.Text!)) Submit(item);
                         break;
@@ -140,6 +146,21 @@ public sealed class MacInput : IInputInjector
         if ((key is { } code && _sink.KeyIsDown(code)) || modifiers.Any(_sink.KeyIsDown))
             throw new InputInjectionException("input_busy: Release the physical keyboard keys before sending text or a shortcut.");
     }
+    private void HoldModifier(string key, bool down)
+    {
+        if (!Protocol.ModifierKeys.Contains(key)) throw new InputInjectionException("unsupported_key: Unsupported macOS modifier.");
+        var code = KeyCode(key);
+        if (down)
+        {
+            CheckKeyboardOwnership(code);
+            if (_keys.ContainsKey(code)) return;
+            Submit(new(MacEventKind.Key, KeyCode: code, Down: true, Flags: CurrentModifierFlags() | ModifierFlag(code)));
+            return;
+        }
+        if (!_keys.TryGetValue(code, out var held)) return;
+        Submit(held with { Down = false, Flags = CurrentModifierFlags() & ~ModifierFlag(code) });
+    }
+    private ulong CurrentModifierFlags() => _keys.Keys.Aggregate(0UL, (flags, key) => flags | ModifierFlag(key));
     private void CheckMouseOwnership()
     {
         if (Enumerable.Range(0, 2).Any(button => !_buttons.Contains((uint)button) && _sink.ButtonIsDown((uint)button)))
@@ -220,19 +241,23 @@ public sealed class MacInput : IInputInjector
     };
     private static ulong ModifierFlag(ushort key) => key switch
     { 0x38 => 0x00020000, 0x3B => 0x00040000, 0x3A => 0x00080000, 0x37 => 0x00100000, _ => 0 };
-    internal static IEnumerable<MacEvent> ShortcutEvents(string key, string[] modifiers)
+    internal static IEnumerable<MacEvent> ShortcutEvents(string key, string[] modifiers, IReadOnlySet<ushort>? heldKeyCodes = null)
     {
-        var flags = 0UL;
+        var held = heldKeyCodes?.ToHashSet() ?? new HashSet<ushort>();
+        var flags = held.Aggregate(0UL, (current, code) => current | ModifierFlag(code));
+        var temporaryModifiers = new List<ushort>();
         foreach (var modifier in modifiers)
         {
-            var code = KeyCode(modifier); flags |= ModifierFlag(code);
+            var code = KeyCode(modifier);
+            if (held.Contains(code)) continue;
+            held.Add(code); temporaryModifiers.Add(code); flags |= ModifierFlag(code);
             yield return new(MacEventKind.Key, KeyCode: code, Down: true, Flags: flags);
         }
         yield return new(MacEventKind.Key, KeyCode: KeyCode(key), Down: true, Flags: flags);
         yield return new(MacEventKind.Key, KeyCode: KeyCode(key), Down: false, Flags: flags);
-        foreach (var modifier in modifiers.Reverse())
+        foreach (var code in temporaryModifiers.AsEnumerable().Reverse())
         {
-            var code = KeyCode(modifier); flags &= ~ModifierFlag(code);
+            flags &= ~ModifierFlag(code);
             yield return new(MacEventKind.Key, KeyCode: code, Down: false, Flags: flags);
         }
     }

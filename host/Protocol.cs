@@ -38,6 +38,7 @@ public static class Protocol
             "click" => ["id", "type", "button"],
             "button" => ["id", "type", "button", "down"],
             "key" => ["id", "type", "key", "modifiers"],
+            "modifier" when OperatingSystem.IsMacOS() || OperatingSystem.IsWindows() => ["id", "type", "key", "down"],
             "text" => ["id", "type", "text"],
             "textBegin" => ["id", "type"],
             "textEnd" => ["id", "type", "session"],
@@ -67,6 +68,10 @@ public static class Protocol
                 if (button is not ("left" or "right")) throw new ProtocolException("Unsupported mouse button.");
                 var down = type == "button" && Boolean(fields, "down");
                 return new(id, type, Button: button, Down: down);
+            case "modifier":
+                var modifier = String(fields, "key");
+                if (!ModifierKeys.Contains(modifier)) throw new ProtocolException("Unsupported modifier.");
+                return new(id, type, Key: modifier, Down: Boolean(fields, "down"));
             case "key":
                 var key = String(fields, "key");
                 // The Mac shortcut bar also sends single ASCII letters and digits.
@@ -170,7 +175,7 @@ public sealed class ActionSession(IInputInjector input, int maximumActions = 131
             {
                 // A desktop action can change the caret/target. Pointer motion alone
                 // does not invalidate typing; clicks, keys and drag initiation do.
-                if (action.Type is "click" or "key" or "text" || action.Type == "button" && action.Down) liveText?.End();
+                if (action.Type is "click" or "key" or "modifier" or "text" || action.Type == "button" && action.Down) liveText?.End();
                 if (action.Type != "ping") input.Apply(action);
                 ack = ActionAck.Success(action.Id);
             }

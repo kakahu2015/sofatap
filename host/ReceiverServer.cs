@@ -72,12 +72,13 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
     // The retired account-password pilot must not be discoverable, even when a
     // legacy enrollment file remains on disk. PIN control needs a separate, verified protocol.
     internal static object CreateHello(string name, string platform, bool dryRun,
-        string status, TextFocusMetadata focus, bool liveTextSupported = false) => new
+        string status, TextFocusMetadata focus, bool liveTextSupported = false, bool heldModifiersSupported = false) => new
     {
         type = "hello", version = 1, name, platform, dryRun,
         inputAvailable = status == "ready", inputStatus = status,
         textFocus = ReceiverDistribution.SupportsTextInspection ? focus : new TextFocusMetadata("unknown", 0),
-        liveText = ReceiverDistribution.SupportsTextInspection && liveTextSupported && !dryRun ? new { version = 1 } : null
+        liveText = ReceiverDistribution.SupportsTextInspection && liveTextSupported && !dryRun ? new { version = 1 } : null,
+        heldModifiers = heldModifiersSupported && !dryRun
     };
 
     private async Task RunController(WebSocket socket, CancellationToken requestAborted)
@@ -88,10 +89,11 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
             ReceiverDistribution.SupportsTextInspection && code == "ready" && !options.DryRun && textFocus is not null
                 ? textFocus.Read() : new(TextFocusKind.Unknown), code == "ready" && !options.DryRun);
         var status = ReceiverPlatform.StatusCode(input, options.DryRun);
+        var heldModifiersSupported = (input is MacInput || input is WindowsInput) && !options.DryRun;
         using var liveText = ReceiverDistribution.SupportsTextInspection && !options.DryRun && textEditorFactory is not null
             ? new LiveTextSession(textEditorFactory(), () => ReceiverPlatform.StatusCode(input, options.DryRun) == "ready") : null;
         await Send(socket, CreateHello(Environment.MachineName, ReceiverPlatform.Id,
-            options.DryRun, status, Focus(status), liveText is not null), lifetime.Token);
+            options.DryRun, status, Focus(status), liveText is not null, heldModifiersSupported), lifetime.Token);
         var session = new ActionSession(input, liveText: liveText);
         var buffer = new byte[Protocol.MaximumFrameBytes + 1];
         while (socket.State == WebSocketState.Open && !lifetime.IsCancellationRequested)
@@ -136,6 +138,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
                     if (currentStatus != "ready") liveText?.End();
                     await Send(socket, new { ack.Type, ack.Id, ack.Ok, ack.Error,
                         inputAvailable = currentStatus == "ready", inputStatus = currentStatus, dryRun = options.DryRun,
+                        heldModifiers = heldModifiersSupported,
                         textFocus = Focus(currentStatus) }, lifetime.Token);
                 }
                 else await Send(socket, ack, lifetime.Token);
@@ -176,7 +179,7 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
 
     public object NativeState()
     {
-        var pairings = LocalAddresses().Select(address =>
+        var pairings = PairingHosts().Select(address =>
         {
             var uri = PairingUrl(address);
             using var data = QRCodeGenerator.GenerateQrCode(uri, QRCodeGenerator.ECCLevel.Q);
@@ -186,6 +189,14 @@ public sealed class ReceiverServer(ReceiverOptions options, Credentials credenti
         return new { type = "state", name = Environment.MachineName, platform = ReceiverPlatform.Id,
             inputStatus = ReceiverPlatform.StatusCode(input, options.DryRun), dryRun = options.DryRun,
             connected = _controller.CurrentCount == 0, pairings };
+    }
+
+    private string[] PairingHosts()
+    {
+        var hosts = new List<string>();
+        if (credentials.StableHostName is { } stableHostName) hosts.Add(stableHostName);
+        hosts.AddRange(LocalAddresses());
+        return hosts.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
     private string[] LocalAddresses()

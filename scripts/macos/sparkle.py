@@ -16,6 +16,7 @@ CONFIG = Path(__file__).with_name("update-config.json")
 FRAMEWORK = "Contents/Frameworks/Sparkle.framework"
 CODE = {
     "Versions/B/Autoupdate": "org.sparkle-project.Sparkle.Autoupdate",
+    "Versions/B/Sparkle": "org.sparkle-project.Sparkle",
     "Versions/B/Updater.app": "org.sparkle-project.Sparkle.Updater",
     "Versions/B/XPCServices/Installer.xpc": "org.sparkle-project.InstallerLauncher",
     "Versions/B/XPCServices/Downloader.xpc": "org.sparkle-project.DownloaderService",
