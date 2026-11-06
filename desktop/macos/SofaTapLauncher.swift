@@ -371,7 +371,7 @@ struct ReceiverContent: View {
         if failure != nil { return NSLocalizedString("Receiver unavailable", comment: "") }
         if isStarting { return NSLocalizedString("Preparing receiver", comment: "") }
         guard let state else { return NSLocalizedString("Waiting for receiver status", comment: "") }
-        let connection = state.connected ? NSLocalizedString("Phone connected", comment: "") : NSLocalizedString("Waiting for phone (iOS/Android)", comment: "")
+        let connection = state.connected ? NSLocalizedString("Phone connected", comment: "") : NSLocalizedString("Waiting for phone (iOS/Android/HarmonyOS)", comment: "")
         if state.dryRun || state.inputStatus == "dry_run" { return String(format: NSLocalizedString("Dry run · %@", comment: ""), connection) }
         if state.inputStatus == "accessibility_required" {
             return state.connected ? NSLocalizedString("Phone connected · Permission needed", comment: "") : NSLocalizedString("Accessibility permission needed", comment: "")
@@ -380,7 +380,7 @@ struct ReceiverContent: View {
             return state.connected ? NSLocalizedString("Phone connected · Desktop unavailable", comment: "") : NSLocalizedString("Mac desktop unavailable", comment: "")
         }
         if !state.connected && state.pairings.isEmpty { return NSLocalizedString("No pairing address available", comment: "") }
-        return state.connected ? NSLocalizedString("Phone connected · Desktop ready", comment: "") : NSLocalizedString("Ready · Waiting for phone (iOS/Android)", comment: "")
+        return state.connected ? NSLocalizedString("Phone connected · Desktop ready", comment: "") : NSLocalizedString("Ready · Waiting for phone (iOS/Android/HarmonyOS)", comment: "")
     }
 
     private var statusColor: Color {
