@@ -11,7 +11,7 @@
     <string name="update_latest">%1$s 已是最新版本。</string>
     <string name="update_recent">刚刚已检查，请稍等一分钟后重试。</string>
     <string name="update_rate_limited">更新服务繁忙，接收器稍后会重试。</string>
-    <string name="update_permission">请在电视设置中允许 Sofatap 安装更新，然后再次选择“安装更新”。</string>
+    <string name="update_permission">请在电视设置中允许 HostTap 安装更新，然后再次选择“安装更新”。</string>
     <string name="update_preparing">正在准备已验证的更新…</string>
     <string name="update_confirmation">更新已准备好，继续前往 Android 安装确认。</string>
     <string name="update_pending">正在等待安装。请完成 Android 确认，或在此取消后重试。</string>

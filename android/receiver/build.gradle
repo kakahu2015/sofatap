@@ -1,11 +1,11 @@
 plugins { id 'com.android.application' }
-def selfUpdateEnabled = (providers.gradleProperty('sofatapDistribution').orElse('direct').get() == 'direct')
+def selfUpdateEnabled = (providers.gradleProperty('hosttapDistribution').orElse('direct').get() == 'direct')
 
 android {
-    namespace 'com.chekusu.sofatap.tv'
+    namespace 'org.kakahu.hosttap.tv'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.chekusu.sofatap.tv'
+        applicationId 'org.kakahu.hosttap.tv'
         minSdk 23
         targetSdk 36
         versionCode 7

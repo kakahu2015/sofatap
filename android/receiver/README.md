@@ -51,12 +51,12 @@ Enable Android developer options and network/USB ADB for the test device, then:
 adb install -r receiver/build/outputs/apk/debug/receiver-debug.apk
 ```
 
-Open **HostTap/Sofatap** from the TV launcher. Standard Android TV launchers should see the Leanback entry; vendor/AOSP launchers can use the normal launcher entry.
+Open **HostTap** from the TV launcher. Standard Android TV launchers should see the Leanback entry; vendor/AOSP launchers can use the normal launcher entry.
 
 If a vendor launcher hides side-loaded applications, launch the test build directly with ADB:
 
 ```sh
-adb shell am start -n com.chekusu.sofatap.tv/.MainActivity
+adb shell am start -n org.kakahu.hosttap.tv/.MainActivity
 ```
 
 That launcher limitation is separate from whether the receiver itself can run on the device.
@@ -67,7 +67,7 @@ The receiver can pair and start its network service without Accessibility permis
 
 On heavily customized China-market firmware the Accessibility settings page may be renamed, hidden, or guarded by an additional vendor permission. Record that as a device-specific compatibility result rather than weakening the receiver permission model.
 
-If IME-based text testing is needed, enable/select the bundled HostTap/Sofatap input method through TV settings or ADB only on a test device.
+If IME-based text testing is needed, enable/select the bundled HostTap input method through TV settings or ADB only on a test device.
 
 ## Test flow
 

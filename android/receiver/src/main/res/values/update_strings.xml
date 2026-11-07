@@ -15,7 +15,7 @@
     <string name="update_latest">%1$s is up to date.</string>
     <string name="update_recent">Checked recently. Please try again in a minute.</string>
     <string name="update_rate_limited">Update service is busy. The receiver will try again later.</string>
-    <string name="update_permission">Allow Sofatap to install updates in TV settings, then choose Install update again.</string>
+    <string name="update_permission">Allow HostTap to install updates in TV settings, then choose Install update again.</string>
     <string name="update_preparing">Preparing the verified update…</string>
     <string name="update_confirmation">Update prepared. Continue to Android’s installation confirmation.</string>
     <string name="update_pending">Installation pending. Complete Android’s confirmation, or cancel here to retry.</string>

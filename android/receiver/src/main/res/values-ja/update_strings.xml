@@ -11,7 +11,7 @@
     <string name="update_latest">%1$s は最新です。</string>
     <string name="update_recent">確認したばかりです。1分後にお試しください。</string>
     <string name="update_rate_limited">更新サービスが混み合っています。後ほど再試行します。</string>
-    <string name="update_permission">テレビの設定で Sofatap のインストールを許可し、もう一度インストールを選択してください。</string>
+    <string name="update_permission">テレビの設定で HostTap のインストールを許可し、もう一度インストールを選択してください。</string>
     <string name="update_preparing">検証済みのアップデートを準備中…</string>
     <string name="update_confirmation">準備ができました。Android のインストール確認に進んでください。</string>
     <string name="update_pending">インストール待機中です。Android の確認を完了するか、ここでキャンセルして再試行してください。</string>

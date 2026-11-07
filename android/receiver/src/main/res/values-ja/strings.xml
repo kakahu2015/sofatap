@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sofatap</string>
+    <string name="app_name">HostTap</string>
     <string name="tagline">ソファから、iPhone でテレビを操作。</string>
     <string name="notification_active">ペアリング済みの iPhone を待っています</string>
     <string name="start">レシーバーを起動</string>
@@ -17,24 +17,24 @@
     <string name="connected">iPhone に接続済み</string>
     <string name="connected_permission">接続済み · 許可が必要です</string>
     <string name="permission_needed">テレビの操作を許可</string>
-    <string name="permission_help">テレビのリモコンを使い、ユーザー補助設定で Sofatap を有効にしてください。いつでも無効にできます。</string>
+    <string name="permission_help">テレビのリモコンを使い、ユーザー補助設定で HostTap を有効にしてください。いつでも無効にできます。</string>
     <string name="control_help">iPhone 上で指を滑らせるとポインターが動きます。タップで対応する項目を操作し、2 本指でスクロールできます。</string>
     <string name="enable_accessibility">ユーザー補助設定を開く</string>
-    <string name="open_settings_manually">テレビの設定 → ユーザー補助 → Sofatap を開いてください。</string>
+    <string name="open_settings_manually">テレビの設定 → ユーザー補助 → HostTap を開いてください。</string>
     <string name="new_pairing">別の iPhone とペアリング</string>
     <string name="replace_pairing">これまでの iPhone との接続とペアリングを解除します。新しい QR コードは 5 分後に期限切れになります。</string>
-    <string name="scan_qr">iPhone の Sofatap で読み取ってください</string>
+    <string name="scan_qr">iPhone の KeyTrans で読み取ってください</string>
     <string name="qr_waiting">起動するとペアリング用 QR コードが表示されます</string>
-    <string name="qr_description">Sofatap の非公開ペアリング用 QR コード</string>
+    <string name="qr_description">HostTap の非公開ペアリング用 QR コード</string>
     <string name="qr_failed">ペアリング用 QR コードを表示できませんでした</string>
     <string name="new_qr_help">「別の iPhone とペアリング」で新しいコードを表示できます</string>
     <string name="phone_connected">安全にペアリングしました</string>
     <string name="network_address">ホームネットワークのアドレス</string>
-    <string name="probe_limitations">実験的なポインター：クリックとスクロールはテレビアプリによります。リモコンキーと任意の Sofatap キーボードは別機能です。ドラッグと右クリックは未対応です。</string>
+    <string name="probe_limitations">実験的なポインター：クリックとスクロールはテレビアプリによります。リモコンキーと任意の HostTap キーボードは別機能です。ドラッグと右クリックは未対応です。</string>
     <string name="probe_state">現在のウィンドウの操作項目：%1$s</string>
     <string name="available">読み取り可能</string>
     <string name="unavailable">利用できません</string>
-    <string name="accessibility_service_description">Sofatap は現在のウィンドウの操作項目の構造を読み取り、ポインターを表示します。ペアリング済みの iPhone から、あなたの操作に合わせてクリックやスクロールを行います。項目の文字を読み取ったり、自律的にタスクを実行したりすることはありません。パスワード欄や保護されたシステム画面は操作対象外です。このテレビを操作したい場合にのみ有効にしてください。いつでもここで無効にできます。</string>
+    <string name="accessibility_service_description">HostTap は現在のウィンドウの操作項目の構造を読み取り、ポインターを表示します。ペアリング済みの iPhone から、あなたの操作に合わせてクリックやスクロールを行います。項目の文字を読み取ったり、自律的にタスクを実行したりすることはありません。パスワード欄や保護されたシステム画面は操作対象外です。このテレビを操作したい場合にのみ有効にしてください。いつでもここで無効にできます。</string>
     <string name="input_paused">テレビ操作を一時停止中</string>
-    <string name="input_paused_help">テレビを起動してロックを解除し、iPhone を再接続してください。操作できない場合は Sofatap を再起動してください。</string>
+    <string name="input_paused_help">テレビを起動してロックを解除し、iPhone を再接続してください。操作できない場合は HostTap を再起動してください。</string>
 </resources>

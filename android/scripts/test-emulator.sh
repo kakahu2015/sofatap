@@ -11,7 +11,7 @@ PROBE_ADB="${ANDROID_HOME:?Set ANDROID_HOME}/platform-tools/adb"
 PROBE_RESULT="$(mktemp)"
 trap 'rm -f "$PROBE_RESULT"' EXIT
 "$PROBE_ADB" -s "$PROBE_SERIAL" shell am instrument -w -e disposableEmulator yes \
-    com.chekusu.sofatap.tv.test/androidx.test.runner.AndroidJUnitRunner | tee "$PROBE_RESULT"
+    org.kakahu.hosttap.tv.test/androidx.test.runner.AndroidJUnitRunner | tee "$PROBE_RESULT"
 # am instrument can exit zero even when JUnit fails.
 grep -q '^OK (27 tests)' "$PROBE_RESULT"
 ! grep -Eq 'FAILURES|INSTRUMENTATION_FAILED|Process crashed' "$PROBE_RESULT"

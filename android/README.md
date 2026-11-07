@@ -1,4 +1,4 @@
-# Sofatap Android app
+# HostTap Android apps
 
 ## HostTap phone controller
 
