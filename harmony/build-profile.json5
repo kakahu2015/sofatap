@@ -1,11 +1,25 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "./signing/hosttap.p12",
+          "storePassword": "00000024475C6C4C1B1BE4CCC5F2271749A97E7D7C6FA8A81AA9260C747CC3D92972451B569AF07D79A347474196F549F22EDCDE",
+          "keyAlias": "hosttap",
+          "keyPassword": "00000024D6E618DA0DF8C7D3464AA13F03A329E138FDFC8AC541EBEBC568CFCDCC42BA14070A0F53025CD063764664B8B2BB74DB",
+          "signAlg": "SHA256withECDSA",
+          "profile": "./signing/HostTapReleaseRelease.p7b",
+          "certpath": "./signing/host.cer"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
+        "signingConfig": "default",
         "compatibleSdkVersion": "5.0.0(12)",
-        "targetSdkVersion": "6.0.0(20)",
         "runtimeOS": "HarmonyOS",
         "buildOption": {
           "strictMode": {
@@ -16,8 +30,12 @@
       }
     ],
     "buildModeSet": [
-      { "name": "debug" },
-      { "name": "release" }
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
     ]
   },
   "modules": [
@@ -27,7 +45,9 @@
       "targets": [
         {
           "name": "default",
-          "applyToProducts": ["default"]
+          "applyToProducts": [
+            "default"
+          ]
         }
       ]
     }
