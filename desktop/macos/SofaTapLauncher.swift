@@ -358,7 +358,7 @@ struct ReceiverContent: View {
 
     private var heading: some View {
         VStack(spacing: 8) {
-            Text(NSLocalizedString("Open the companion app on your phone and scan the QR code", comment: ""))
+            Text(NSLocalizedString("Open the companion app on your iOS, Android, or HarmonyOS phone and scan the QR code", comment: ""))
                 .font(.system(size: 14))
                 .foregroundStyle(Palette.muted)
                 .multilineTextAlignment(.center)
