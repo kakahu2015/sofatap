@@ -36,7 +36,7 @@ bash scripts/notarize-macos.sh \
   --submit
 ```
 
-The script confirms the signed app's team against the installed local certificate, then invokes Apple's `notarytool` using the configured Keychain credential. It does not use a copied team ID or an `asc notarization` endpoint. The returned submission ID is recorded before status polling. The default wait is 30 minutes with 15-second polling; `--timeout SECONDS` and `--poll-interval SECONDS` adjust those limits.
+The script confirms the signed app's team against the installed local certificate, then creates the submission through Apple's Notary API and uploads the ZIP with the previously verified accelerated S3 single-request path. `uv` supplies the pinned, temporary Python dependencies; credentials stay in the login Keychain or process memory. The submission ID is saved locally before S3 transfer starts, so a transfer timeout can be inspected or resumed without blindly creating another submission. Status and history use Apple's `notarytool`. The default wait is 30 minutes with 15-second polling; `--timeout SECONDS` and `--poll-interval SECONDS` adjust those limits.
 
 Only exact status `Accepted` permits stapling. The script staples a temporary app copy, validates the ticket, runs Gatekeeper assessment and strict code verification, then writes the final archive as `HostTap-Remote-macOS-arm64.zip` or `HostTap-Remote-macOS-x64.zip`. Each completed output directory contains the final ZIP, its SHA-256 file, the source build manifest, a local receipt, and verification logs. Keep the submission archive and receipt local; they are not website release assets.
 

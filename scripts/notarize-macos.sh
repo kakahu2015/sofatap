@@ -34,6 +34,7 @@ parser.add_argument("--poll-interval", type=int, default=15, help="Seconds betwe
 args = parser.parse_args(sys.argv[2:])
 receipt = None
 receipt_path = None
+submission_id_path = None
 
 
 def require(condition, message):
@@ -73,6 +74,9 @@ def run(command, *, timeout=120, sensitive=False):
 def notary_json(*command, timeout=120):
     helper = ROOT / "scripts/macos/notarytool.py"
     result = run([sys.executable, str(helper), *command], timeout=timeout, sensitive=True)
+    for line in result.stderr.decode("utf-8", errors="replace").splitlines():
+        if line.startswith("Upload read:") or line == "S3 transfer completed.":
+            print(line, file=sys.stderr, flush=True)
     try:
         return json.loads(result.stdout)
     except (ValueError, UnicodeDecodeError) as error:
@@ -259,6 +263,7 @@ try:
         require(not output.exists(), "Output directory already exists. Use --resume for its recorded submission, or choose a new directory.")
         output.mkdir(parents=True)
         receipt_path = output / "NOTARIZATION-RECEIPT.json"
+        submission_id_path = output / "APPLE-SUBMISSION-ID.txt"
         receipt = report
         shutil.copyfile(manifest_path, output / "SOURCE-BUILD-MANIFEST.json")
         save_receipt("prepared")
@@ -273,10 +278,13 @@ try:
             run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(working_app), str(submission_zip)])
             require(clean_revision() == revision, "HEAD changed after preflight. Rebuild and inspect the new revision before submitting.")
             save_receipt("submitting", submissionZIP_SHA256=sha256(submission_zip), submissionOutcome="unknown")
-            print("Uploading one notarization submission using this Mac's Keychain credential...", flush=True)
-            response = notary_json("submit", "--output-format", "json", "--no-progress", str(submission_zip), timeout=args.timeout)
+            display_name = f"HostTap-Remote-macOS-{manifest['runtime'].removeprefix('osx-')}.zip"
+            print("Uploading one notarization submission through Apple's accelerated S3 route...", flush=True)
+            response = notary_json("api-submit", str(submission_zip), display_name,
+                                   str(submission_id_path), timeout=args.timeout)
             submission_id, status = submission_fields(response)
-            save_receipt("submitted", submissionID=submission_id, appleStatus=status, submissionOutcome="confirmed")
+            save_receipt("submitted", submissionID=submission_id, appleStatus=status,
+                         submissionOutcome="confirmed", uploadCompleted=True)
             print(f"Submission ID: {submission_id}", flush=True)
 
         deadline = time.monotonic() + args.timeout
@@ -317,6 +325,10 @@ except (Exception, KeyboardInterrupt) as error:
     message = str(error) or "Interrupted. Inspect the receipt before resuming; do not blindly repeat a submission."
     if receipt is not None and receipt_path is not None:
         try:
+            if submission_id_path is not None and submission_id_path.is_file() and not receipt.get("submissionID"):
+                recovered_id = submission_id_path.read_text(encoding="utf-8").strip()
+                if re.fullmatch(r"[0-9a-fA-F-]{36}", recovered_id):
+                    receipt.update(submissionID=recovered_id, submissionOutcome="confirmed", uploadCompleted=False)
             previous = receipt.get("stage")
             save_receipt("failed", failedAfter=previous, error=message)
         except OSError:
