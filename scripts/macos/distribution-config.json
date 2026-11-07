@@ -1,0 +1,5 @@
+{
+  "bundleIdentifier": "org.kakahu.hosttap",
+  "notaryKeychainService": "asc",
+  "notaryKeychainAccount": "asc:credential:KeyAuth-StoreMetadata"
+}

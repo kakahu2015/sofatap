@@ -18,7 +18,20 @@ if [ "$#" -gt 1 ]; then
   exit 1
 fi
 runtime="osx-$architecture"
-signing_identity="${SOFATAP_SIGN_IDENTITY:--}"
+if [ -n "${SOFATAP_SIGN_IDENTITY:-}" ]; then
+  signing_identity="$SOFATAP_SIGN_IDENTITY"
+else
+  signing_identity="$(python3 scripts/macos/signing.py select)"
+fi
+bundle_identifier="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["bundleIdentifier"])' \
+  "$repo_dir/scripts/macos/distribution-config.json")"
+team_identifier=""
+if [ "$signing_identity" != "-" ]; then
+  team_identifier="$(python3 scripts/macos/signing.py team "$signing_identity")"
+  echo "Developer ID: $signing_identity (team $team_identifier)"
+else
+  echo "Ad-hoc build selected; this package cannot be notarized." >&2
+fi
 dotnet_cmd="${SOFATAP_DOTNET:-$repo_dir/.tools/dotnet/dotnet}"
 if [ ! -x "$dotnet_cmd" ]; then
   dotnet_cmd="$(command -v dotnet || true)"
@@ -86,7 +99,7 @@ for item in publish.iterdir():
     shutil.copyfile(item, resources / item.name)
 PY
 
-python3 - "$repo_dir" "$app_dir" "$runtime" <<'PY'
+python3 - "$repo_dir" "$app_dir" "$runtime" "$bundle_identifier" <<'PY'
 from pathlib import Path
 import plistlib
 import json
@@ -109,7 +122,7 @@ info = {
     "CFBundleInfoDictionaryVersion": "6.0",
     "CFBundleDevelopmentRegion": "en",
     "CFBundleLocalizations": ["en", "zh"],
-    "CFBundleIdentifier": "org.kakahu.hosttap",
+    "CFBundleIdentifier": sys.argv[4],
     "CFBundleExecutable": "SofaTap",
     "CFBundleName": "HostTap Remote",
     "CFBundleDisplayName": "HostTap Remote",
@@ -170,13 +183,14 @@ cp docs/MAC-START.md "$app_dir/Contents/Resources/开始使用.md"
 sign_flags=(--force --sign "$signing_identity" --options runtime)
 if [ "$signing_identity" != "-" ]; then sign_flags+=(--timestamp); fi
 python3 scripts/macos/sparkle.py sign "$app_dir" "$signing_identity"
-codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap.host \
+codesign "${sign_flags[@]}" --identifier "$bundle_identifier.host" \
   --entitlements scripts/macos/Receiver.entitlements.plist "$app_dir/Contents/Helpers/SofaTapHost"
-codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap "$app_dir/Contents/MacOS/SofaTap"
-codesign "${sign_flags[@]}" --identifier org.kakahu.hosttap "$app_dir"
+codesign "${sign_flags[@]}" --identifier "$bundle_identifier" "$app_dir/Contents/MacOS/SofaTap"
+codesign "${sign_flags[@]}" --identifier "$bundle_identifier" "$app_dir"
 codesign --verify --deep --strict --verbose=2 "$app_dir"
 
-python3 - "$repo_dir" "$release_dir" "$runtime" "$dotnet_cmd" "$signing_identity" <<'PY'
+python3 - "$repo_dir" "$release_dir" "$runtime" "$dotnet_cmd" \
+  "$signing_identity" "$team_identifier" "$bundle_identifier" <<'PY'
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -191,7 +205,8 @@ updates = json.loads((root / "scripts/macos/update-config.json").read_text())
 exe = release / "HostTap Remote.app/Contents/MacOS/SofaTap"
 manifest = {
     "runtime": sys.argv[3],
-    "bundleIdentifier": "org.kakahu.hosttap",
+    "bundleIdentifier": sys.argv[7],
+    "teamIdentifier": sys.argv[6] or None,
     "architectureCount": 1,
     "signature": "ad-hoc" if sys.argv[5] == "-" else sys.argv[5],
     "hardenedRuntime": True,

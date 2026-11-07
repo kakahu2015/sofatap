@@ -31,6 +31,7 @@ def main():
     parser.add_argument("--previous-feed", type=Path, help="Current published feed for this architecture")
     args = parser.parse_args()
     config = json.loads(CONFIG.read_text())
+    distribution = json.loads((Path(__file__).with_name("distribution-config.json")).read_text())
     if not re.fullmatch(r"v\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?", args.tag):
         raise ValueError("Expected a desktop semantic-version tag")
     archive = args.archive.resolve()
@@ -48,7 +49,7 @@ def main():
             raise ValueError("Update must contain one receiver app")
         info = plistlib.loads(bundle.read(candidates[0]))
     expected_feed = config["feedBaseURL"] + "/" + args.architecture + "/appcast.xml"
-    if not (info.get("CFBundleIdentifier") == "com.chekusu.sofatap.receiver"
+    if not (info.get("CFBundleIdentifier") == distribution["bundleIdentifier"]
             and info.get("SUPublicEDKey") == config["publicEdKey"]
             and info.get("SUFeedURL") == expected_feed
             and info.get("SURequireSignedFeed") is True

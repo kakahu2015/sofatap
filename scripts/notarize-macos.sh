@@ -17,17 +17,15 @@ import sys
 import tempfile
 import time
 
-TEAM = "FKSR2JD63B"
-IDENTITY = f"Developer ID Application: CHEKUSU INC. ({TEAM})"
-BUNDLE = "com.chekusu.sofatap.receiver"
 ROOT = Path(sys.argv[1]).resolve()
+DIST_CONFIG = json.loads((ROOT / "scripts/macos/distribution-config.json").read_text(encoding="utf-8"))
+BUNDLE = DIST_CONFIG["bundleIdentifier"]
 sys.path.insert(0, str(ROOT / "scripts/macos"))
 from sparkle import inventory as sparkle_inventory, FRAMEWORK, CODE, NATIVE
-parser = argparse.ArgumentParser(description="Preflight, submit, or resume notarization of a clean CHEKUSU macOS build.")
-parser.add_argument("--app", required=True, type=Path, help="Signed Sofatap Receiver.app from build-macos.sh")
+parser = argparse.ArgumentParser(description="Preflight, submit, or resume notarization of a clean HostTap macOS build.")
+parser.add_argument("--app", required=True, type=Path, help="Signed HostTap Remote.app from build-macos.sh")
 parser.add_argument("--manifest", required=True, type=Path, help="That build's BUILD-MANIFEST.json")
 parser.add_argument("--output-dir", required=True, type=Path, help="New directory, outside the source tree or Git-ignored")
-parser.add_argument("--profile", help="Existing ASC Keychain profile; omitted uses its current default")
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("--submit", action="store_true", help="Upload a new submission, wait, staple and assess")
 mode.add_argument("--resume", action="store_true", help="Resume the submission recorded in output-dir without uploading again")
@@ -66,18 +64,19 @@ def run(command, *, timeout=120, sensitive=False):
     except subprocess.TimeoutExpired as error:
         raise RuntimeError(f"{Path(command[0]).name} timed out; do not repeat an uncertain submission.") from error
     if result.returncode:
-        # ASC can include upload URLs in diagnostics. Do not persist its raw output.
+        # Notary diagnostics can include temporary authorization URLs. Do not persist raw failures.
         detail = "" if sensitive else ": " + result.stderr.decode("utf-8", errors="replace")[-4000:].strip()
         raise RuntimeError(f"{Path(command[0]).name} failed (exit {result.returncode}){detail}")
     return result
 
 
-def asc_json(*command, timeout=120):
-    result = run([asc, "--profile", profile, *command, "--output", "json"], timeout=timeout, sensitive=True)
+def notary_json(*command, timeout=120):
+    helper = ROOT / "scripts/macos/notarytool.py"
+    result = run([sys.executable, str(helper), *command], timeout=timeout, sensitive=True)
     try:
         return json.loads(result.stdout)
     except (ValueError, UnicodeDecodeError) as error:
-        raise RuntimeError("ASC returned invalid JSON; inspect notarization history before retrying a submission.") from error
+        raise RuntimeError("Apple notarytool returned invalid JSON; inspect notarization history before retrying a submission.") from error
 
 
 def save_receipt(stage, **fields):
@@ -96,7 +95,7 @@ def clean_revision():
     return revision
 
 
-def check_signature(path, expected_identifier):
+def check_signature(path, expected_identifier, expected_identity, expected_team):
     result = run(["codesign", "--display", "--verbose=4", str(path)])
     details = (result.stdout + result.stderr).decode("utf-8", errors="replace")
     fields = {}
@@ -105,8 +104,8 @@ def check_signature(path, expected_identifier):
             key, value = line.split("=", 1)
             fields.setdefault(key, []).append(value)
     require("Signature=adhoc" not in details, f"Ad-hoc signing is not accepted: {path.name}")
-    require(IDENTITY in fields.get("Authority", []), f"Expected CHEKUSU Developer ID Application signing: {path.name}")
-    require(fields.get("TeamIdentifier") == [TEAM], f"Unexpected signing team: {path.name}")
+    require(expected_identity in fields.get("Authority", []), f"Signing identity differs from the app's Developer ID: {path.name}")
+    require(fields.get("TeamIdentifier") == [expected_team], f"Signing team differs from the app: {path.name}")
     require(fields.get("Identifier") == [expected_identifier], f"Unexpected signed identifier: {path.name}")
     # The numeric CodeDirectory flags are authoritative; runtime is bit 0x10000.
     flags = re.search(r"\bflags=(0x[0-9a-fA-F]+)\b", details)
@@ -121,12 +120,12 @@ def check_signature(path, expected_identifier):
     require(isinstance(entitlements, dict), f"Malformed entitlements: {path.name}")
     require(not entitlements.get("com.apple.security.get-task-allow", False),
             f"Development get-task-allow entitlement is enabled: {path.name}")
-    return {"identifier": expected_identifier, "team": TEAM, "authority": IDENTITY,
+    return {"identifier": expected_identifier, "team": expected_team, "authority": expected_identity,
             "hardenedRuntime": True, "timestamp": timestamp[0],
             "cdhash": fields.get("CDHash", [None])[0], "entitlements": entitlements}
 
 
-def verify_app(app, manifest):
+def verify_app(app, manifest, identity, team):
     require(app.is_dir() and app.suffix == ".app", "--app must be an existing .app bundle.")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     require(info.get("CFBundleIdentifier") == BUNDLE and info.get("CFBundleExecutable") == "SofaTap",
@@ -167,34 +166,31 @@ def verify_app(app, manifest):
             require(not is_macho or item in known, f"Unreviewed native code in app: {item.relative_to(app)}")
     run(["codesign", "--verify", "--deep", "--strict", "--verbose=2", str(app)])
     signatures = {
-        "app": check_signature(app, BUNDLE),
-        "executable": check_signature(paths["executable"], BUNDLE),
-        "backend": check_signature(paths["backend"], BUNDLE + ".host"),
+        "app": check_signature(app, BUNDLE, identity, team),
+        "executable": check_signature(paths["executable"], BUNDLE, identity, team),
+        "backend": check_signature(paths["backend"], BUNDLE + ".host", identity, team),
     }
     for relative, identifier in CODE.items():
-        signatures["Sparkle/" + relative] = check_signature(framework / relative, identifier)
+        signatures["Sparkle/" + relative] = check_signature(framework / relative, identifier, identity, team)
     require(signatures["backend"]["entitlements"].get("com.apple.security.cs.allow-jit") is True,
             "The .NET backend is missing its required allow-jit entitlement.")
     return signatures
 
 
 def submission_fields(response):
-    data = response.get("data", {})
-    attributes = data.get("attributes", {})
-    submission_id = data.get("id")
+    submission_id = response.get("id")
     require(isinstance(submission_id, str) and re.fullmatch(r"[0-9a-fA-F-]{36}", submission_id),
-            "ASC did not return a valid submission ID. Inspect notarization history before trying a new submission.")
-    status = attributes.get("status")
-    require(isinstance(status, str) and status, "ASC did not return a submission status.")
+            "Apple notarytool did not return a valid submission ID. Inspect notarization history before trying a new submission.")
+    status = response.get("status")
+    require(isinstance(status, str) and status, "Apple notarytool did not return a submission status.")
     return submission_id, status
 
 
 try:
     require(sys.platform == "darwin", "Run on macOS with Xcode Command Line Tools installed.")
     require(args.timeout > 0 and args.poll_interval > 0, "Timeout and polling interval must be positive seconds.")
-    for utility in ("asc", "codesign", "ditto", "xcrun", "spctl", "git"):
+    for utility in ("codesign", "ditto", "xcrun", "spctl", "git", "python3", "security"):
         require(shutil.which(utility), f"Required utility is missing: {utility}")
-    asc = shutil.which("asc")
     require(not args.app.is_symlink() and not args.manifest.is_symlink(), "App and manifest must not be symlinks.")
     app = args.app.resolve()
     manifest_path = args.manifest.resolve()
@@ -209,23 +205,35 @@ try:
     require(manifest.get("sourceDirty") is False, "The build manifest marks a dirty or unspecified source tree; rebuild from clean source.")
     require(manifest.get("sourceRevision") == revision, "Build manifest source revision must equal the current clean HEAD.")
     require(manifest.get("bundleIdentifier") == BUNDLE, "Unexpected bundle identifier in build manifest.")
-    require(manifest.get("signature") == IDENTITY and manifest.get("hardenedRuntime") is True,
-            "Build manifest must describe a Developer ID build with hardened runtime.")
+    identity = manifest.get("signature")
+    require(isinstance(identity, str) and identity.startswith("Developer ID Application: "),
+            "Build manifest must describe a Developer ID signed build.")
+    signature_result = run(["codesign", "--display", "--verbose=4", str(app)])
+    signature_details = (signature_result.stdout + signature_result.stderr).decode("utf-8", errors="replace")
+    app_team_match = re.search(r"^TeamIdentifier=(.+)$", signature_details, re.MULTILINE)
+    app_authority_match = re.search(r"^Authority=(Developer ID Application: .+)$", signature_details, re.MULTILINE)
+    require(app_team_match is not None and app_authority_match is not None,
+            "The app is missing a Developer ID team or authority in its code signature.")
+    team = app_team_match.group(1)
+    require(app_authority_match.group(1) == identity,
+            "The app signing authority differs from BUILD-MANIFEST.json.")
+    require(manifest.get("teamIdentifier") == team,
+            "The signed app team differs from BUILD-MANIFEST.json; rebuild with the identity installed on this Mac.")
+    identity_team = run([sys.executable, str(ROOT / "scripts/macos/signing.py"), "team", identity]).stdout.decode().strip()
+    require(identity_team == team, "The app was signed by a different team than the Developer ID currently installed on this Mac.")
+    require(manifest.get("hardenedRuntime") is True,
+            "Build manifest must describe a hardened runtime build.")
     require(manifest.get("runtime") in ("osx-arm64", "osx-x64"), "Unexpected build runtime in manifest.")
-    signatures = verify_app(app, manifest)
-    # Resolve a stored profile once, then pass it explicitly to every ASC command.
-    auth_command = [asc] + (["--profile", args.profile] if args.profile else [])
-    auth = json.loads(run([*auth_command, "auth", "status", "--output", "json"], sensitive=True).stdout)
-    require(auth.get("environmentCredentialsProvided") is False, "ASC environment credentials are present; use only the existing Keychain profile.")
-    profiles = [entry for entry in auth.get("credentials", [])
-                if entry.get("name") == args.profile] if args.profile else [entry for entry in auth.get("credentials", []) if entry.get("isDefault")]
-    require(len(profiles) == 1 and profiles[0].get("storedIn") == "keychain", "An unambiguous ASC Keychain profile is required.")
-    profile = profiles[0]["name"]
+    signatures = verify_app(app, manifest, identity, team)
+    history = notary_json("history", "--output-format", "json")
+    require(isinstance(history.get("history"), list), "Apple notarytool did not return notarization history.")
     report = {"schemaVersion": 1, "stage": "preflight-passed", "createdAt": now(),
               "sourceRevision": revision, "sourceDirty": False, "runtime": manifest["runtime"],
               "bundleIdentifier": BUNDLE, "manifestSHA256": sha256(manifest_path),
               "executableSHA256": manifest["executableSHA256"], "backendSHA256": manifest["backendSHA256"],
-              "signatures": signatures, "ascExecutable": asc, "authStorage": "System Keychain", "authProfile": profile,
+              "teamIdentifier": team, "signingIdentity": identity,
+              "notaryCredentialStorage": "System Keychain", "notaryCredentialAccount": DIST_CONFIG["notaryKeychainAccount"],
+              "signatures": signatures,
               "notarized": False, "stapled": False, "gatekeeperAccepted": False}
     if not args.submit and not args.resume:
         require(not output.exists(), "Choose a new output directory; --resume is for an existing recorded submission.")
@@ -236,11 +244,12 @@ try:
     if args.resume:
         receipt_path = output / "NOTARIZATION-RECEIPT.json"
         existing_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
-        for field in ("sourceRevision", "runtime", "manifestSHA256", "executableSHA256", "backendSHA256", "authProfile"):
-            require(existing_receipt.get(field) == report[field], f"Resume differs from recorded {field}; use the original build and profile.")
+        for field in ("sourceRevision", "runtime", "manifestSHA256", "executableSHA256", "backendSHA256",
+                      "teamIdentifier", "signingIdentity", "notaryCredentialAccount"):
+            require(existing_receipt.get(field) == report[field], f"Resume differs from recorded {field}; use the original build and Keychain credential.")
         submission_id = existing_receipt.get("submissionID")
         require(isinstance(submission_id, str) and re.fullmatch(r"[0-9a-fA-F-]{36}", submission_id),
-                "No confirmed submission ID was recorded. Inspect ASC history before starting another submission; do not blindly retry.")
+                "No confirmed submission ID was recorded. Inspect notarytool history before starting another submission; do not blindly retry.")
         require(existing_receipt.get("stage") != "complete", "This receipt already records a completed release; verify the existing final ZIP hash.")
         submission_zip = output / "submission.zip"
         require(submission_zip.is_file() and sha256(submission_zip) == existing_receipt.get("submissionZIP_SHA256"),
@@ -258,14 +267,14 @@ try:
     with tempfile.TemporaryDirectory(prefix="sofatap-notarize-") as temporary:
         working_app = Path(temporary) / app.name
         run(["ditto", str(app), str(working_app)])
-        verify_app(working_app, manifest)
+        verify_app(working_app, manifest, identity, team)
         if args.submit:
             submission_zip = output / "submission.zip"
             run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(working_app), str(submission_zip)])
             require(clean_revision() == revision, "HEAD changed after preflight. Rebuild and inspect the new revision before submitting.")
             save_receipt("submitting", submissionZIP_SHA256=sha256(submission_zip), submissionOutcome="unknown")
-            print("Uploading one notarization submission using the existing ASC Keychain profile...", flush=True)
-            response = asc_json("notarization", "submit", "--file", str(submission_zip), timeout=args.timeout)
+            print("Uploading one notarization submission using this Mac's Keychain credential...", flush=True)
+            response = notary_json("submit", "--output-format", "json", "--no-progress", str(submission_zip), timeout=args.timeout)
             submission_id, status = submission_fields(response)
             save_receipt("submitted", submissionID=submission_id, appleStatus=status, submissionOutcome="confirmed")
             print(f"Submission ID: {submission_id}", flush=True)
@@ -274,7 +283,7 @@ try:
         while True:
             remaining = deadline - time.monotonic()
             require(remaining > 0, "Apple status wait timed out. Resume this output directory; do not submit again.")
-            response = asc_json("notarization", "status", "--id", submission_id, timeout=min(120, remaining))
+            response = notary_json("info", "--output-format", "json", submission_id, timeout=min(120, remaining))
             returned_id, status = submission_fields(response)
             require(returned_id == submission_id, "Apple status response returned a different submission ID.")
             save_receipt("waiting", appleStatus=status)
@@ -283,7 +292,7 @@ try:
                 save_receipt("accepted", notarized=True, acceptedAt=now())
                 break
             require(status not in ("Invalid", "Rejected"),
-                    f"Apple returned {status}. Review asc notarization log --id {submission_id}; fix the build before another submission.")
+                    f"Apple returned {status}. Review notarytool log for submission {submission_id}; fix the build before another submission.")
             require(status == "In Progress", "Unknown Apple status; refusing to assume acceptance. Resume after inspection.")
             time.sleep(min(args.poll_interval, max(0, deadline - time.monotonic())))
 
@@ -296,8 +305,8 @@ try:
             (output / log_name).write_bytes(result.stdout + result.stderr)
             fields = {"stapled": True} if stage == "staple-validated" else {"gatekeeperAccepted": True} if stage == "gatekeeper-accepted" else {}
             save_receipt(stage, **fields)
-        verify_app(working_app, manifest)
-        final_name = f"SofaTap-macOS-{manifest['runtime'].removeprefix('osx-')}-notarized.zip"
+        verify_app(working_app, manifest, identity, team)
+        final_name = f"HostTap-Remote-macOS-{manifest['runtime'].removeprefix('osx-')}.zip"
         final_zip = output / final_name
         run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(working_app), str(final_zip)])
         final_hash = sha256(final_zip)

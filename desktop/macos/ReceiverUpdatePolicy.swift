@@ -5,7 +5,7 @@ enum ReceiverUpdatePolicy {
     static func allowsUpdater(arguments: [String], bundlePath: String, bundleIdentifier: String?,
                               isStore: Bool, isFixture: Bool) -> Bool {
         !isStore && !isFixture
-            && bundleIdentifier == "com.chekusu.sofatap.receiver"
+            && (bundleIdentifier == "org.kakahu.hosttap" || bundleIdentifier == "com.chekusu.sofatap.receiver")
             && bundlePath.hasSuffix(".app")
             && !arguments.contains("--dry-run")
             && !arguments.contains(where: { $0.hasPrefix("--test-display") })
