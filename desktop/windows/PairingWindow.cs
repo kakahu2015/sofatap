@@ -32,7 +32,7 @@ internal sealed class PairingWindow : Form
     private readonly Panel _content = new() { Dock = DockStyle.Top, BackColor = MintCalm.Canvas };
     private readonly Panel _column = new() { BackColor = MintCalm.Canvas };
     private readonly StatusBadge _status = new() { Text = Strings.Get("Preparing receiver") };
-    private readonly Label _helper = TextLabel(Strings.Get("Open the companion app on your phone and scan the QR code"), MintCalm.Muted);
+    private readonly Label _helper = TextLabel(Strings.Get("Open the companion app on your iOS, Android, or HarmonyOS phone and scan the QR code"), MintCalm.Muted);
     private readonly RoundedSurface _card = new();
     private readonly Label _machine = TextLabel(Strings.Get("Starting computer receiver…"), MintCalm.Text);
     private readonly ComboBox _addresses = new()
@@ -311,7 +311,12 @@ internal sealed class PairingWindow : Form
     {
         try
         {
-            var executable = Path.Combine(AppContext.BaseDirectory, "SofaTapHost.exe");
+#if SOFATAP_MSIX
+            const string backendExecutable = "HostTapHost.exe";
+#else
+            const string backendExecutable = "SofaTapHost.exe";
+#endif
+            var executable = Path.Combine(AppContext.BaseDirectory, backendExecutable);
             if (!File.Exists(executable)) throw new FileNotFoundException();
             _backend.Start(executable, _options.BackendArguments);
         }
@@ -330,11 +335,11 @@ internal sealed class PairingWindow : Form
     private static string StatusText(ReceiverState state)
     {
         if (state.DryRun || state.InputStatus == "dry_run")
-            return Strings.Format("Dry run · {0}", state.Connected ? Strings.Get("Phone connected") : Strings.Get("Waiting for phone (iOS/Android)"));
+            return Strings.Format("Dry run · {0}", state.Connected ? Strings.Get("Phone connected") : Strings.Get("Waiting for phone (iOS/Android/HarmonyOS)"));
         if (state.InputStatus != "ready")
             return state.Connected ? Strings.Get("Phone connected · Desktop unavailable") : Strings.Get("Computer desktop unavailable");
         if (!state.Connected && state.Pairings.Length == 0) return Strings.Get("No pairing address available");
-        return state.Connected ? Strings.Get("Phone connected · Desktop ready") : Strings.Get("Ready · Waiting for phone (iOS/Android)");
+        return state.Connected ? Strings.Get("Phone connected · Desktop ready") : Strings.Get("Ready · Waiting for phone (iOS/Android/HarmonyOS)");
     }
 
     private void ApplyState(ReceiverState state)

@@ -6,8 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>SofaTap</AssemblyName>
     <Version>0.8.0</Version>
-    <Product>Sofatap</Product>
-    <AssemblyTitle>Sofatap Receiver</AssemblyTitle>
+    <Company>HostTap</Company>
+    <Product>HostTap Remote</Product>
+    <AssemblyTitle>HostTap Remote</AssemblyTitle>
     <InvariantGlobalization>true</InvariantGlobalization>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

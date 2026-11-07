@@ -202,7 +202,7 @@ function New-Package([string]$architecture) {
     # Packaged executable name required for the Store package.
     Copy-Item -LiteralPath (Join-Path $frontendOut 'SofaTap.exe') -Destination (Join-Path $layout 'hosttap.exe')
     foreach ($file in Get-ChildItem -LiteralPath $backendOut -File) {
-        $name = if ($file.Name -eq 'SofaTap.exe') { 'SofaTapHost.exe' } else { $file.Name }
+        $name = if ($file.Name -eq 'SofaTap.exe') { 'HostTapHost.exe' } else { $file.Name }
         Copy-Item -LiteralPath $file.FullName -Destination (Join-Path $layout $name)
     }
     foreach ($name in 'LICENSE', 'THIRD-PARTY-NOTICES.md') {
@@ -227,7 +227,7 @@ function New-Package([string]$architecture) {
     $verify = Join-Path $work 'unpacked'
     & $makeappx unpack /o /p $package /d $verify | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "makeappx unpack verification failed for $architecture." }
-    foreach ($required in 'AppxManifest.xml', 'hosttap.exe', 'SofaTapHost.exe', 'Assets\Square150x150Logo.png') {
+    foreach ($required in 'AppxManifest.xml', 'hosttap.exe', 'HostTapHost.exe', 'Assets\Square150x150Logo.png') {
         if (-not (Test-Path -LiteralPath (Join-Path $verify $required))) { throw "Package verification is missing $required for $architecture." }
     }
     Write-Host "Built $package"
