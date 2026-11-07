@@ -3,6 +3,7 @@
 import argparse
 import fcntl
 import hashlib
+import inspect
 import json
 import os
 from pathlib import Path
@@ -84,10 +85,17 @@ def fetch(destination):
                     target = unpacked / member.name
                     if not target.resolve().is_relative_to(unpacked) or member.islnk() or member.isdev():
                         raise ValueError("Unsafe dependency archive member")
+                    if not (member.isdir() or member.isfile() or member.issym()):
+                        raise ValueError("Unsupported dependency archive member")
                     if member.issym() and (Path(member.linkname).is_absolute()
                             or not (target.parent / member.linkname).resolve().is_relative_to(unpacked)):
                         raise ValueError("Unsafe dependency symlink")
-                source.extractall(unpacked, filter="data")
+                if "filter" in inspect.signature(source.extractall).parameters:
+                    source.extractall(unpacked, filter="data")
+                else:
+                    # Older macOS system Python lacks the extraction filter.
+                    # The archive is SHA-256 pinned and every member was checked above.
+                    source.extractall(unpacked)
             inventory(unpacked / "Sparkle.framework")
             files = {str(p.relative_to(unpacked)): digest(p) for p in unpacked.rglob("*") if p.is_file() and not p.is_symlink()}
             (unpacked / "SOFATAP-DEPENDENCY.json").write_text(json.dumps({
